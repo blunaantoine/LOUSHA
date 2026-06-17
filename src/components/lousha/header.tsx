@@ -48,7 +48,7 @@ export function Header() {
               <img
                 src="/images/lousha-logo.png"
                 alt="Lousha Accessories"
-                className="h-9 sm:h-11 w-auto object-contain"
+                className="h-12 sm:h-16 w-auto object-contain"
               />
             </button>
 
@@ -145,7 +145,7 @@ export function Header() {
             <img
               src="/images/lousha-logo.png"
               alt="Lousha Accessories"
-              className="h-8 w-auto object-contain"
+              className="h-11 w-auto object-contain"
             />
             <button onClick={() => setMenuOpen(false)} aria-label="Close">
               <X className="h-5 w-5" />

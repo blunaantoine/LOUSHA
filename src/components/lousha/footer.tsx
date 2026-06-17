@@ -64,7 +64,7 @@ export function Footer() {
               <img
                 src="/images/lousha-logo.png"
                 alt="Lousha Accessories"
-                className="h-12 w-auto object-contain brightness-0 invert"
+                className="h-16 w-auto object-contain brightness-0 invert"
               />
             </div>
             <p className="mt-5 text-sm text-background/70 font-light max-w-xs">
