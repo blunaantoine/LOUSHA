@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Oswald } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "sonner";
 
@@ -8,6 +9,16 @@ const oswald = Oswald({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
+});
+
+// Good Times chargée via next/font/local → préchargement automatique,
+// plus de flash de police (FOUT) au chargement.
+const goodTimes = localFont({
+  src: "../fonts/Good-Times.woff",
+  variable: "--font-display",
+  display: "swap",
+  preload: true,
+  fallback: ["var(--font-sans)"],
 });
 
 export const metadata: Metadata = {
@@ -53,7 +64,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${oswald.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${oswald.variable} ${goodTimes.variable} font-sans antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster

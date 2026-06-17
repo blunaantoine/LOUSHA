@@ -61,10 +61,11 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <div className="flex flex-col">
-              <span className="font-display text-2xl tracking-tight">Lousha</span>
-              <span className="text-[10px] tracking-luxe uppercase text-background/60 mt-1 font-medium">
-                Accessories
-              </span>
+              <img
+                src="/images/lousha-logo.png"
+                alt="Lousha Accessories"
+                className="h-12 w-auto object-contain brightness-0 invert"
+              />
             </div>
             <p className="mt-5 text-sm text-background/70 font-light max-w-xs">
               {t.footer.tagline}
