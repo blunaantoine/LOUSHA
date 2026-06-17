@@ -29,15 +29,6 @@ export function Header() {
 
   return (
     <>
-      {/* Announcement bar */}
-      <div className="bg-primary text-primary-foreground">
-        <div className="mx-auto max-w-7xl px-4 py-2 text-center text-[11px] tracking-luxe-sm uppercase font-sans">
-          {lang === "fr"
-            ? "Livraison offerte dès 80€ · Fait main au Togo"
-            : "Free shipping from €80 · Handmade in Togo"}
-        </div>
-      </div>
-
       <header
         className={cn(
           "sticky top-0 z-40 transition-all duration-500",
