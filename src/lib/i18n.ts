@@ -61,6 +61,14 @@ export const dict = {
         },
       ],
     },
+    promo: {
+      eyebrow: "Made in Togo · Fait main",
+      title: "L'art du raphia,",
+      titleAccent: "à portée de main",
+      text: "Des accessoires uniques en raphia 100% naturel, tressés main par nos artisans au Togo. Élégance, authenticité et savoir-faire.",
+      cta: "Découvrir la boutique",
+      secondary: "Nos engagements",
+    },
     products: {
       title: "Nouveautés & Best-sellers",
       subtitle: "Les piècesSignature Lousha",
@@ -257,6 +265,14 @@ export const dict = {
         { title: "24/7 support", text: "A team at your service, day and night" },
         { title: "Secure payment", text: "Your transactions protected" },
       ],
+    },
+    promo: {
+      eyebrow: "Made in Togo · Handmade",
+      title: "The art of raffia,",
+      titleAccent: "within reach",
+      text: "Unique accessories in 100% natural raffia, hand-woven by our artisans in Togo. Elegance, authenticity and know-how.",
+      cta: "Discover the shop",
+      secondary: "Our commitments",
     },
     products: {
       title: "New & Best-sellers",

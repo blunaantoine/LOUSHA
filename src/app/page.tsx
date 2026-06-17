@@ -4,7 +4,7 @@ import { useStore } from "@/lib/store";
 import { Header } from "@/components/lousha/header";
 import { HeroSlideshow } from "@/components/lousha/hero";
 import { CategoryGrid } from "@/components/lousha/category-grid";
-import { EngagementsBanner } from "@/components/lousha/engagements";
+import { PromoBanner } from "@/components/lousha/promo-banner";
 import { FeaturedProducts } from "@/components/lousha/featured-products";
 import { StorySection } from "@/components/lousha/story-section";
 import { MaterialSection } from "@/components/lousha/material-section";
@@ -31,7 +31,7 @@ export default function Home() {
           <>
             <HeroSlideshow />
             <CategoryGrid />
-            <EngagementsBanner />
+            <PromoBanner />
             <FeaturedProducts />
             <StorySection />
             <MaterialSection />
