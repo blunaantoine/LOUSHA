@@ -8,7 +8,8 @@ import { ArrowRight } from "lucide-react";
  * Bandeau promotionnel avec effet "pop-out 3D".
  * - Grande carte horizontale aux coins fortement arrondis.
  * - Texte à gauche (accroches) + CTA à droite, zone centrale libre.
- * - Image du sac raphia qui dépasse de la bordure supérieure (effet relief).
+ * - Image du sac raphia (PNG transparent) centrée horizontalement,
+ *   qui déborde franchement au-dessus de la bordure supérieure.
  * - IMPORTANT : pas de `overflow-hidden` sur la carte pour ne pas couper l'effet.
  * - Sur mobile : image réduite + texte replacé sous l'image.
  */
@@ -17,7 +18,7 @@ export function PromoBanner() {
   const t = useDict(lang);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-20 sm:my-28">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-24 sm:my-32 lg:my-36">
       {/* === Conteneur principal — PAS d'overflow:hidden === */}
       <div className="relative bg-accent text-accent-foreground rounded-[24px] sm:rounded-[28px] lg:rounded-[32px] shadow-[0_30px_80px_-30px_rgba(49,27,0,0.5)]">
         {/* Décor de fond subtil (motif points) */}
@@ -30,10 +31,25 @@ export function PromoBanner() {
           }}
         />
 
+        {/* === Image pop-out 3D — PNG transparent, centrée, déborde au-dessus === */}
+        {/* Positionnée en absolu, centrée horizontalement, remontée pour dépasser la bordure du haut */}
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-20 sm:-top-24 lg:-top-32 z-20 w-[180px] sm:w-[240px] lg:w-[300px]">
+          <img
+            src="/images/hero-bag-transparent.png"
+            alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
+            className="w-full h-auto object-contain"
+            style={{
+              filter:
+                "drop-shadow(0 30px 30px rgba(0,0,0,0.45)) drop-shadow(0 12px 12px rgba(0,0,0,0.3))",
+            }}
+            draggable={false}
+          />
+        </div>
+
         {/* === Contenu interne === */}
-        <div className="relative grid lg:grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 sm:px-10 lg:px-14 py-10 sm:py-14 lg:py-16 min-h-[280px] sm:min-h-[320px]">
+        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-36 sm:pt-44 lg:pt-52 pb-10 sm:pb-12 lg:pb-14">
           {/* --- Gauche : accroches --- */}
-          <div className="text-center lg:text-left z-10 lg:pr-4">
+          <div className="text-center lg:text-left z-10">
             <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-accent-foreground/70 mb-3 sm:mb-4">
               {t.promo.eyebrow}
             </p>
@@ -46,23 +62,8 @@ export function PromoBanner() {
             </h2>
           </div>
 
-          {/* --- Centre : image pop-out 3D --- */}
-          {/* Conteneur absolu qui dépasse de la bordure supérieure */}
-          <div className="relative z-20 flex items-center justify-center order-last lg:order-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:-top-16 lg:scale-110">
-            <img
-              src="/images/hero-bag.png"
-              alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
-              className="h-44 sm:h-56 lg:h-72 w-auto object-contain mix-blend-multiply"
-              style={{
-                filter:
-                  "drop-shadow(0 25px 35px rgba(0,0,0,0.45)) drop-shadow(0 8px 12px rgba(0,0,0,0.25))",
-              }}
-              draggable={false}
-            />
-          </div>
-
           {/* --- Droite : texte + CTA --- */}
-          <div className="text-center lg:text-right z-10 lg:pl-4 lg:max-w-xs lg:ml-auto">
+          <div className="text-center lg:text-right z-10 lg:max-w-xs lg:ml-auto">
             <p className="text-sm sm:text-base text-accent-foreground/85 font-light leading-relaxed mb-6 lg:mb-8">
               {t.promo.text}
             </p>
