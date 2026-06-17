@@ -27,7 +27,7 @@ export function Footer() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="font-serif text-3xl sm:text-4xl">
+              <h3 className="text-3xl sm:text-4xl">
                 {t.footer.newsletter}
               </h3>
               <p className="mt-3 text-background/70 font-light max-w-md">
@@ -61,9 +61,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <div className="flex flex-col">
-              <span className="font-sans font-bold text-2xl tracking-tight uppercase">
-                Lousha
-              </span>
+              <span className="font-display text-2xl tracking-tight">Lousha</span>
               <span className="text-[10px] tracking-luxe uppercase text-background/60 mt-1 font-medium">
                 Accessories
               </span>

@@ -146,7 +146,7 @@ export function CartDrawer() {
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-serif text-base leading-tight">
+                          <h3 className="font-sans font-medium text-base leading-tight">
                             {name}
                           </h3>
                           <button
@@ -184,7 +184,7 @@ export function CartDrawer() {
                               <Plus className="h-3 w-3" />
                             </button>
                           </div>
-                          <span className="font-serif text-base">
+                          <span className="font-sans font-medium text-base">
                             {formatPrice(item.priceCents * item.qty, lang)}
                           </span>
                         </div>
@@ -213,8 +213,8 @@ export function CartDrawer() {
               </div>
               <div className="h-px bg-border my-1" />
               <div className="flex items-center justify-between">
-                <span className="font-serif text-lg">{t.cart.total}</span>
-                <span className="font-serif text-lg">
+                <span className="font-sans font-semibold text-lg">{t.cart.total}</span>
+                <span className="font-sans font-semibold text-lg">
                   {formatPrice(total, lang)}
                 </span>
               </div>

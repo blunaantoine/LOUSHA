@@ -244,7 +244,7 @@ export function CheckoutDrawer() {
                           </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-serif text-sm leading-tight">
+                          <p className="font-sans font-medium text-sm leading-tight">
                             {name}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">

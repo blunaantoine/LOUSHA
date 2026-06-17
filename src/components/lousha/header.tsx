@@ -76,7 +76,7 @@ export function Header() {
               className="flex flex-col items-center group"
               aria-label="Lousha Accessories"
             >
-              <span className="font-sans font-bold text-2xl sm:text-3xl tracking-tight leading-none text-foreground uppercase">
+              <span className="font-display text-2xl sm:text-3xl tracking-tight leading-none text-foreground">
                 Lousha
               </span>
               <span className="text-[8px] sm:text-[9px] tracking-luxe uppercase text-muted-foreground mt-1 font-medium">
@@ -187,7 +187,7 @@ export function Header() {
           )}
         >
           <div className="flex items-center justify-between px-6 h-16 border-b border-border">
-            <span className="font-serif text-xl tracking-[0.18em]">LOUSHA</span>
+            <span className="font-display text-xl tracking-tight">Lousha</span>
             <button onClick={() => setMenuOpen(false)} aria-label="Close">
               <X className="h-5 w-5" />
             </button>
