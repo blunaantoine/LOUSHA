@@ -76,10 +76,10 @@ export function Header() {
               className="flex flex-col items-center group"
               aria-label="Lousha Accessories"
             >
-              <span className="font-serif text-2xl sm:text-3xl tracking-[0.18em] leading-none text-foreground">
-                LOUSHA
+              <span className="font-sans font-bold text-2xl sm:text-3xl tracking-tight leading-none text-foreground uppercase">
+                Lousha
               </span>
-              <span className="text-[9px] sm:text-[10px] tracking-luxe uppercase text-muted-foreground mt-1">
+              <span className="text-[8px] sm:text-[9px] tracking-luxe uppercase text-muted-foreground mt-1 font-medium">
                 Accessories
               </span>
             </button>

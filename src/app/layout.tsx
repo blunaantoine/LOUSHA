@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Oswald } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
-
-const jost = Jost({
+const oswald = Oswald({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -60,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${cormorant.variable} ${jost.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${oswald.variable} font-sans antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster

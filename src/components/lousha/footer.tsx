@@ -61,10 +61,10 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <div className="flex flex-col">
-              <span className="font-serif text-2xl tracking-[0.18em]">
-                LOUSHA
+              <span className="font-sans font-bold text-2xl tracking-tight uppercase">
+                Lousha
               </span>
-              <span className="text-[10px] tracking-luxe uppercase text-background/60 mt-1">
+              <span className="text-[10px] tracking-luxe uppercase text-background/60 mt-1 font-medium">
                 Accessories
               </span>
             </div>
