@@ -25,101 +25,112 @@ export function HeroSlideshow() {
   }, []);
 
   return (
-    <section className="relative w-full h-[88vh] min-h-[560px] max-h-[860px] overflow-hidden bg-secondary">
-      {/* Slides */}
-      {SLIDES.map((slide, i) => (
-        <div
-          key={i}
-          className={cn(
-            "absolute inset-0 transition-opacity duration-[1400ms] ease-out",
-            i === active ? "opacity-100" : "opacity-0"
-          )}
-          aria-hidden={i !== active}
-        >
-          <img
-            src={slide.image}
-            alt=""
-            className={cn(
-              "absolute inset-0 h-full w-full object-cover",
-              i === active && "animate-kenburns"
-            )}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/45" />
-        </div>
-      ))}
-
-      {/* Content */}
-      <div className="relative h-full mx-auto max-w-7xl px-6 lg:px-8 flex items-end pb-20 lg:pb-28">
-        <div className="max-w-2xl text-background">
-          <p
-            key={`eyebrow-${active}-${lang}`}
-            className="animate-fade-up text-[11px] sm:text-xs tracking-luxe uppercase text-background/85 mb-5"
-          >
-            {t.hero.slides[active].eyebrow}
-          </p>
-          <h1
-            key={`title-${active}-${lang}`}
-            className="animate-fade-up font-serif text-[2.6rem] leading-[1.05] sm:text-6xl lg:text-7xl text-background text-balance"
-            style={{ animationDelay: "0.08s" }}
-          >
-            {t.hero.slides[active].title}
-          </h1>
-          <p
-            key={`text-${active}-${lang}`}
-            className="animate-fade-up mt-5 text-base sm:text-lg text-background/90 max-w-xl font-light"
-            style={{ animationDelay: "0.16s" }}
-          >
-            {t.hero.slides[active].text}
-          </p>
-
+    <section className="w-full px-3 sm:px-5 lg:px-8 pt-3 sm:pt-4">
+      {/* === La grande carte flottante aux coins arrondis === */}
+      <div className="relative w-full overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[3rem] bg-secondary min-h-[78vh] sm:min-h-[82vh] max-h-[860px] shadow-[0_30px_80px_-40px_rgba(17,17,17,0.35)]">
+        {/* Slides — visuel produit au centre de la carte */}
+        {SLIDES.map((slide, i) => (
           <div
-            className="animate-fade-up mt-9 flex flex-wrap items-center gap-3"
-            style={{ animationDelay: "0.24s" }}
-          >
-            <button
-              onClick={() => setView("shop")}
-              className="group inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
-            >
-              {t.hero.cta1}
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </button>
-            <button
-              onClick={() => setView("story")}
-              className="inline-flex items-center gap-2 border border-background/50 text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-background/10 transition-colors duration-300"
-            >
-              {t.hero.cta2}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Slide indicators */}
-      <div className="absolute bottom-8 right-6 lg:right-8 flex items-center gap-3 z-10">
-        {SLIDES.map((_, i) => (
-          <button
             key={i}
-            onClick={() => setActive(i)}
-            className="group flex items-center"
-            aria-label={`Slide ${i + 1}`}
+            className={cn(
+              "absolute inset-0 transition-opacity duration-[1400ms] ease-out",
+              i === active ? "opacity-100" : "opacity-0"
+            )}
+            aria-hidden={i !== active}
           >
-            <span
+            <img
+              src={slide.image}
+              alt=""
               className={cn(
-                "block h-px transition-all duration-500",
-                i === active
-                  ? "w-12 bg-background"
-                  : "w-6 bg-background/50 group-hover:bg-background/80"
+                "absolute inset-0 h-full w-full object-cover",
+                i === active && "animate-kenburns"
               )}
             />
-          </button>
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/55 via-black/20 to-black/40" />
+          </div>
         ))}
-      </div>
 
-      {/* Scroll hint */}
-      <div className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-background/70">
-        <span className="text-[10px] tracking-luxe uppercase">Scroll</span>
-        <span className="block w-px h-10 bg-background/40 relative overflow-hidden">
-          <span className="absolute inset-0 bg-background animate-[fadeIn_1.4s_ease-in-out_infinite_alternate]" />
-        </span>
+        {/* === Contenu interne avec padding généreux === */}
+        <div className="relative h-full flex flex-col justify-between p-6 sm:p-10 lg:p-14 min-h-[78vh] sm:min-h-[82vh]">
+          {/* Bloc haut-gauche : eyebrow + grand titre + bouton */}
+          <div className="max-w-xl">
+            <p
+              key={`eyebrow-${active}-${lang}`}
+              className="animate-fade-up text-[10px] sm:text-xs tracking-luxe uppercase text-background/85 mb-4 sm:mb-5"
+            >
+              {t.hero.slides[active].eyebrow}
+            </p>
+            <h1
+              key={`title-${active}-${lang}`}
+              className="animate-fade-up font-serif text-[2.2rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl text-background text-balance"
+              style={{ animationDelay: "0.08s" }}
+            >
+              {t.hero.slides[active].title}
+            </h1>
+
+            <div
+              className="animate-fade-up mt-7 sm:mt-8 flex flex-wrap items-center gap-3"
+              style={{ animationDelay: "0.24s" }}
+            >
+              <button
+                onClick={() => setView("shop")}
+                className="group inline-flex items-center gap-2 bg-background text-foreground px-6 sm:px-7 py-3 sm:py-3.5 text-[11px] sm:text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
+              >
+                {t.hero.cta1}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </button>
+              <button
+                onClick={() => setView("story")}
+                className="inline-flex items-center gap-2 border border-background/50 text-background px-6 sm:px-7 py-3 sm:py-3.5 text-[11px] sm:text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-background/10 transition-colors duration-300"
+              >
+                {t.hero.cta2}
+              </button>
+            </div>
+          </div>
+
+          {/* Bloc bas-droite : description + petites descriptions */}
+          <div
+            className="animate-fade-up flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5"
+            style={{ animationDelay: "0.16s" }}
+          >
+            <p
+              key={`text-${active}-${lang}`}
+              className="text-sm sm:text-base lg:text-lg text-background/90 max-w-md font-light leading-relaxed"
+            >
+              {t.hero.slides[active].text}
+            </p>
+
+            {/* Petites descriptions / indicateurs */}
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] sm:text-[11px] tracking-luxe-sm uppercase text-background/70 font-sans">
+                {String(active + 1).padStart(2, "0")}
+                <span className="text-background/40">
+                  {" "}
+                  / {String(SLIDES.length).padStart(2, "0")}
+                </span>
+              </span>
+              <div className="flex items-center gap-2.5">
+                {SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
+                    className="group flex items-center"
+                    aria-label={`Slide ${i + 1}`}
+                  >
+                    <span
+                      className={cn(
+                        "block h-px transition-all duration-500",
+                        i === active
+                          ? "w-10 sm:w-12 bg-background"
+                          : "w-5 sm:w-6 bg-background/50 group-hover:bg-background/80"
+                      )}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
