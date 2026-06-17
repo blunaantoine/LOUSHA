@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { ShoppingBag, User, Globe, Menu, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { cn } from "@/lib/utils";
 
 export function Header() {
   const { lang, toggleLang, setView, view, setCartOpen, cartCount, menuOpen, setMenuOpen } =
     useStore();
   const t = useDict(lang);
+  const hydrated = useHydrated();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -92,7 +94,7 @@ export function Header() {
                 aria-label="Change language"
               >
                 <Globe className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{lang === "fr" ? "FR" : "EN"}</span>
+                <span className="hidden sm:inline">{hydrated ? (lang === "fr" ? "FR" : "EN") : "FR"}</span>
               </button>
 
               {/* Compte (desktop) */}
@@ -110,7 +112,7 @@ export function Header() {
                 aria-label={t.nav.cart}
               >
                 <ShoppingBag className="h-5 w-5" />
-                {count > 0 && (
+                {hydrated && count > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-accent text-accent-foreground text-[10px] font-sans font-medium h-4 min-w-4 px-1 rounded-full flex items-center justify-center">
                     {count}
                   </span>
