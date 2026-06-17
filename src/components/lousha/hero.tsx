@@ -26,8 +26,8 @@ export function HeroSlideshow() {
 
   return (
     <section className="w-full px-3 sm:px-5 lg:px-8 pt-3 sm:pt-4">
-      {/* === La grande carte flottante aux coins arrondis === */}
-      <div className="relative w-full overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[3rem] bg-secondary min-h-[78vh] sm:min-h-[82vh] max-h-[860px] shadow-[0_30px_80px_-40px_rgba(17,17,17,0.35)]">
+      {/* === La grande carte flottante aux coins arrondis — hauteur = largeur / 2 === */}
+      <div className="relative w-full overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[3rem] bg-secondary aspect-[2/1] min-h-[420px] shadow-[0_30px_80px_-40px_rgba(17,17,17,0.35)]">
         {/* Slides — visuel produit au centre de la carte */}
         {SLIDES.map((slide, i) => (
           <div
@@ -51,7 +51,7 @@ export function HeroSlideshow() {
         ))}
 
         {/* === Contenu interne avec padding généreux === */}
-        <div className="relative h-full flex flex-col justify-between p-6 sm:p-10 lg:p-14 min-h-[78vh] sm:min-h-[82vh]">
+        <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-10 lg:p-14">
           {/* Bloc haut-gauche : eyebrow + grand titre + bouton */}
           <div className="max-w-xl">
             <p
