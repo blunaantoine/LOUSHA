@@ -89,9 +89,9 @@ export function Header() {
               ))}
             </nav>
 
-            {/* === Droite : Menu mobile + Langue + Compte + Panier === */}
+            {/* === Droite : Menu mobile + Panier === */}
             <div className="flex items-center gap-3 sm:gap-4">
-              {/* Menu hamburger — mobile uniquement */}
+              {/* Menu hamburger — mobile uniquement (contient nav + langue + devise + compte) */}
               <button
                 onClick={() => setMenuOpen(true)}
                 className="lg:hidden p-1.5 text-foreground hover:opacity-60 transition"
@@ -100,30 +100,30 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </button>
 
-              {/* Sélecteur de langue — unique */}
+              {/* Langue (desktop) */}
               <button
                 onClick={toggleLang}
-                className="flex items-center gap-1.5 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition"
+                className="hidden lg:flex items-center gap-1.5 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition"
                 aria-label="Change language"
               >
                 <Globe className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{hydrated ? (lang === "fr" ? "FR" : "EN") : "FR"}</span>
+                {hydrated ? (lang === "fr" ? "FR" : "EN") : "FR"}
               </button>
 
-              {/* Convertisseur de devise — cycle XOF → EUR → USD */}
+              {/* Devise (desktop) */}
               <button
                 onClick={cycleCurrency}
-                className="flex items-center gap-1.5 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition px-2.5 py-1 rounded-full border border-border hover:border-accent"
+                className="hidden lg:flex items-center gap-1.5 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition px-2.5 py-1 rounded-full border border-border hover:border-accent"
                 aria-label="Change currency"
                 title="Changer de devise"
               >
                 {hydrated ? currency : "XOF"}
               </button>
 
-              {/* Compte (desktop) — bascule auth/account selon session */}
+              {/* Compte (desktop) */}
               <AccountButton />
 
-              {/* Panier */}
+              {/* Panier — toujours visible */}
               <button
                 onClick={() => setCartOpen(true)}
                 className="relative p-1.5 text-foreground hover:opacity-60 transition"
@@ -185,6 +185,30 @@ export function Header() {
               </button>
             ))}
           </nav>
+
+          {/* Langue + Devise + Compte (mobile) */}
+          <div className="mt-auto px-6 py-6 border-t border-border space-y-4">
+            {/* Langue + Devise */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleLang}
+                className="flex items-center gap-1.5 text-sm tracking-luxe-sm uppercase font-sans text-foreground/80"
+              >
+                <Globe className="h-4 w-4" />
+                {hydrated ? (lang === "fr" ? "Français" : "English") : "Français"}
+              </button>
+              <span className="text-border">|</span>
+              <button
+                onClick={cycleCurrency}
+                className="text-sm tracking-luxe-sm uppercase font-sans text-foreground/80 px-3 py-1.5 rounded-full border border-border"
+              >
+                {hydrated ? currency : "XOF"}
+              </button>
+            </div>
+
+            {/* Compte */}
+            <MobileAccountButton />
+          </div>
         </div>
       </div>
     </>
@@ -219,6 +243,53 @@ function AccountButton() {
       aria-label="Connexion"
     >
       <User className="h-5 w-5" />
+    </button>
+  );
+}
+
+/**
+ * Bouton compte mobile (texte au lieu d'icône, dans le drawer).
+ */
+function MobileAccountButton() {
+  const { setView, setMenuOpen, lang } = useStore();
+  const t = useDict(lang);
+  const { status, user } = useAuth();
+
+  if (status === "authenticated" && user) {
+    return (
+      <button
+        onClick={() => {
+          setView("account");
+          setMenuOpen(false);
+        }}
+        className="flex items-center gap-3 w-full text-left"
+      >
+        <span className="h-10 w-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-sans font-semibold text-sm">
+          {user.name?.charAt(0).toUpperCase() ?? "L"}
+        </span>
+        <div>
+          <p className="text-sm font-sans font-medium">{user.name}</p>
+          <p className="text-xs text-muted-foreground">{t.nav.account}</p>
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => {
+        setView("auth");
+        setMenuOpen(false);
+      }}
+      className="flex items-center gap-3 w-full text-left"
+    >
+      <span className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+        <User className="h-5 w-5 text-muted-foreground" />
+      </span>
+      <div>
+        <p className="text-sm font-sans font-medium">{t.auth.loginTab}</p>
+        <p className="text-xs text-muted-foreground">{t.auth.noAccount}</p>
+      </div>
     </button>
   );
 }
