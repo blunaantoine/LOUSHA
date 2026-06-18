@@ -23,20 +23,17 @@ export function InteractiveProductCard({
   return (
     <div
       className={cn(
-        "group relative w-full aspect-square rounded-2xl bg-secondary overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500",
+        "group relative w-full aspect-[3/4] rounded-2xl bg-secondary overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500",
         className
       )}
       {...props}
     >
-      {/* Image — object-contain pour afficher toute la photo sans coupe */}
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <img
-          src={imageUrl}
-          alt={title}
-          className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-700 ease-out group-hover:scale-105"
-          loading="lazy"
-        />
-      </div>
+      <img
+        src={imageUrl}
+        alt={title}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        loading="lazy"
+      />
 
       {/* Badge (Nouveauté / Best-seller) — en haut à gauche */}
       {badge && (
