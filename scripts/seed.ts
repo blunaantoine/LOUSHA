@@ -56,10 +56,10 @@ async function main() {
       tagline: "La nature, invitée chez vous",
       taglineEn: "Nature, invited home",
       description:
-        "Paniers, suspensions et objets de décoration en raphia qui apportent chaleur et authenticité à vos intérieurs. La pièce maîtresse de la maison Lousha.",
+        "Paniers et objets de décoration en raphia qui apportent chaleur et authenticité à vos intérieurs. La pièce maîtresse de la maison Lousha.",
       descriptionEn:
-        "Baskets, pendants and decorative objects in raffia that bring warmth and authenticity to your interiors. The centerpiece of the Lousha house.",
-      image: "/images/categories/cat-decoration.png",
+        "Baskets and decorative objects in raffia that bring warmth and authenticity to your interiors. The centerpiece of the Lousha house.",
+      image: "/images/products/whatsapp-7.jpeg",
       order: 1,
     },
     {
@@ -69,37 +69,11 @@ async function main() {
       tagline: "Le geste, dans le détail",
       taglineEn: "The gesture, in detail",
       description:
-        "Sets de table, éventails et petites pièces de décoration artisanale qui célèbrent la précision du tressage et le savoir-faire togolais.",
+        "Sets de table et petites pièces de décoration artisanale qui célèbrent la précision du tressage et le savoir-faire togolais.",
       descriptionEn:
-        "Table sets, fans and small crafted decoration pieces celebrating the precision of weaving and Togolese know-how.",
-      image: "/images/categories/cat-artisanat.png",
+        "Table sets and small crafted decoration pieces celebrating the precision of weaving and Togolese know-how.",
+      image: "/images/products/whatsapp-4.jpeg",
       order: 2,
-    },
-    {
-      slug: "sacs",
-      name: "Sacs",
-      nameEn: "Bags",
-      tagline: "L'art du porté",
-      taglineEn: "The art of carrying",
-      description:
-        "Cabas et pochettes en raphia tressé main, pour porter l'élégance naturelle de Lousha au quotidien.",
-      descriptionEn:
-        "Totes and clutches in hand-woven raffia, to carry Lousha's natural elegance every day.",
-      image: "/images/categories/cat-sacs.png",
-      order: 3,
-    },
-    {
-      slug: "chapeaux",
-      name: "Chapeaux",
-      nameEn: "Hats",
-      tagline: "Sous le soleil, avec grâce",
-      taglineEn: "Under the sun, with grace",
-      description:
-        "Chapeaux de soleil et bobs en raphia, façonnés pour vous protéger tout en sublimant chaque silhouette.",
-      descriptionEn:
-        "Sun hats and bucket hats in raffia, crafted to protect while enhancing every silhouette.",
-      image: "/images/categories/cat-chapeaux.png",
-      order: 4,
     },
   ];
 
