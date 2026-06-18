@@ -2,11 +2,17 @@
 
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
+import { useSiteContent, getContent, getImage } from "@/hooks/use-site-content";
 import { ArrowRight } from "lucide-react";
 
 export function StorySection() {
   const { lang, setView } = useStore();
   const t = useDict(lang);
+  const { data } = useSiteContent();
+
+  const imgPortrait = getImage(data, "story-1", "/images/story/portrait-artisan.png");
+  const imgAtelier = getImage(data, "story-2", "/images/story/atelier-1.png");
+  const imgDetail = getImage(data, "story-3", "/images/story/atelier-2.png");
 
   return (
     <section className="py-20 sm:py-28 bg-secondary/30 overflow-hidden">
@@ -17,7 +23,7 @@ export function StorySection() {
             <div className="grid grid-cols-2 gap-4">
               <div className="aspect-[3/4] overflow-hidden bg-secondary mt-10">
                 <img
-                  src="/images/story/portrait-artisan.png"
+                  src={imgPortrait}
                   alt={lang === "fr" ? "Artisan Lousha" : "Lousha artisan"}
                   className="h-full w-full object-cover"
                   loading="lazy"
@@ -25,7 +31,7 @@ export function StorySection() {
               </div>
               <div className="aspect-[3/4] overflow-hidden bg-secondary">
                 <img
-                  src="/images/story/atelier-1.png"
+                  src={imgAtelier}
                   alt={lang === "fr" ? "Atelier Lousha au Togo" : "Lousha atelier in Togo"}
                   className="h-full w-full object-cover"
                   loading="lazy"
@@ -34,7 +40,7 @@ export function StorySection() {
             </div>
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 aspect-[16/9] overflow-hidden bg-secondary shadow-xl hidden sm:block">
               <img
-                src="/images/story/atelier-2.png"
+                src={imgDetail}
                 alt=""
                 className="h-full w-full object-cover"
                 loading="lazy"
@@ -48,13 +54,13 @@ export function StorySection() {
               {t.story.eyebrow}
             </p>
             <h2 className="font-serif text-4xl sm:text-5xl text-foreground text-balance leading-tight">
-              {t.story.title}
+              {getContent(data, "story.title", t.story.title, lang)}
             </h2>
             <p className="mt-6 text-base text-muted-foreground font-light leading-relaxed">
-              {t.story.text1}
+              {getContent(data, "story.text1", t.story.text1, lang)}
             </p>
             <p className="mt-4 text-base text-muted-foreground font-light leading-relaxed">
-              {t.story.text2}
+              {getContent(data, "story.text2", t.story.text2, lang)}
             </p>
 
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-6">

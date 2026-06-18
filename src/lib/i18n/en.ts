@@ -261,6 +261,7 @@ nav: {
       tabOrders: "Orders",
       tabProducts: "Products",
       tabCarousel: "Carousel",
+      tabContent: "Content",
       tabCustomers: "Customers",
       revenueToday: "Today's revenue",
       revenueMonth: "Month's revenue",

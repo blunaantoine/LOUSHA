@@ -152,3 +152,19 @@ model HeroSlide {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+/// Images éditables de la page d'accueil (story, material, contact).
+/// L'admin peut les remplacer sans toucher au code.
+model SiteImage {
+  key       String  @id  // "story-1", "story-2", "story-3", "material", "contact-bg"
+  url       String
+  updatedAt DateTime @updatedAt
+}
+
+/// Textes éditables de la page d'accueil (promo, story, material, contact).
+/// L'admin peut les modifier en FR et EN sans toucher au code.
+model SiteContent {
+  key      String  @id  // "promo.title", "story.text1", "material.title", etc.
+  valueFr  String  @default("")
+  valueEn  String  @default("")
+}

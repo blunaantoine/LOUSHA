@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
+import { useSiteContent, getContent } from "@/hooks/use-site-content";
 import { toast } from "sonner";
 import { MessageCircle, Mail, Clock, ArrowRight } from "lucide-react";
 
@@ -10,6 +11,7 @@ const WHATSAPP_NUMBER = "22896692972";
 
 export function ContactSection() {
   const { lang } = useStore();
+  const { data } = useSiteContent();
   const t = useDict(lang);
   const [sent, setSent] = useState(false);
 
@@ -29,10 +31,10 @@ export function ContactSection() {
             {t.contact.eyebrow}
           </p>
           <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground text-balance">
-            {t.contact.title}
+            {getContent(data, "contact.title", t.contact.title, lang)}
           </h2>
           <p className="mt-5 max-w-2xl mx-auto text-base text-muted-foreground font-light">
-            {t.contact.subtitle}
+            {getContent(data, "contact.subtitle", t.contact.subtitle, lang)}
           </p>
         </div>
 

@@ -2,6 +2,7 @@
 
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
+import { useSiteContent, getContent, getImage } from "@/hooks/use-site-content";
 import { ArrowRight } from "lucide-react";
 
 /**
@@ -16,6 +17,8 @@ import { ArrowRight } from "lucide-react";
 export function PromoBanner() {
   const { lang, setView } = useStore();
   const t = useDict(lang);
+  const { data } = useSiteContent();
+  const promoImg = getImage(data, "promo", "/images/hero-bag-transparent.png");
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-24 sm:my-32 lg:my-36">
@@ -35,7 +38,7 @@ export function PromoBanner() {
         {/* Positionnée en absolu, centrée horizontalement, remontée pour dépasser la bordure du haut */}
         <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-36 lg:-top-48 z-20 w-[240px] sm:w-[320px] lg:w-[420px]">
           <img
-            src="/images/hero-bag-transparent.png"
+            src={promoImg}
             alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
             className="w-full h-auto object-contain"
             style={{
@@ -51,13 +54,13 @@ export function PromoBanner() {
           {/* --- Gauche : accroches --- */}
           <div className="text-center lg:text-left z-10">
             <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-accent-foreground/70 mb-3 sm:mb-4">
-              {t.promo.eyebrow}
+              {getContent(data, "promo.eyebrow", t.promo.eyebrow, lang)}
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl leading-[1.05] text-balance">
-              {t.promo.title}
+              {getContent(data, "promo.title", t.promo.title, lang)}
               <br />
               <span className="text-accent-foreground/85">
-                {t.promo.titleAccent}
+                {getContent(data, "promo.titleAccent", t.promo.titleAccent, lang)}
               </span>
             </h2>
           </div>
@@ -65,7 +68,7 @@ export function PromoBanner() {
           {/* --- Droite : texte + CTA --- */}
           <div className="text-center lg:text-right z-10 lg:max-w-xs lg:ml-auto">
             <p className="text-sm sm:text-base text-accent-foreground/85 font-light leading-relaxed mb-6 lg:mb-8">
-              {t.promo.text}
+              {getContent(data, "promo.text", t.promo.text, lang)}
             </p>
             <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-3 justify-center lg:justify-end">
               <button

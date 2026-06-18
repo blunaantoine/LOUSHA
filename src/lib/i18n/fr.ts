@@ -273,6 +273,7 @@ nav: {
       tabOrders: "Commandes",
       tabProducts: "Produits",
       tabCarousel: "Carrousel",
+      tabContent: "Contenu",
       tabCustomers: "Clients",
       revenueToday: "CA du jour",
       revenueMonth: "CA du mois",

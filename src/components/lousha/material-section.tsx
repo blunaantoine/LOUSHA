@@ -2,10 +2,14 @@
 
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
+import { useSiteContent, getContent, getImage } from "@/hooks/use-site-content";
 
 export function MaterialSection() {
   const { lang } = useStore();
   const t = useDict(lang);
+  const { data } = useSiteContent();
+
+  const imgMaterial = getImage(data, "material", "/images/categories/cat-artisanat.png");
 
   return (
     <section className="py-20 sm:py-28 bg-background">
@@ -17,13 +21,13 @@ export function MaterialSection() {
               {t.material.eyebrow}
             </p>
             <h2 className="font-serif text-4xl sm:text-5xl text-foreground text-balance leading-tight">
-              {t.material.title}
+              {getContent(data, "material.title", t.material.title, lang)}
             </h2>
             <p className="mt-6 text-base text-muted-foreground font-light leading-relaxed">
-              {t.material.text1}
+              {getContent(data, "material.text1", t.material.text1, lang)}
             </p>
             <p className="mt-4 text-base text-muted-foreground font-light leading-relaxed">
-              {t.material.text2}
+              {getContent(data, "material.text2", t.material.text2, lang)}
             </p>
 
             <div className="mt-8 grid sm:grid-cols-2 gap-5">
@@ -47,7 +51,7 @@ export function MaterialSection() {
           <div className="order-1 lg:order-2">
             <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
               <img
-                src="/images/categories/cat-artisanat.png"
+                src={imgMaterial}
                 alt={lang === "fr" ? "Détail du raphia" : "Raffia detail"}
                 className="h-full w-full object-cover"
                 loading="lazy"
