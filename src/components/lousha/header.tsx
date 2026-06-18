@@ -32,9 +32,11 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navItems: { key: "home" | "shop" | "contact"; label: string }[] = [
+  const navItems: { key: "home" | "shop" | "story" | "material" | "contact"; label: string }[] = [
     { key: "home", label: t.nav.home },
     { key: "shop", label: t.nav.shop },
+    { key: "story", label: t.footer.links.story },
+    { key: "material", label: t.footer.links.material },
     { key: "contact", label: t.nav.contact },
   ];
 
@@ -182,18 +184,6 @@ export function Header() {
                 {item.label}
               </button>
             ))}
-            <button
-              onClick={() => setView("story")}
-              className="text-left text-2xl font-serif py-3 border-b border-border/60 text-foreground hover:text-accent transition"
-            >
-              {t.footer.links.story}
-            </button>
-            <button
-              onClick={() => setView("material")}
-              className="text-left text-2xl font-serif py-3 border-b border-border/60 text-foreground hover:text-accent transition"
-            >
-              {t.footer.links.material}
-            </button>
           </nav>
         </div>
       </div>

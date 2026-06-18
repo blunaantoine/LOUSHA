@@ -53,8 +53,6 @@ export default function Home() {
             <CategoryGrid />
             <PromoBanner />
             <FeaturedProducts />
-            <StorySection />
-            <MaterialSection />
             <ContactCTA />
           </>
         )}
