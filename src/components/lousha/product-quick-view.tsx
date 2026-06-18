@@ -203,17 +203,17 @@ export function ProductQuickView() {
                 </div>
 
                 {/* Actions */}
-                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <div className="mt-auto pt-6 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleAdd}
-                    className="group inline-flex items-center justify-center gap-2 border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors flex-1 rounded-full"
+                    className="group inline-flex items-center justify-center gap-2 border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-all duration-300 flex-1 rounded-full shadow-sm hover:shadow-md"
                   >
                     <ShoppingBag className="h-4 w-4" />
                     {t.product.addToCart}
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    className="inline-flex items-center justify-center bg-accent text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent/90 transition-colors flex-1 rounded-full"
+                    className="inline-flex items-center justify-center bg-accent text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent/90 transition-all duration-300 flex-1 rounded-full shadow-sm hover:shadow-md"
                   >
                     {t.product.buyNow}
                   </button>
@@ -223,7 +223,7 @@ export function ProductQuickView() {
 
             {/* Related */}
             {related.length > 0 && (
-              <div className="border-t border-border p-6 sm:p-10 bg-secondary/30">
+              <div className="border-t border-border p-6 sm:p-10 bg-secondary/40">
                 <h3 className="font-serif text-2xl text-foreground mb-6">
                   {t.product.related}
                 </h3>

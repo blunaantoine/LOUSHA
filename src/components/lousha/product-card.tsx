@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="group flex flex-col">
       <button
         onClick={() => setQuickView(product.slug)}
-        className="relative block overflow-hidden bg-secondary aspect-[3/4] text-left rounded-xl"
+        className="relative block overflow-hidden bg-secondary aspect-[3/4] text-left rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-500"
       >
         <img
           src={product.image}
@@ -56,8 +56,9 @@ export function ProductCard({ product }: { product: Product }) {
         )}
 
         {/* Hover quick view */}
-        <div className="absolute inset-x-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-          <span className="flex items-center justify-center gap-2 bg-background/95 backdrop-blur text-foreground text-[11px] tracking-luxe-sm uppercase py-2.5 font-sans rounded-full">
+        {/* Hover quick view — slide up from bottom */}
+        <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-400 ease-out">
+          <span className="flex items-center justify-center gap-2 bg-background/95 backdrop-blur text-foreground text-[11px] tracking-luxe-sm uppercase py-3 font-sans rounded-full shadow-md">
             <Eye className="h-3.5 w-3.5" />
             {t.products.quickView}
           </span>
@@ -74,13 +75,13 @@ export function ProductCard({ product }: { product: Product }) {
               {name}
             </h3>
           </button>
-          <p className="text-sm text-muted-foreground font-light mt-0.5">
+          <p className="text-sm text-accent font-medium mt-1">
             {formatPrice(product.priceCents, lang, currency)}
           </p>
         </div>
         <button
           onClick={handleAdd}
-          className="shrink-0 h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
+          className="shrink-0 h-10 w-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-110 shadow-sm"
           aria-label={t.products.addToCart}
         >
           <ShoppingBag className="h-4 w-4" />

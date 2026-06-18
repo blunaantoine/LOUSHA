@@ -120,9 +120,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground font-sans;
     font-weight: 400;
+  }
+  /* Sélection de texte stylée */
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-foreground);
   }
   /* Headings : Good Times (display) par défaut */
   h1, h2, h3, h4, h5, h6 {
