@@ -75,7 +75,7 @@ async function main() {
         "Un cabas généreux en raphia naturel écru, orné de anses en cuir véritable. Spacieux et léger, il accompagne vos journées avec la quiet confidence de l'artisanat bien fait. Chaque tressage est unique, réalisé à la main dans nos ateliers au Togo.",
       descriptionEn:
         "A generous tote in natural ecru raffia, finished with genuine leather handles. Spacious and light, it carries your days with the quiet confidence of well-made craft. Each weave is unique, handmade in our Togo ateliers.",
-      priceCents: 14800,
+      priceCents: 9700000,
       categorySlug: "sacs",
       image: "/images/products/sac-1.png",
       gallery: "/images/products/sac-1.png",
@@ -93,7 +93,7 @@ async function main() {
         "Une pochette bandoulière aux tons terre cuite, tressée selon un motif géométrique hérité des traditions togolaises. Compacte et élégante, elle se porte du jour au soir.",
       descriptionEn:
         "A crossbody clutch in terracotta tones, woven with a geometric pattern inherited from Togolese tradition. Compact and elegant, worn from day to night.",
-      priceCents: 9600,
+      priceCents: 6300000,
       categorySlug: "sacs",
       image: "/images/products/sac-2.png",
       gallery: "/images/products/sac-2.png",
@@ -111,7 +111,7 @@ async function main() {
         "Un chapeau de soleil à large bord en raphia sable, rehaussé d'un fin lien en cuir brun. Pensé pour les longues journées d'été, il protège avec élégance.",
       descriptionEn:
         "A wide-brim sun hat in sand raffia, accented with a slim brown leather band. Designed for long summer days, it protects with elegance.",
-      priceCents: 6800,
+      priceCents: 4450000,
       categorySlug: "chapeaux",
       image: "/images/products/chapeau-1.png",
       gallery: "/images/products/chapeau-1.png",
@@ -129,7 +129,7 @@ async function main() {
         "Le bob Sahel en raphia écru au tressage géométrique discret. Une pièce décontractée et raffinée, idéale pour les escapades au soleil.",
       descriptionEn:
         "The Sahel bucket hat in ecru raffia with subtle geometric weave. A relaxed and refined piece, ideal for sunny getaways.",
-      priceCents: 5400,
+      priceCents: 3550000,
       categorySlug: "chapeaux",
       image: "/images/products/chapeau-2.png",
       gallery: "/images/products/chapeau-2.png",
@@ -147,7 +147,7 @@ async function main() {
         "Un ensemble de trois paniers emboîtables en raphia, aux tons chauds. Parfaits pour ranger, organiser ou simplement habiller une étagère.",
       descriptionEn:
         "A set of three nesting baskets in raffia, in warm tones. Perfect to store, organize or simply dress up a shelf.",
-      priceCents: 8200,
+      priceCents: 5400000,
       categorySlug: "decoration",
       image: "/images/products/deco-1.png",
       gallery: "/images/products/deco-1.png",
@@ -165,7 +165,7 @@ async function main() {
         "Une suspension luminaire en raphia tressé qui filtre la lumière en créant une atmosphère chaleureuse. Une pièce maîtresse pour vos espaces de vie.",
       descriptionEn:
         "A raffia woven pendant light that filters light into a warm atmosphere. A statement piece for your living spaces.",
-      priceCents: 11900,
+      priceCents: 7800000,
       categorySlug: "decoration",
       image: "/images/products/deco-2.png",
       gallery: "/images/products/deco-2.png",
@@ -183,7 +183,7 @@ async function main() {
         "Un set de table et ses dessous de plat assortis, au tressage fin et régulier. Le détail qui transforme chaque repas en moment d'exception.",
       descriptionEn:
         "A placemat set with matching coasters, in fine and regular weaving. The detail that turns every meal into an exceptional moment.",
-      priceCents: 4600,
+      priceCents: 3000000,
       categorySlug: "artisanat",
       image: "/images/products/art-1.png",
       gallery: "/images/products/art-1.png",
@@ -201,7 +201,7 @@ async function main() {
         "Un éventail artisanal en raphia au motif décoratif, à la fois objet utile et pièce d'art. Un souvenir authentique du Togo.",
       descriptionEn:
         "An artisanal raffia fan with decorative pattern, both useful object and art piece. An authentic souvenir from Togo.",
-      priceCents: 3200,
+      priceCents: 2100000,
       categorySlug: "artisanat",
       image: "/images/products/art-2.png",
       gallery: "/images/products/art-2.png",

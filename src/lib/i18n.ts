@@ -1,4 +1,5 @@
-import type { Lang } from "@/lib/store";
+import type { Lang, Currency } from "@/lib/store";
+import { RATES } from "@/lib/store";
 
 export const dict = {
   fr: {
@@ -431,10 +432,46 @@ export function useDict(lang: Lang): Dict {
   return dict[lang] as Dict;
 }
 
-export function formatPrice(cents: number, lang: Lang): string {
-  const value = (cents / 100).toLocaleString(lang === "fr" ? "fr-FR" : "en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+/**
+ * Formate un prix. `cents` est stocké en centimes de XOF (Franc CFA).
+ * La devise cible détermine la conversion et le symbole.
+ */
+export function formatPrice(
+  cents: number,
+  lang: Lang,
+  currency: Currency = "XOF"
+): string {
+  const xofValue = cents / 100; // valeur en XOF
+  const converted = xofValue * RATES[currency];
+
+  let locale = lang === "fr" ? "fr-FR" : "en-US";
+  let symbol: string;
+  let minDigits: number;
+  let maxDigits: number;
+
+  if (currency === "XOF") {
+    // XOF : pas de décimales (le FCFA s'arrondit à l'entier)
+    locale = "fr-FR";
+    symbol = "FCFA";
+    minDigits = 0;
+    maxDigits = 0;
+  } else if (currency === "EUR") {
+    symbol = "€";
+    minDigits = 2;
+    maxDigits = 2;
+  } else {
+    symbol = "$";
+    minDigits = 2;
+    maxDigits = 2;
+  }
+
+  const formatted = converted.toLocaleString(locale, {
+    minimumFractionDigits: minDigits,
+    maximumFractionDigits: maxDigits,
   });
-  return `${value}${dict[lang].common.currency}`;
+
+  // Pour EUR/USD, symbole avant ; pour FCFA, symbole après.
+  if (currency === "XOF") return `${formatted} ${symbol}`;
+  return `${symbol}${formatted}`;
 }
+

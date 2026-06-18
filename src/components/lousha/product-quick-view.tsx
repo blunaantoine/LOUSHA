@@ -16,6 +16,7 @@ import { ProductCard } from "./product-card";
 export function ProductQuickView() {
   const {
     lang,
+    currency,
     quickViewSlug,
     setQuickView,
     addToCart,
@@ -79,7 +80,7 @@ export function ProductQuickView() {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && setQuickView(null)}>
-      <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background gap-0 sm:rounded-none max-h-[92vh] overflow-y-auto scroll-elegant">
+      <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background gap-0 rounded-3xl max-h-[92vh] overflow-y-auto scroll-elegant">
         <DialogTitle className="sr-only">{name}</DialogTitle>
         {loading || !product ? (
           <div className="p-12 text-center text-muted-foreground">
@@ -90,7 +91,7 @@ export function ProductQuickView() {
             {/* Close button */}
             <button
               onClick={() => setQuickView(null)}
-              className="absolute top-4 right-4 z-20 h-9 w-9 rounded-full bg-background/90 backdrop-blur border border-border flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+              className="absolute top-4 right-4 z-20 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -105,7 +106,7 @@ export function ProductQuickView() {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 {product.badge !== "none" && (
-                  <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground text-[10px] tracking-luxe-sm uppercase px-3 py-1.5 font-sans">
+                  <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground text-[10px] tracking-luxe-sm uppercase px-3 py-1.5 font-sans rounded-full">
                     {product.badge === "new"
                       ? t.products.new
                       : t.products.bestseller}
@@ -126,7 +127,7 @@ export function ProductQuickView() {
                   {name}
                 </h2>
                 <p className="mt-4 font-serif text-2xl text-foreground">
-                  {formatPrice(product.priceCents, lang)}
+                  {formatPrice(product.priceCents, lang, currency)}
                 </p>
 
                 <div className="mt-5 flex items-center gap-2">
@@ -167,44 +168,49 @@ export function ProductQuickView() {
                   />
                 </div>
 
-                {/* Quantity */}
-                <div className="mt-6 flex items-center gap-4">
-                  <span className="text-[11px] tracking-luxe-sm uppercase text-muted-foreground">
-                    {t.product.quantity}
-                  </span>
-                  <div className="flex items-center border border-border">
-                    <button
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="h-9 w-9 flex items-center justify-center hover:bg-secondary transition"
-                      aria-label="-"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="w-10 text-center text-sm font-sans">
-                      {qty}
+                {/* Quantity + total */}
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] tracking-luxe-sm uppercase text-muted-foreground">
+                      {t.product.quantity}
                     </span>
-                    <button
-                      onClick={() => setQty((q) => q + 1)}
-                      className="h-9 w-9 flex items-center justify-center hover:bg-secondary transition"
-                      aria-label="+"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center border border-border rounded-full">
+                      <button
+                        onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        className="h-9 w-9 flex items-center justify-center hover:bg-secondary transition rounded-l-full"
+                        aria-label="-"
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                      <span className="w-10 text-center text-sm font-sans">
+                        {qty}
+                      </span>
+                      <button
+                        onClick={() => setQty((q) => q + 1)}
+                        className="h-9 w-9 flex items-center justify-center hover:bg-secondary transition rounded-r-full"
+                        aria-label="+"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
+                  <p className="font-serif text-lg text-foreground">
+                    {formatPrice(product.priceCents * qty, lang, currency)}
+                  </p>
                 </div>
 
                 {/* Actions */}
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleAdd}
-                    className="group inline-flex items-center justify-center gap-2 border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors flex-1"
+                    className="group inline-flex items-center justify-center gap-2 border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors flex-1 rounded-full"
                   >
                     <ShoppingBag className="h-4 w-4" />
                     {t.product.addToCart}
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    className="inline-flex items-center justify-center bg-accent text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent/90 transition-colors flex-1"
+                    className="inline-flex items-center justify-center bg-accent text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent/90 transition-colors flex-1 rounded-full"
                   >
                     {t.product.buyNow}
                   </button>

@@ -8,8 +8,18 @@ import { useHydrated } from "@/hooks/use-hydrated";
 import { cn } from "@/lib/utils";
 
 export function Header() {
-  const { lang, toggleLang, setView, view, setCartOpen, cartCount, menuOpen, setMenuOpen } =
-    useStore();
+  const {
+    lang,
+    toggleLang,
+    currency,
+    cycleCurrency,
+    setView,
+    view,
+    setCartOpen,
+    cartCount,
+    menuOpen,
+    setMenuOpen,
+  } = useStore();
   const t = useDict(lang);
   const hydrated = useHydrated();
   const [scrolled, setScrolled] = useState(false);
@@ -95,6 +105,16 @@ export function Header() {
               >
                 <Globe className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{hydrated ? (lang === "fr" ? "FR" : "EN") : "FR"}</span>
+              </button>
+
+              {/* Convertisseur de devise — cycle XOF → EUR → USD */}
+              <button
+                onClick={cycleCurrency}
+                className="flex items-center gap-1.5 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition px-2.5 py-1 rounded-full border border-border hover:border-accent"
+                aria-label="Change currency"
+                title="Changer de devise"
+              >
+                {hydrated ? currency : "XOF"}
               </button>
 
               {/* Compte (desktop) */}

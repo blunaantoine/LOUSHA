@@ -74,14 +74,14 @@ export function HeroSlideshow() {
             >
               <button
                 onClick={() => setView("shop")}
-                className="group inline-flex items-center gap-2 bg-background text-foreground px-6 sm:px-7 py-3 sm:py-3.5 text-[11px] sm:text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
+                className="group inline-flex items-center gap-2 bg-background text-foreground px-6 sm:px-7 py-3 sm:py-3.5 text-[11px] sm:text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors duration-300 rounded-full"
               >
                 {t.hero.cta1}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
               <button
                 onClick={() => setView("story")}
-                className="inline-flex items-center gap-2 border border-background/50 text-background px-6 sm:px-7 py-3 sm:py-3.5 text-[11px] sm:text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-background/10 transition-colors duration-300"
+                className="inline-flex items-center gap-2 border border-background/50 text-background px-6 sm:px-7 py-3 sm:py-3.5 text-[11px] sm:text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-background/10 transition-colors duration-300 rounded-full"
               >
                 {t.hero.cta2}
               </button>

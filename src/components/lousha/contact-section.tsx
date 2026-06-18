@@ -99,7 +99,7 @@ export function ContactSection() {
               </span>
               <input
                 required
-                className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
               />
             </label>
             <label className="block">
@@ -109,7 +109,7 @@ export function ContactSection() {
               <input
                 type="email"
                 required
-                className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
               />
             </label>
             <label className="block flex-1">
@@ -119,13 +119,13 @@ export function ContactSection() {
               <textarea
                 required
                 rows={5}
-                className="w-full bg-background border border-border px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
+                className="w-full bg-background border border-border px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none rounded-xl"
               />
             </label>
             <button
               type="submit"
               disabled={sent}
-              className="inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60 rounded-full"
             >
               {sent ? "✓" : ""}
               {t.contact.form.send}

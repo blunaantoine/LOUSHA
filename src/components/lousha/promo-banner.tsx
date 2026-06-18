@@ -70,14 +70,14 @@ export function PromoBanner() {
             <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-3 justify-center lg:justify-end">
               <button
                 onClick={() => setView("shop")}
-                className="group inline-flex items-center justify-center gap-2 bg-background text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors duration-300 w-full sm:w-auto"
+                className="group inline-flex items-center justify-center gap-2 bg-background text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors duration-300 w-full sm:w-auto rounded-full"
               >
                 {t.promo.cta}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
               <button
                 onClick={() => setView("story")}
-                className="inline-flex items-center justify-center gap-2 border border-accent-foreground/40 text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent-foreground/10 transition-colors duration-300 w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 border border-accent-foreground/40 text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent-foreground/10 transition-colors duration-300 w-full sm:w-auto rounded-full"
               >
                 {t.promo.secondary}
               </button>

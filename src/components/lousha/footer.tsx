@@ -41,11 +41,11 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.footer.emailPlaceholder}
-                className="flex-1 h-12 bg-transparent border border-background/30 px-4 text-sm font-sans text-background placeholder:text-background/40 focus:outline-none focus:border-background transition-colors"
+                className="flex-1 h-12 bg-transparent border border-background/30 px-4 text-sm font-sans text-background placeholder:text-background/40 focus:outline-none focus:border-background transition-colors rounded-xl"
               />
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 bg-background text-foreground px-6 h-12 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="inline-flex items-center gap-2 bg-background text-foreground px-6 h-12 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-xl"
               >
                 {t.footer.subscribe}
                 <ArrowRight className="h-4 w-4" />

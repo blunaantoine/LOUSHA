@@ -5,6 +5,15 @@ import { persist } from "zustand/middleware";
 
 export type Lang = "fr" | "en";
 export type View = "home" | "shop" | "story" | "material" | "contact";
+export type Currency = "XOF" | "EUR" | "USD";
+
+// Taux de change approximatifs (base XOF — Franc CFA).
+// priceCents stocké en base = centimes de XOF.
+export const RATES: Record<Currency, number> = {
+  XOF: 1,
+  EUR: 1 / 655.957, // 1 XOF = 1/655.957 EUR (taux fixe FCFA/Euro)
+  USD: 1 / 600, // approximatif
+};
 
 export interface CartItem {
   slug: string;
@@ -20,6 +29,11 @@ interface StoreState {
   lang: Lang;
   setLang: (l: Lang) => void;
   toggleLang: () => void;
+
+  // Currency
+  currency: Currency;
+  setCurrency: (c: Currency) => void;
+  cycleCurrency: () => void;
 
   // Navigation (client-side views, all on /)
   view: View;
@@ -57,6 +71,15 @@ export const useStore = create<StoreState>()(
       lang: "fr",
       setLang: (l) => set({ lang: l }),
       toggleLang: () => set((s) => ({ lang: s.lang === "fr" ? "en" : "fr" })),
+
+      currency: "XOF",
+      setCurrency: (c) => set({ currency: c }),
+      cycleCurrency: () =>
+        set((s) => {
+          const order: Currency[] = ["XOF", "EUR", "USD"];
+          const idx = order.indexOf(s.currency);
+          return { currency: order[(idx + 1) % order.length] };
+        }),
 
       view: "home",
       setView: (v) => {
@@ -106,7 +129,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: "lousha-store",
-      partialize: (s) => ({ lang: s.lang, items: s.items }),
+      partialize: (s) => ({ lang: s.lang, currency: s.currency, items: s.items }),
     }
   )
 );

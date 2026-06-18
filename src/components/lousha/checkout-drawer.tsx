@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export function CheckoutDrawer() {
   const {
     lang,
+    currency,
     checkoutOpen,
     setCheckoutOpen,
     setCartOpen,
@@ -35,7 +36,8 @@ export function CheckoutDrawer() {
   }, [checkoutOpen]);
 
   const subtotal = cartTotal();
-  const shipping = subtotal >= 8000 || subtotal === 0 ? 0 : 650;
+  // Seuil livraison offerte : 80€ ≈ 52 500 XOF (centimes de XOF)
+  const shipping = subtotal >= 5250000 || subtotal === 0 ? 0 : 425000;
   const total = subtotal + shipping;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -121,7 +123,7 @@ export function CheckoutDrawer() {
                   close();
                   setView("home");
                 }}
-                className="inline-flex items-center justify-center bg-foreground text-background px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="inline-flex items-center justify-center bg-foreground text-background px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
               >
                 {t.checkout.backHome}
               </button>
@@ -130,7 +132,7 @@ export function CheckoutDrawer() {
                   close();
                   setView("shop");
                 }}
-                className="inline-flex items-center justify-center border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors"
+                className="inline-flex items-center justify-center border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
               >
                 {t.checkout.backShop}
               </button>
@@ -248,7 +250,7 @@ export function CheckoutDrawer() {
                             {name}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {formatPrice(item.priceCents * item.qty, lang)}
+                            {formatPrice(item.priceCents * item.qty, lang, currency)}
                           </p>
                         </div>
                       </li>
@@ -261,7 +263,7 @@ export function CheckoutDrawer() {
                     <span className="text-muted-foreground">
                       {t.cart.subtotal}
                     </span>
-                    <span>{formatPrice(subtotal, lang)}</span>
+                    <span>{formatPrice(subtotal, lang, currency)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">
@@ -273,21 +275,21 @@ export function CheckoutDrawer() {
                           {t.cart.shippingFree}
                         </span>
                       ) : (
-                        formatPrice(shipping, lang)
+                        formatPrice(shipping, lang, currency)
                       )}
                     </span>
                   </div>
                   <div className="h-px bg-border my-2" />
                   <div className="flex items-center justify-between font-serif text-lg">
                     <span>{t.cart.total}</span>
-                    <span>{formatPrice(total, lang)}</span>
+                    <span>{formatPrice(total, lang, currency)}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting || items.length === 0}
-                  className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60"
+                  className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60 rounded-full rounded-full"
                 >
                   {submitting ? (
                     <>
@@ -297,7 +299,7 @@ export function CheckoutDrawer() {
                   ) : (
                     <>
                       <Lock className="h-4 w-4" />
-                      {t.checkout.payAmount(formatPrice(total, lang))}
+                      {t.checkout.payAmount(formatPrice(total, lang, currency))}
                     </>
                   )}
                 </button>
@@ -339,7 +341,7 @@ function Field({
         placeholder={placeholder}
         defaultValue={defaultValue}
         inputMode={inputMode}
-        className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+        className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
       />
     </label>
   );

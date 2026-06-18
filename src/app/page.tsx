@@ -94,7 +94,7 @@ export default function Home() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => setView("contact")}
-              className="group inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="group inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
             >
               {t.nav.contact}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -175,7 +175,7 @@ export default function Home() {
           </p>
           <button
             onClick={() => setView("shop")}
-            className="group mt-9 inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="group mt-9 inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
           >
             {t.story.cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

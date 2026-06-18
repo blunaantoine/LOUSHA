@@ -6,11 +6,14 @@ import { useDict, formatPrice } from "@/lib/i18n";
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const FREE_SHIPPING_THRESHOLD = 8000; // 80€
+// Seuil de livraison offerte : 80 € ≈ 52 500 XOF (en centimes de XOF)
+const FREE_SHIPPING_THRESHOLD = 5250000;
+const SHIPPING_COST_XOF_CENTS = 425000; // ~6,50 €
 
 export function CartDrawer() {
   const {
     lang,
+    currency,
     cartOpen,
     setCartOpen,
     items,
@@ -36,7 +39,7 @@ export function CartDrawer() {
 
   const subtotal = cartTotal();
   const shippingFree = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0;
-  const shipping = shippingFree ? 0 : 650;
+  const shipping = shippingFree ? 0 : SHIPPING_COST_XOF_CENTS;
   const total = subtotal + shipping;
   const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
@@ -98,7 +101,7 @@ export function CartDrawer() {
                 setCartOpen(false);
                 setView("shop");
               }}
-              className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
             >
               {t.cart.emptyCta}
               <ArrowRight className="h-4 w-4" />
@@ -118,8 +121,8 @@ export function CartDrawer() {
               ) : (
                 <p className="text-xs text-muted-foreground">
                   {lang === "fr"
-                    ? `Plus que ${formatPrice(remaining, lang)} pour la livraison offerte`
-                    : `${formatPrice(remaining, lang)} away from free shipping`}
+                    ? `Plus que ${formatPrice(remaining, lang, currency)} pour la livraison offerte`
+                    : `${formatPrice(remaining, lang, currency)} away from free shipping`}
                 </p>
               )}
               <div className="mt-2 h-1 w-full bg-border overflow-hidden rounded-full">
@@ -158,7 +161,7 @@ export function CartDrawer() {
                           </button>
                         </div>
                         <p className="text-sm text-muted-foreground font-light mt-1">
-                          {formatPrice(item.priceCents, lang)}
+                          {formatPrice(item.priceCents, lang, currency)}
                         </p>
                         <div className="mt-auto flex items-center justify-between">
                           <div className="flex items-center border border-border">
@@ -185,7 +188,7 @@ export function CartDrawer() {
                             </button>
                           </div>
                           <span className="font-sans font-medium text-base">
-                            {formatPrice(item.priceCents * item.qty, lang)}
+                            {formatPrice(item.priceCents * item.qty, lang, currency)}
                           </span>
                         </div>
                       </div>
@@ -199,7 +202,7 @@ export function CartDrawer() {
             <div className="border-t border-border px-6 py-5 space-y-3 bg-background">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t.cart.subtotal}</span>
-                <span className="font-sans">{formatPrice(subtotal, lang)}</span>
+                <span className="font-sans">{formatPrice(subtotal, lang, currency)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t.cart.shipping}</span>
@@ -207,7 +210,7 @@ export function CartDrawer() {
                   {shippingFree ? (
                     <span className="text-accent">{t.cart.shippingFree}</span>
                   ) : (
-                    formatPrice(shipping, lang)
+                    formatPrice(shipping, lang, currency)
                   )}
                 </span>
               </div>
@@ -215,13 +218,13 @@ export function CartDrawer() {
               <div className="flex items-center justify-between">
                 <span className="font-sans font-semibold text-lg">{t.cart.total}</span>
                 <span className="font-sans font-semibold text-lg">
-                  {formatPrice(total, lang)}
+                  {formatPrice(total, lang, currency)}
                 </span>
               </div>
 
               <button
                 onClick={() => setCheckoutOpen(true)}
-                className="w-full mt-3 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="w-full mt-3 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full rounded-full"
               >
                 {t.cart.checkout}
                 <ArrowRight className="h-4 w-4" />
