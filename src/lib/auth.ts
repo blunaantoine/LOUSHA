@@ -75,8 +75,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  pages: {
-    // On gère nous-mêmes l'UI via la vue Zustand "auth" sur /.
-    signIn: "/?view=auth",
-  },
+  // On gère l'UI d'auth via la vue Zustand "auth" — pas de redirection NextAuth
+  // qui pourrait causer des boucles de rechargement.
 };
