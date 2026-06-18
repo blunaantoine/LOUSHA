@@ -44,10 +44,6 @@ nav: {
       title: "Nos engagements",
       items: [
         {
-          title: "Livraison offerte",
-          text: "Partout en France à partir de 80€",
-        },
-        {
           title: "Qualité garantie",
           text: "Chaque pièce est vérifiée à la main",
         },
@@ -58,6 +54,10 @@ nav: {
         {
           title: "Paiement sécurisé",
           text: "Vos transactions protégées",
+        },
+        {
+          title: "Fait main au Togo",
+          text: "Raphia 100% naturel",
         },
       ],
     },

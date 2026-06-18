@@ -36,9 +36,7 @@ export function CheckoutDrawer() {
   }, [checkoutOpen]);
 
   const subtotal = cartTotal();
-  // Seuil livraison offerte : 80€ ≈ 52 500 XOF (centimes de XOF)
-  const shipping = subtotal >= 5250000 || subtotal === 0 ? 0 : 425000;
-  const total = subtotal + shipping;
+  const total = subtotal;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,28 +165,6 @@ export function CheckoutDrawer() {
                   </div>
                 </section>
 
-                {/* Shipping */}
-                <section>
-                  <h3 className="font-serif text-lg mb-4">
-                    {t.checkout.shipping}
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field
-                      label={t.checkout.address}
-                      required
-                      className="col-span-2"
-                    />
-                    <Field label={t.checkout.city} required />
-                    <Field label={t.checkout.zip} required />
-                    <Field
-                      label={t.checkout.country}
-                      required
-                      className="col-span-2"
-                      defaultValue={lang === "fr" ? "France" : "United Kingdom"}
-                    />
-                  </div>
-                </section>
-
                 {/* Payment */}
                 <section>
                   <div className="flex items-center justify-between mb-4">
@@ -264,20 +240,6 @@ export function CheckoutDrawer() {
                       {t.cart.subtotal}
                     </span>
                     <span>{formatPrice(subtotal, lang, currency)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t.cart.shipping}
-                    </span>
-                    <span>
-                      {shipping === 0 ? (
-                        <span className="text-accent">
-                          {t.cart.shippingFree}
-                        </span>
-                      ) : (
-                        formatPrice(shipping, lang, currency)
-                      )}
-                    </span>
                   </div>
                   <div className="h-px bg-border my-2" />
                   <div className="flex items-center justify-between font-serif text-lg">

@@ -43,10 +43,10 @@ nav: {
     engagements: {
       title: "Our commitments",
       items: [
-        { title: "Free shipping", text: "Throughout France from €80" },
         { title: "Quality guaranteed", text: "Each piece hand-checked" },
         { title: "24/7 support", text: "A team at your service, day and night" },
         { title: "Secure payment", text: "Your transactions protected" },
+        { title: "Handmade in Togo", text: "100% natural raffia" },
       ],
     },
     promo: {

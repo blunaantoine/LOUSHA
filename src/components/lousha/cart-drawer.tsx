@@ -36,14 +36,7 @@ export function CartDrawer() {
 
   // Calculs métier délégués au service panier (réutilisables côté API).
   const totals = computeCartTotals(items);
-  const {
-    subtotal,
-    shipping,
-    total,
-    shippingFree,
-    remainingForFreeShipping: remaining,
-    freeShippingProgress: progress,
-  } = totals;
+  const { subtotal, total } = totals;
 
   return (
     <div
@@ -110,30 +103,6 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            {/* Free shipping progress */}
-            <div className="px-6 py-4 bg-secondary/40 border-b border-border">
-              {shippingFree ? (
-                <p className="text-xs text-accent flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  {lang === "fr"
-                    ? "Vous bénéficiez de la livraison offerte"
-                    : "You get free shipping"}
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  {lang === "fr"
-                    ? `Plus que ${formatPrice(remaining, lang, currency)} pour la livraison offerte`
-                    : `${formatPrice(remaining, lang, currency)} away from free shipping`}
-                </p>
-              )}
-              <div className="mt-2 h-1 w-full bg-border overflow-hidden rounded-full">
-                <div
-                  className="h-full bg-accent transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
             {/* Items */}
             <div className="flex-1 overflow-y-auto scroll-elegant px-6 py-4">
               <ul className="flex flex-col gap-5">
@@ -204,16 +173,6 @@ export function CartDrawer() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t.cart.subtotal}</span>
                 <span className="font-sans">{formatPrice(subtotal, lang, currency)}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{t.cart.shipping}</span>
-                <span className="font-sans">
-                  {shippingFree ? (
-                    <span className="text-accent">{t.cart.shippingFree}</span>
-                  ) : (
-                    formatPrice(shipping, lang, currency)
-                  )}
-                </span>
               </div>
               <div className="h-px bg-border my-1" />
               <div className="flex items-center justify-between">

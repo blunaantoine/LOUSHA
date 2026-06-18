@@ -159,11 +159,6 @@ export function Footer() {
             <ul className="space-y-2.5">
               <li>
                 <span className="text-sm text-background/50 cursor-default">
-                  {t.footer.links.shipping}
-                </span>
-              </li>
-              <li>
-                <span className="text-sm text-background/50 cursor-default">
                   {t.footer.links.faq}
                 </span>
               </li>
