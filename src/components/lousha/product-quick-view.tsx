@@ -100,11 +100,11 @@ export function ProductQuickView() {
             {/* === Layout 50/50 : image pleine hauteur à gauche, contenu à droite === */}
             <div className="grid md:grid-cols-2 min-h-[520px]">
               {/* --- Gauche : Image (50%, pleine hauteur, pas de texte par-dessus) --- */}
-              <div className="relative bg-secondary md:min-h-[600px] aspect-square md:aspect-auto">
+              <div className="relative bg-secondary md:min-h-[600px] aspect-square md:aspect-auto flex items-center justify-center p-6 sm:p-10">
                 <img
                   src={product.image}
                   alt={name}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="max-h-full max-w-full w-auto h-auto object-contain"
                 />
               </div>
 

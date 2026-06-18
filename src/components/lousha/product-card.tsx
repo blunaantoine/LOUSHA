@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="group flex flex-col">
       <button
         onClick={() => setQuickView(product.slug)}
-        className="relative block overflow-hidden bg-secondary aspect-[4/5] text-left rounded-xl"
+        className="relative block overflow-hidden bg-secondary aspect-[3/4] text-left rounded-xl"
       >
         <img
           src={product.image}
