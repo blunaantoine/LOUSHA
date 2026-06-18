@@ -1,0 +1,341 @@
+root@vps118451:/# cd /tmp                                                                                                
+root@vps118451:/tmp#                                                                                                     
+root@vps118451:/tmp# rm -rf LOUSHA                                                                                       
+root@vps118451:/tmp#                                                                                                     
+root@vps118451:/tmp# git clone https://github.com/blunaantoine/LOUSHA.git                                                
+Cloning into 'LOUSHA'...                                                                                                 
+remote: Enumerating objects: 647, done.                                                                                  
+remote: Counting objects: 100% (19/19), done.                                                                            
+remote: Compressing objects: 100% (15/15), done.                                                                         
+remote: Total 647 (delta 4), reused 15 (delta 4), pack-reused 628 (from 1)                                               
+Receiving objects: 100% (647/647), 51.87 MiB | 26.30 MiB/s, done.                                                        
+Resolving deltas: 100% (220/220), done.                                                                                  
+root@vps118451:/tmp#                                                                                                     
+root@vps118451:/tmp# cd LOUSHA                                                                                           
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA# bash deploy/deploy.sh                                                                        
+� Déploiement Lousha → loushatg.duckdns.org (port 3004)                                                                  
+                                                                                                                         
+✓ Node.js v20.20.0                                                                                                       
+� Code...                                                                                                                
+remote: Enumerating objects: 647, done.                                                                                  
+remote: Counting objects: 100% (19/19), done.                                                                            
+remote: Compressing objects: 100% (15/15), done.                                                                         
+remote: Total 647 (delta 4), reused 15 (delta 4), pack-reused 628 (from 1)                                               
+Receiving objects: 100% (647/647), 51.87 MiB | 26.47 MiB/s, done.                                                        
+Resolving deltas: 100% (220/220), done.                                                                                  
+From https://github.com/blunaantoine/LOUSHA                                                                              
+ * branch            main       -> FETCH_HEAD                                                                            
+✓ .env.production créé                                                                                                   
+� Build...                                                                                                               
+npm warn deprecated intersection-observer@0.10.0: The Intersection Observer polyfill is no longer needed and can safely b
+e removed. Intersection Observer has been Baseline since 2019.                                                           
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For
+ CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).                          
+npm warn deprecated recharts@2.15.4: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest fea
+tures and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide                                    
+npm error code ENOENT
+npm error syscall open
+npm error path /var/www/lousha/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/var/www/lousha/package.jso
+n'                                                                                                                       
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-18T13_27_08_867Z-debug-0.log
+root@vps118451:/tmp/LOUSHA# # 1. Récupérez la version corrigée du script
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA# cd /tmp/LOUSHA                                                                               
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA# git pull origin main                                                                         
+remote: Enumerating objects: 7, done.                                                                                    
+remote: Counting objects: 100% (7/7), done.                                                                              
+remote: Compressing objects: 100% (2/2), done.                                                                           
+remote: Total 4 (delta 2), reused 4 (delta 2), pack-reused 0 (from 0)                                                    
+Unpacking objects: 100% (4/4), 1.07 KiB | 1.07 MiB/s, done.                                                              
+From https://github.com/blunaantoine/LOUSHA                                                                              
+ * branch            main       -> FETCH_HEAD                                                                            
+   c70475f..3141c22  main       -> origin/main                                                                           
+Updating c70475f..3141c22                                                                                                
+Fast-forward                                                                                                             
+ deploy/deploy.sh | 38 +++++++++++++++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 9 deletions(-)                                                                        
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA# # 2. Relancez le déploiement                                                                 
+root@vps118451:/tmp/LOUSHA#                                                                                              
+root@vps118451:/tmp/LOUSHA# bash deploy/deploy.sh                                                                        
+� Déploiement Lousha → loushatg.duckdns.org (port 3004)                                                                  
+                                                                                                                         
+✓ Node.js v20.20.0                                                                                                       
+� Préparation de /var/www/lousha...                                                                                      
+� Clone depuis GitHub...                                                                                                 
+Cloning into '/var/www/lousha'...                                                                                        
+remote: Enumerating objects: 651, done.                                                                                  
+remote: Counting objects: 100% (23/23), done.                                                                            
+remote: Compressing objects: 100% (18/18), done.                                                                         
+remote: Total 651 (delta 6), reused 18 (delta 5), pack-reused 628 (from 1)                                               
+Receiving objects: 100% (651/651), 51.87 MiB | 26.17 MiB/s, done.                                                        
+Resolving deltas: 100% (222/222), done.                                                                                  
+✓ Code en place dans /var/www/lousha                                                                                     
+✓ .env.production créé                                                                                                   
+� Installation dépendances...                                                                                            
+npm warn deprecated intersection-observer@0.10.0: The Intersection Observer polyfill is no longer needed and can safely b
+e removed. Intersection Observer has been Baseline since 2019.                                                           
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For
+ CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).                          
+npm warn deprecated recharts@2.15.4: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest fea
+tures and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide                                    
+
+added 831 packages, and audited 832 packages in 1m                                                                       
+
+284 packages are looking for funding
+  run `npm fund` for details
+
+10 moderate severity vulnerabilities
+                                                                                                                         
+To address all issues possible (including breaking changes), run:                                                        
+  npm audit fix --force                                                                                                  
+                                                                                                                         
+Some issues need review, and may require choosing                                                                        
+a different dependency.                                                                                                  
+                                                                                                                         
+Run `npm audit` for details.                                                                                             
+� Génération Prisma...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma                                                                           
+┌─────────────────────────────────────────────────────────┐                                                              
+│  Update available 6.19.3 -> 7.8.0                       │
+│                                                         │                                                              
+│  This is a major update - please follow the guide at    │                                                              
+│  https://pris.ly/d/major-version-upgrade                │                                                              
+│                                                         │                                                              
+│  Run the following to update                            │                                                              
+│    npm i --save-dev prisma@latest                       │                                                              
+│    npm i @prisma/client@latest                          │                                                              
+└─────────────────────────────────────────────────────────┘                                                              
+                                                                                                                         
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 234ms                                            
+                                                                                                                         
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)                                          
+                                                                                                                         
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints                                                
+                                                                                                                         
+� Build de production...
+                                                                                                                         
+> nextjs_tailwind_shadcn_ts@0.2.0 build                                                                                  
+> next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/                             
+                                                                                                                         
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.production, .env                                                                                    
+                                                                                                                         
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.0s
+  Skipping validation of types
+✓ Finished TypeScript config validation in 15ms    
+✓ Collecting page data using 3 workers in 1143ms    
+✓ Generating static pages using 3 workers (16/16) in 580ms
+✓ Finalizing page optimization in 2.2s    
+                                                                                                                         
+Route (app)
+┌ ○ /                                                                                                                    
+├ ○ /_not-found                                                                                                          
+├ ƒ /api                                                                                                                 
+├ ƒ /api/admin/customers                                                                                                 
+├ ƒ /api/admin/orders                                                                                                    
+├ ƒ /api/admin/products                                                                                                  
+├ ƒ /api/admin/products/[id]                                                                                             
+├ ƒ /api/admin/slides                                                                                                    
+├ ƒ /api/admin/slides/[id]                                                                                               
+├ ƒ /api/admin/stats                                                                                                     
+├ ƒ /api/admin/upload                                                                                                    
+├ ƒ /api/admin/users                                                                                                     
+├ ƒ /api/admin/users/[id]                                                                                                
+├ ƒ /api/auth/[...nextauth]                                                                                              
+├ ƒ /api/auth/register                                                                                                   
+├ ƒ /api/categories                                                                                                      
+├ ƒ /api/hero                                                                                                            
+├ ƒ /api/orders/me                                                                                                       
+├ ƒ /api/products                                                                                                        
+└ ƒ /api/products/[slug]                                                                                                 
+                                                                                                                         
+                                                                                                                         
+○  (Static)   prerendered as static content                                                                              
+ƒ  (Dynamic)  server-rendered on demand                                                                                  
+                                                                                                                         
+✓ Build OK
+�️  Base de données...                                                                                                   
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma                                                                           
+Datasource "db": SQLite database "custom.db" at "file:/home/z/my-project/db/custom.db"                                   
+                                                                                                                         
+�  Your database is now in sync with your Prisma schema. Done in 424ms                                                   
+                                                                                                                         
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 232ms
+
+� Seed...
+Need to install the following packages:
+tsx@4.22.4                                                                                                               
+Ok to proceed? (y) y                                                                                                     
+                                                                                                                         
+� Seeding Lousha Accessories database...                                                                                 
+prisma:query DELETE FROM `main`.`Payment` WHERE 1=1
+prisma:query DELETE FROM `main`.`OrderItem` WHERE 1=1
+prisma:query DELETE FROM `main`.`Order` WHERE 1=1
+prisma:query DELETE FROM `main`.`Coupon` WHERE 1=1
+prisma:query DELETE FROM `main`.`HeroSlide` WHERE 1=1
+prisma:query DELETE FROM `main`.`User` WHERE 1=1
+prisma:query DELETE FROM `main`.`Product` WHERE 1=1
+prisma:query DELETE FROM `main`.`Category` WHERE 1=1
+prisma:query INSERT INTO `main`.`User` (`id`, `name`, `email`, `password`, `role`, `blocked`, `createdAt`, `updatedAt`) V
+ALUES (?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `name` AS `name`, `email` AS `email`, `phone` AS `phone`, `password` AS `
+password`, `role` AS `role`, `blocked` AS `blocked`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`              
+✓ Admin user created (admin@lousha-accessories.com / lousha-admin)                                                       
+prisma:query INSERT INTO `main`.`User` (`id`, `name`, `email`, `password`, `role`, `blocked`, `createdAt`, `updatedAt`) V
+ALUES (?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `name` AS `name`, `email` AS `email`, `phone` AS `phone`, `password` AS `
+password`, `role` AS `role`, `blocked` AS `blocked`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`              
+✓ Manager user created (manager@lousha-accessories.com / lousha-manager)                                                 
+prisma:query INSERT INTO `main`.`Coupon` (`id`, `code`, `discountPct`, `active`, `createdAt`) VALUES (?,?,?,?,?) RETURNIN
+G `id` AS `id`, `code` AS `code`, `discountPct` AS `discountPct`, `expiresAt` AS `expiresAt`, `active` AS `active`, `crea
+tedAt` AS `createdAt`                                                                                                    
+✓ Coupon BIENVENUE10 created (-10%)                                                                                      
+prisma:query INSERT INTO `main`.`Category` (`id`, `slug`, `name`, `nameEn`, `tagline`, `taglineEn`, `description`, `descr
+iptionEn`, `image`, `order`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS
+ `slug`, `name` AS `name`, `nameEn` AS `nameEn`, `tagline` AS `tagline`, `taglineEn` AS `taglineEn`, `description` AS `de
+scription`, `descriptionEn` AS `descriptionEn`, `image` AS `image`, `order` AS `order`, `createdAt` AS `createdAt`, `upda
+tedAt` AS `updatedAt`                                                                                                    
+prisma:query INSERT INTO `main`.`Category` (`id`, `slug`, `name`, `nameEn`, `tagline`, `taglineEn`, `description`, `descr
+iptionEn`, `image`, `order`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS
+ `slug`, `name` AS `name`, `nameEn` AS `nameEn`, `tagline` AS `tagline`, `taglineEn` AS `taglineEn`, `description` AS `de
+scription`, `descriptionEn` AS `descriptionEn`, `image` AS `image`, `order` AS `order`, `createdAt` AS `createdAt`, `upda
+tedAt` AS `updatedAt`                                                                                                    
+prisma:query INSERT INTO `main`.`Category` (`id`, `slug`, `name`, `nameEn`, `tagline`, `taglineEn`, `description`, `descr
+iptionEn`, `image`, `order`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS
+ `slug`, `name` AS `name`, `nameEn` AS `nameEn`, `tagline` AS `tagline`, `taglineEn` AS `taglineEn`, `description` AS `de
+scription`, `descriptionEn` AS `descriptionEn`, `image` AS `image`, `order` AS `order`, `createdAt` AS `createdAt`, `upda
+tedAt` AS `updatedAt`                                                                                                    
+prisma:query INSERT INTO `main`.`Category` (`id`, `slug`, `name`, `nameEn`, `tagline`, `taglineEn`, `description`, `descr
+iptionEn`, `image`, `order`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS
+ `slug`, `name` AS `name`, `nameEn` AS `nameEn`, `tagline` AS `tagline`, `taglineEn` AS `taglineEn`, `description` AS `de
+scription`, `descriptionEn` AS `descriptionEn`, `image` AS `image`, `order` AS `order`, `createdAt` AS `createdAt`, `upda
+tedAt` AS `updatedAt`                                                                                                    
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`Product` (`id`, `slug`, `name`, `nameEn`, `description`, `descriptionEn`, `priceCents`, 
+`categorySlug`, `image`, `gallery`, `material`, `origin`, `craftingTime`, `badge`, `featured`, `inStock`, `stock`, `creat
+edAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `slug` AS `slug`, `name` AS `n
+ame`, `nameEn` AS `nameEn`, `description` AS `description`, `descriptionEn` AS `descriptionEn`, `priceCents` AS `priceCen
+ts`, `categorySlug` AS `categorySlug`, `image` AS `image`, `gallery` AS `gallery`, `material` AS `material`, `origin` AS 
+`origin`, `craftingTime` AS `craftingTime`, `badge` AS `badge`, `featured` AS `featured`, `inStock` AS `inStock`, `stock`
+ AS `stock`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`                                                      
+prisma:query INSERT INTO `main`.`HeroSlide` (`id`, `image`, `eyebrowFr`, `eyebrowEn`, `titleFr`, `titleEn`, `textFr`, `te
+xtEn`, `order`, `active`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `image` AS `
+image`, `eyebrowFr` AS `eyebrowFr`, `eyebrowEn` AS `eyebrowEn`, `titleFr` AS `titleFr`, `titleEn` AS `titleEn`, `textFr` 
+AS `textFr`, `textEn` AS `textEn`, `order` AS `order`, `active` AS `active`, `createdAt` AS `createdAt`, `updatedAt` AS `
+updatedAt`                                                                                                               
+prisma:query INSERT INTO `main`.`HeroSlide` (`id`, `image`, `eyebrowFr`, `eyebrowEn`, `titleFr`, `titleEn`, `textFr`, `te
+xtEn`, `order`, `active`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `image` AS `
+image`, `eyebrowFr` AS `eyebrowFr`, `eyebrowEn` AS `eyebrowEn`, `titleFr` AS `titleFr`, `titleEn` AS `titleEn`, `textFr` 
+AS `textFr`, `textEn` AS `textEn`, `order` AS `order`, `active` AS `active`, `createdAt` AS `createdAt`, `updatedAt` AS `
+updatedAt`                                                                                                               
+prisma:query INSERT INTO `main`.`HeroSlide` (`id`, `image`, `eyebrowFr`, `eyebrowEn`, `titleFr`, `titleEn`, `textFr`, `te
+xtEn`, `order`, `active`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `image` AS `
+image`, `eyebrowFr` AS `eyebrowFr`, `eyebrowEn` AS `eyebrowEn`, `titleFr` AS `titleFr`, `titleEn` AS `titleEn`, `textFr` 
+AS `textFr`, `textEn` AS `textEn`, `order` AS `order`, `active` AS `active`, `createdAt` AS `createdAt`, `updatedAt` AS `
+updatedAt`                                                                                                               
+✓ 3 hero slides created                                                                                                  
+✅ Seeded 4 categories and 8 products.                                                                                    
+✓ DB prête                                                                                                               
+⚙️  Service systemd...                                                                                                   
+Created symlink '/etc/systemd/system/multi-user.target.wants/lousha.service' -> '/etc/systemd/system/lousha.service'.    
+✓ Serveur actif sur port 3004                                                                                            
+� Nginx...                                                                                                               
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok                                                         
+nginx: configuration file /etc/nginx/nginx.conf test is successful                                                       
+✓ Nginx rechargé                                                                                                         
+� HTTPS...                                                                                                               
+DuckDNS pointe-t-il vers cette IP (213.156.133.226) ? [o/N] o                                                            
+Saving debug log to /var/log/letsencrypt/letsencrypt.log                                                                 
+An unexpected error occurred:
+ValueError: Requesting acme-v02.api.letsencrypt.org/directory: Network is unreachable
+Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencry
+pt.log or re-run Certbot with -v for more details.                                                                       
+Saving debug log to /var/log/letsencrypt/letsencrypt.log                                                                 
+Requesting a certificate for loushatg.duckdns.org                                                                        
+                                                                                                                         
+Successfully received certificate.                                                                                       
+Certificate is saved at: /etc/letsencrypt/live/loushatg.duckdns.org/fullchain.pem                                        
+Key is saved at:         /etc/letsencrypt/live/loushatg.duckdns.org/privkey.pem                                          
+This certificate expires on 2026-09-16.                                                                                  
+These files will be updated when the certificate renews.                                                                 
+Certbot has set up a scheduled task to automatically renew this certificate in the background.                           
+                                                                                                                         
+Deploying certificate                                                                                                    
+Successfully deployed certificate for loushatg.duckdns.org to /etc/nginx/sites-enabled/lousha                            
+Congratulations! You have successfully enabled HTTPS on https://loushatg.duckdns.org                                     
+                                                                                                                         
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+If you like Certbot, please consider supporting our work by:                                                             
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate                                                    
+ * Donating to EFF:                    https://eff.org/donate-le                                                         
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+✓ HTTPS activé                                                                                                           
+                                                                                                                         
+============================================                                                                             
+✅ TERMINÉ                                                                                                                
+� https://loushatg.duckdns.org (ou http:// si SSL en attente)                                                            
+� admin@lousha-accessories.com / lousha-admin                                                                            
+� manager@lousha-accessories.com / lousha-manager                                                                        
+                                                                                                                         
+Logs: sudo journalctl -u lousha -f                                                                                       
+Restart: sudo systemctl restart lousha                                                                                   
+============================================                                                                             
+root@vps118451:/tmp/LOUSHA#   
