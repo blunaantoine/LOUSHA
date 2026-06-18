@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     fs.writeFileSync(filepath, Buffer.from(arrayBuffer));
 
-    // URL publique : /uploads/name (servi par Next.js static ou Nginx)
-    return NextResponse.json({ url: `/uploads/${name}` });
+    // URL publique : /api/uploads/name (servi par la route API, marche partout)
+    return NextResponse.json({ url: `/api/uploads/${name}` });
   } catch (error) {
     console.error("POST /api/admin/upload error:", error);
     const message =
