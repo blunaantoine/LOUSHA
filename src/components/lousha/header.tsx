@@ -5,6 +5,7 @@ import { ShoppingBag, User, Globe, Menu, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -117,13 +118,8 @@ export function Header() {
                 {hydrated ? currency : "XOF"}
               </button>
 
-              {/* Compte (desktop) */}
-              <button
-                className="hidden lg:block text-foreground/80 hover:text-accent transition"
-                aria-label={t.nav.account}
-              >
-                <User className="h-[18px] w-[18px]" />
-              </button>
+              {/* Compte (desktop) — bascule auth/account selon session */}
+              <AccountButton />
 
               {/* Panier */}
               <button
@@ -202,5 +198,37 @@ export function Header() {
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Bouton compte : icône utilisateur si déconnecté (→ auth),
+ * initiale si connecté (→ account).
+ */
+function AccountButton() {
+  const { setView } = useStore();
+  const { status, user } = useAuth();
+
+  if (status === "authenticated" && user) {
+    return (
+      <button
+        onClick={() => setView("account")}
+        className="flex h-9 w-9 rounded-full bg-accent/10 text-accent items-center justify-center font-sans font-semibold text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+        aria-label="Mon compte"
+        title={user.name ?? "Mon compte"}
+      >
+        {user.name?.charAt(0).toUpperCase() ?? "L"}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setView("auth")}
+      className="p-1.5 text-foreground/80 hover:text-accent transition"
+      aria-label="Connexion"
+    >
+      <User className="h-5 w-5" />
+    </button>
   );
 }

@@ -10,6 +10,8 @@ import { StorySection } from "@/components/lousha/story-section";
 import { MaterialSection } from "@/components/lousha/material-section";
 import { ShopView } from "@/components/lousha/shop-view";
 import { ContactSection } from "@/components/lousha/contact-section";
+import { AuthView } from "@/components/lousha/auth-view";
+import { AccountView } from "@/components/lousha/account-view";
 import { Footer } from "@/components/lousha/footer";
 import { WhatsAppWidget } from "@/components/lousha/whatsapp-widget";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
@@ -60,6 +62,10 @@ export default function Home() {
             <ContactSection />
           </div>
         )}
+
+        {view === "auth" && <AuthView />}
+
+        {view === "account" && <AccountView />}
       </main>
 
       <Footer />

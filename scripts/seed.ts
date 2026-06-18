@@ -1,4 +1,5 @@
 import { db } from "../src/lib/db";
+import { hashPassword } from "../src/lib/services/auth-service";
 
 async function main() {
   console.log("🌱 Seeding Lousha Accessories database...");
@@ -12,17 +13,17 @@ async function main() {
   await db.product.deleteMany();
   await db.category.deleteMany();
 
-  // --- Utilisateur admin par défaut ---
-  // Mot de passe : "lousha-admin" (hash simple pour démo ; en prod : bcrypt via API)
+  // --- Utilisateur admin par défaut (mot de passe hashé via scrypt) ---
+  const adminPassword = await hashPassword("lousha-admin");
   await db.user.create({
     data: {
       name: "Admin Lousha",
       email: "admin@lousha-accessories.com",
-      password: "lousha-admin", // TODO: hasher côté API auth
+      password: adminPassword,
       role: "ADMIN",
     },
   });
-  console.log("✓ Admin user created (admin@lousha-accessories.com)");
+  console.log("✓ Admin user created (admin@lousha-accessories.com / lousha-admin)");
 
   // --- Coupon de bienvenue ---
   await db.coupon.create({

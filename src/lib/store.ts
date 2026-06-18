@@ -4,7 +4,14 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type Lang = "fr" | "en";
-export type View = "home" | "shop" | "story" | "material" | "contact";
+export type View =
+  | "home"
+  | "shop"
+  | "story"
+  | "material"
+  | "contact"
+  | "auth"
+  | "account";
 export type Currency = "XOF" | "EUR" | "USD";
 
 // Taux de change approximatifs (base XOF — Franc CFA).

@@ -3,6 +3,7 @@ import { Oswald } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { Providers } from "@/components/providers";
 
 const oswald = Oswald({
   variable: "--font-sans",
@@ -66,7 +67,9 @@ export default function RootLayout({
       <body
         className={`${oswald.variable} ${goodTimes.variable} font-sans antialiased bg-background text-foreground`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Toaster
           position="bottom-center"
           toastOptions={{
