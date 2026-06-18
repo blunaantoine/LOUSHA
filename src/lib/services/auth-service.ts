@@ -7,6 +7,7 @@
  */
 import crypto from "crypto";
 import { PrismaClient } from "@prisma/client";
+import { generateResetToken } from "./email-service";
 
 const SCRYPT_KEYLEN = 64;
 const SCRYPT_SALTLEN = 16;
@@ -75,4 +76,50 @@ export async function validateCredentials(email: string, password: string) {
   if (user.blocked) return null;
   const ok = await verifyPassword(password, user.password);
   return ok ? user : null;
+}
+
+/* ============ Mot de passe oublié ============ */
+
+/** Crée un token de reset et le sauvegarde en DB (expire dans 1h). */
+export async function createPasswordReset(email: string) {
+  const user = await findUserByEmail(email);
+  if (!user) return null;
+  const token = generateResetToken();
+  const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 heure
+  await getDb().user.update({
+    where: { id: user.id },
+    data: { resetToken: token, resetTokenExpiry: expiry },
+  });
+  return { user, token };
+}
+
+/** Vérifie qu'un token de reset est valide et non expiré. */
+export async function verifyResetToken(token: string) {
+  if (!token) return null;
+  const user = await getDb().user.findFirst({
+    where: {
+      resetToken: token,
+      resetTokenExpiry: { gt: new Date() },
+    },
+  });
+  return user;
+}
+
+/** Réinitialise le mot de passe avec un token valide. */
+export async function resetPassword(
+  token: string,
+  newPassword: string
+): Promise<boolean> {
+  const user = await verifyResetToken(token);
+  if (!user) return false;
+  const hashed = await hashPassword(newPassword);
+  await getDb().user.update({
+    where: { id: user.id },
+    data: {
+      password: hashed,
+      resetToken: null,
+      resetTokenExpiry: null,
+    },
+  });
+  return true;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { Header } from "@/components/lousha/header";
 import { HeroSlideshow } from "@/components/lousha/hero";
@@ -11,6 +12,8 @@ import { MaterialSection } from "@/components/lousha/material-section";
 import { ShopView } from "@/components/lousha/shop-view";
 import { ContactSection } from "@/components/lousha/contact-section";
 import { AuthView } from "@/components/lousha/auth-view";
+import { ForgotPasswordView } from "@/components/lousha/forgot-password-view";
+import { ResetPasswordView } from "@/components/lousha/reset-password-view";
 import { AccountView } from "@/components/lousha/account-view";
 import { AdminView } from "@/components/lousha/admin-view";
 import { Footer } from "@/components/lousha/footer";
@@ -22,8 +25,22 @@ import { useDict } from "@/lib/i18n";
 import { ArrowRight } from "lucide-react";
 
 export default function Home() {
-  const { view, setView, lang } = useStore();
+  const { view, setView, setResetToken, lang } = useStore();
   const t = useDict(lang);
+
+  // Lit le token reset depuis l'URL (lien email → /?view=reset&token=xxx)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const urlView = params.get("view");
+    const token = params.get("token");
+    if (urlView === "reset" && token) {
+      setResetToken(token);
+      setView("reset");
+      // Nettoie l'URL
+      window.history.replaceState({}, "", "/");
+    }
+  }, [setView, setResetToken]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -65,6 +82,10 @@ export default function Home() {
         )}
 
         {view === "auth" && <AuthView />}
+
+        {view === "forgot" && <ForgotPasswordView />}
+
+        {view === "reset" && <ResetPasswordView />}
 
         {view === "account" && <AccountView />}
 

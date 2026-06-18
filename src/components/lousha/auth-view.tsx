@@ -152,6 +152,18 @@ export function AuthView() {
           </button>
         </form>
 
+        {/* Lien mot de passe oublié (login uniquement) */}
+        {mode === "login" && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setView("forgot")}
+              className="text-sm text-muted-foreground hover:text-accent transition-colors"
+            >
+              {t.auth.forgotPassword}
+            </button>
+          </div>
+        )}
+
         {/* Switch CTA */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {mode === "login" ? t.auth.noAccount : t.auth.haveAccount}{" "}

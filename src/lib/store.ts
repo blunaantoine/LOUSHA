@@ -11,6 +11,8 @@ export type View =
   | "material"
   | "contact"
   | "auth"
+  | "forgot"
+  | "reset"
   | "account"
   | "admin";
 export type Currency = "XOF" | "EUR" | "USD";
@@ -50,6 +52,10 @@ interface StoreState {
   // Quick view product
   quickViewSlug: string | null;
   setQuickView: (slug: string | null) => void;
+
+  // Reset password token (passé depuis l'URL vers la vue reset)
+  resetToken: string | null;
+  setResetToken: (token: string | null) => void;
 
   // Cart drawer
   cartOpen: boolean;
@@ -99,6 +105,9 @@ export const useStore = create<StoreState>()(
 
       quickViewSlug: null,
       setQuickView: (slug) => set({ quickViewSlug: slug }),
+
+      resetToken: null,
+      setResetToken: (token) => set({ resetToken: token }),
 
       cartOpen: false,
       setCartOpen: (open) => set({ cartOpen: open }),
