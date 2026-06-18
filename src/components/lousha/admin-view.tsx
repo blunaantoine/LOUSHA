@@ -26,9 +26,13 @@ import {
   ArrowLeft,
   Image as ImageIcon,
   Plus,
+  UserCog,
+  Trash2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
-type Tab = "dashboard" | "orders" | "products" | "customers" | "carousel";
+type Tab = "dashboard" | "orders" | "products" | "customers" | "carousel" | "users";
 
 export function AdminView() {
   const { lang, currency, setView } = useStore();
@@ -36,7 +40,10 @@ export function AdminView() {
   const { user, status } = useAuth();
   const [tab, setTab] = useState<Tab>("dashboard");
 
-  const authenticated = status === "authenticated" && user?.role === "ADMIN";
+  // Accès admin : ADMIN (complet) ou MANAGER (sans gestion utilisateurs)
+  const isAdmin = status === "authenticated" && user?.role === "ADMIN";
+  const isManager = status === "authenticated" && user?.role === "MANAGER";
+  const authenticated = isAdmin || isManager;
 
   if (status === "loading") {
     return (
@@ -58,6 +65,10 @@ export function AdminView() {
     { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
     { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
     { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
+    // Onglet utilisateurs : ADMIN uniquement (pas MANAGER)
+    ...(isAdmin
+      ? [{ key: "users" as Tab, label: t.admin.tabUsers, icon: <UserCog className="h-4 w-4" /> }]
+      : []),
   ];
 
   return (
@@ -107,6 +118,7 @@ export function AdminView() {
         {tab === "products" && <ProductsTab enabled={authenticated} />}
         {tab === "carousel" && <CarouselManager />}
         {tab === "customers" && <CustomersTab enabled={authenticated} />}
+        {tab === "users" && isAdmin && <UsersTab enabled={isAdmin} />}
       </div>
     </section>
   );
@@ -550,6 +562,291 @@ function EmptyState({ icon, title }: { icon: React.ReactNode; title: string }) {
         {icon}
       </span>
       <p className="font-serif text-xl text-muted-foreground">{title}</p>
+    </div>
+  );
+}
+
+/* ============ Utilisateurs (ADMIN uniquement) ============ */
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: string;
+  blocked: boolean;
+  createdAt: string;
+  orderCount: number;
+}
+
+const ROLE_STYLES: Record<string, string> = {
+  ADMIN: "bg-accent text-accent-foreground",
+  MANAGER: "bg-blue-50 text-blue-700",
+  CUSTOMER: "bg-secondary text-foreground",
+};
+
+function UsersTab({ enabled }: { enabled: boolean }) {
+  const { lang } = useStore();
+  const t = useDict(lang);
+  const { data, loading } = useAdminData<{ users: AdminUser[] }>("users", enabled);
+  const [localUsers, setLocalUsers] = useState<AdminUser[] | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+
+  const users = localUsers ?? data?.users ?? [];
+
+  const reload = async () => {
+    try {
+      const res = await fetch("/api/admin/users", { cache: "no-store" });
+      const d = await res.json();
+      setLocalUsers(d.users || []);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const changeRole = async (id: string, role: string) => {
+    await fetch(`/api/admin/users/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role }),
+    });
+    reload();
+  };
+
+  const toggleBlock = async (u: AdminUser) => {
+    await fetch(`/api/admin/users/${u.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ blocked: !u.blocked }),
+    });
+    reload();
+  };
+
+  const remove = async (u: AdminUser) => {
+    if (!confirm(`Supprimer ${u.name} ?`)) return;
+    await fetch(`/api/admin/users/${u.id}`, { method: "DELETE" });
+    reload();
+  };
+
+  if (loading && !data) return <SkeletonGrid count={4} />;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-muted-foreground">
+          {users.length} {users.length > 1 ? "utilisateurs" : "utilisateur"}
+        </p>
+        <button
+          onClick={() => {
+            setEditorOpen(true);
+          }}
+          className="inline-flex items-center gap-2 bg-foreground text-background px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          {t.admin.newUser}
+        </button>
+      </div>
+
+      {users.length === 0 ? (
+        <EmptyState icon={<Users className="h-6 w-6" />} title={t.admin.noUsers} />
+      ) : (
+        <div className="space-y-3">
+          {users.map((u) => (
+            <div
+              key={u.id}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className={cn(
+                    "h-11 w-11 rounded-full flex items-center justify-center font-serif text-lg shrink-0",
+                    u.blocked ? "bg-destructive/10 text-destructive" : "bg-accent/10 text-accent"
+                  )}
+                >
+                  {u.name.charAt(0).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <p className="font-sans font-medium truncate flex items-center gap-2">
+                    {u.name}
+                    {u.blocked && (
+                      <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[9px] tracking-luxe-sm uppercase">
+                        {t.admin.blocked}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {u.email} · {u.orderCount} {t.admin.customerOrders}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Sélecteur de rôle */}
+                <select
+                  value={u.role}
+                  onChange={(e) => changeRole(u.id, e.target.value)}
+                  className={cn(
+                    "h-9 px-3 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full border-0 cursor-pointer",
+                    ROLE_STYLES[u.role] || "bg-secondary"
+                  )}
+                >
+                  <option value="ADMIN">{t.auth.adminBadge}</option>
+                  <option value="MANAGER">{t.admin.roleManager}</option>
+                  <option value="CUSTOMER">{t.auth.customerBadge}</option>
+                </select>
+                {/* Bloquer/Débloquer */}
+                <button
+                  onClick={() => toggleBlock(u)}
+                  title={u.blocked ? t.admin.unblock : t.admin.block}
+                  className="h-9 w-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                >
+                  {u.blocked ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+                {/* Supprimer */}
+                <button
+                  onClick={() => remove(u)}
+                  title={t.admin.delete}
+                  className="h-9 w-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editorOpen && (
+        <UserEditor
+          onClose={() => {
+            setEditorOpen(false);
+          }}
+          onSaved={() => {
+            setEditorOpen(false);
+            reload();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function UserEditor({
+  onClose,
+  onSaved,
+}: {
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const { lang } = useStore();
+  const t = useDict(lang);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "CUSTOMER",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const update = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleSave = async () => {
+    if (!form.name || !form.email || !form.password || !form.role) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        return;
+      }
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-foreground/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-background rounded-3xl shadow-2xl max-w-md w-full">
+        <div className="flex items-center justify-between px-6 h-16 border-b border-border">
+          <h2 className="font-serif text-xl">{t.admin.newUser}</h2>
+          <button onClick={onClose} className="p-2 hover:opacity-60" aria-label="Close">
+            ✕
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+              {t.auth.name} *
+            </span>
+            <input
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+              {t.auth.email} *
+            </span>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
+              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+              {t.auth.password} * (6+)
+            </span>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) => update("password", e.target.value)}
+              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+              {t.admin.role} *
+            </span>
+            <select
+              value={form.role}
+              onChange={(e) => update("role", e.target.value)}
+              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+            >
+              <option value="CUSTOMER">{t.auth.customerBadge}</option>
+              <option value="MANAGER">{t.admin.roleManager}</option>
+              <option value="ADMIN">{t.auth.adminBadge}</option>
+            </select>
+          </label>
+          <p className="text-xs text-muted-foreground">
+            {t.admin.roleHelp}
+          </p>
+        </div>
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary"
+          >
+            {t.admin.cancel}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
+          >
+            {saving ? "..." : t.admin.save}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

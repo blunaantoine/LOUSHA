@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/guards";
+import { requireStaff } from "@/lib/guards";
 import { listAllProductsAdmin, createProduct } from "@/lib/services/admin-service";
 
 export async function GET() {
   try {
-    if (!(await requireAdmin())) {
+    if (!(await requireStaff())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
     const products = await listAllProductsAdmin();
@@ -17,7 +17,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    if (!(await requireAdmin())) {
+    if (!(await requireStaff())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
     const body = await req.json();

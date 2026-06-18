@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/guards";
+import { requireStaff } from "@/lib/guards";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -13,7 +13,7 @@ import crypto from "crypto";
  */
 export async function POST(req: NextRequest) {
   try {
-    if (!(await requireAdmin())) {
+    if (!(await requireStaff())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 

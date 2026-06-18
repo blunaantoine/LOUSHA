@@ -57,13 +57,15 @@ model Product {
 
 /// Comptes utilisateurs (clients + administrateurs).
 /// Auth via NextAuth.js (JWT + cookies HttpOnly).
+/// 3 rôles : ADMIN (accès complet), MANAGER (catalogue + commandes), CUSTOMER (client).
 model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
   phone     String?
-  password  String   // hashé (bcrypt) côté API
-  role      String   @default("CUSTOMER") // "ADMIN" | "CUSTOMER"
+  password  String   // hashé (scrypt) côté API
+  role      String   @default("CUSTOMER") // "ADMIN" | "MANAGER" | "CUSTOMER"
+  blocked   Boolean  @default(false) // compte bloqué par l'admin
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

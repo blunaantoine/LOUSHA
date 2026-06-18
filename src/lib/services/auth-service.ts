@@ -71,6 +71,8 @@ export async function createUser({
 export async function validateCredentials(email: string, password: string) {
   const user = await findUserByEmail(email);
   if (!user) return null;
+  // Compte bloqué par l'admin → connexion refusée
+  if (user.blocked) return null;
   const ok = await verifyPassword(password, user.password);
   return ok ? user : null;
 }

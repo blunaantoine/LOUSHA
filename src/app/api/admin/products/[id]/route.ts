@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/guards";
+import { requireStaff } from "@/lib/guards";
 import { updateProduct, deleteProduct } from "@/lib/services/admin-service";
 
 export async function PATCH(
@@ -7,7 +7,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAdmin())) {
+    if (!(await requireStaff())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
     const { id } = await params;
@@ -25,7 +25,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAdmin())) {
+    if (!(await requireStaff())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
     const { id } = await params;

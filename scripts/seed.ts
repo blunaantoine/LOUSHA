@@ -26,6 +26,18 @@ async function main() {
   });
   console.log("✓ Admin user created (admin@lousha-accessories.com / lousha-admin)");
 
+  // --- Gestionnaire (MANAGER) de test ---
+  const managerPassword = await hashPassword("lousha-manager");
+  await db.user.create({
+    data: {
+      name: "Manager Lousha",
+      email: "manager@lousha-accessories.com",
+      password: managerPassword,
+      role: "MANAGER",
+    },
+  });
+  console.log("✓ Manager user created (manager@lousha-accessories.com / lousha-manager)");
+
   // --- Coupon de bienvenue ---
   await db.coupon.create({
     data: {

@@ -99,8 +99,8 @@ export function AccountView() {
           </div>
         </div>
 
-        {/* Lien tableau de bord admin (ADMIN seulement) */}
-        {user!.role === "ADMIN" && (
+        {/* Lien tableau de bord admin (ADMIN ou MANAGER) */}
+        {(user!.role === "ADMIN" || user!.role === "MANAGER") && (
           <button
             onClick={() => setView("admin")}
             className="group mb-10 w-full flex items-center justify-between gap-3 p-5 bg-accent text-accent-foreground rounded-2xl hover:bg-accent/90 transition-colors"

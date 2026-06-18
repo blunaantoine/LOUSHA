@@ -1,10 +1,12 @@
 /**
  * Service Administration — statistiques et gestion back-office.
  *
- * Toutes les fonctions supposent que l'appelant a déjà vérifié le rôle ADMIN
- * (via getServerSession dans les routes API).
+ * Les fonctions catalog/commandes/clients supposent que l'appelant est staff
+ * (ADMIN ou MANAGER). Les fonctions de gestion utilisateurs supposent
+ * que l'appelant est ADMIN (vérifié via requireAdmin dans les routes API).
  */
 import { db } from "@/lib/db";
+import { hashPassword } from "./auth-service";
 
 export interface AdminStats {
   // Chiffre d'affaires
@@ -220,4 +222,72 @@ export async function updateHeroSlide(id: string, input: Partial<{
 
 export async function deleteHeroSlide(id: string) {
   return db.heroSlide.delete({ where: { id } });
+}
+
+/* ============ Gestion des utilisateurs (ADMIN uniquement) ============ */
+
+export async function listAllUsers() {
+  const users = await db.user.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      blocked: true,
+      createdAt: true,
+      _count: { select: { orders: true } },
+    },
+  });
+  return users.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    phone: u.phone,
+    role: u.role,
+    blocked: u.blocked,
+    createdAt: u.createdAt.toISOString(),
+    orderCount: u._count.orders,
+  }));
+}
+
+export async function createUserByAdmin(input: {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role: string; // "ADMIN" | "MANAGER" | "CUSTOMER"
+}) {
+  const hashed = await hashPassword(input.password);
+  return db.user.create({
+    data: {
+      name: input.name,
+      email: input.email.toLowerCase(),
+      password: hashed,
+      phone: input.phone ?? null,
+      role: input.role,
+    },
+    select: { id: true, name: true, email: true, role: true, blocked: true },
+  });
+}
+
+export async function updateUserRole(id: string, role: string) {
+  return db.user.update({
+    where: { id },
+    data: { role },
+    select: { id: true, name: true, email: true, role: true, blocked: true },
+  });
+}
+
+export async function setUserBlocked(id: string, blocked: boolean) {
+  return db.user.update({
+    where: { id },
+    data: { blocked },
+    select: { id: true, name: true, email: true, role: true, blocked: true },
+  });
+}
+
+export async function deleteUser(id: string) {
+  return db.user.delete({ where: { id } });
 }

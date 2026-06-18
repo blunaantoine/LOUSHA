@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireStaff } from "@/lib/guards";
 import { listAllOrdersAdmin } from "@/lib/services/admin-service";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== "ADMIN") {
+    if (!(await requireStaff())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
     const orders = await listAllOrdersAdmin();
