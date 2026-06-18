@@ -1,6 +1,6 @@
 # ============================================================
 # Service systemd — Lousha Accessories
-# Garde le serveur Next.js en vie sur le port 3004
+# Port 3004 (3000-3003 occupés par vos apps bun)
 # ============================================================
 #
 # Installation :
@@ -23,8 +23,6 @@ User=www-data
 WorkingDirectory=/var/www/lousha
 EnvironmentFile=/var/www/lousha/.env.production
 Environment=NODE_ENV=production
-Environment=PORT=3004
-Environment=HOSTNAME=127.0.0.1
 ExecStart=/usr/bin/node /var/www/lousha/.next/standalone/server.js
 Restart=always
 RestartSec=5

@@ -1,8 +1,7 @@
 #!/bin/bash
 # ============================================================
-# Script de déploiement — Lousha Accessories
-# À exécuter sur votre serveur (Ubuntu/Debian)
-# Usage : bash deploy/deploy.sh
+# Déploiement Lousha — adapté à votre serveur
+# (Nginx déjà actif, ports 3000-3003 pris, on utilise 3004)
 # ============================================================
 set -e
 
@@ -11,111 +10,109 @@ APP_DIR="/var/www/lousha"
 PORT=3004
 REPO="https://github.com/blunaantoine/LOUSHA.git"
 
-echo "🚀 Déploiement de Lousha Accessories sur $DOMAIN (port $PORT)"
+echo "🚀 Déploiement Lousha → $DOMAIN (port $PORT)"
 echo ""
 
 # --- 1. Prérequis ---
-echo "📦 Installation des prérequis..."
-sudo apt-get update -qq
-sudo apt-get install -y -qq nodejs npm nginx certbot python3-certbot-nginx git
-
-# Node 20+ via NodeSource si version < 18
-NODE_MAJOR=$(node -v 2>/dev/null | cut -d. -f1 | tr -d v || echo "0")
-if [ "$NODE_MAJOR" -lt 18 ]; then
-    echo "📦 Installation de Node.js 20..."
+if ! command -v node &> /dev/null; then
+    echo "📦 Installation Node.js 20..."
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    sudo apt-get install -y -qq nodejs
+    sudo apt-get install -y nodejs
 fi
+NODE_MAJOR=$(node -v | cut -d. -f1 | tr -d v)
+if [ "$NODE_MAJOR" -lt 18 ]; then
+    echo "❌ Node.js >= 18 requis (actuel: $(node -v))"
+    exit 1
+fi
+echo "✓ Node.js $(node -v)"
 
-echo "✓ Prérequis installés"
-
-# --- 2. Clonage du dépôt ---
-echo "📥 Clonage du code..."
+# --- 2. Clonage ---
+echo "📥 Code..."
 sudo mkdir -p $APP_DIR
 sudo chown -R $USER:$USER $APP_DIR
-
 if [ -d "$APP_DIR/.git" ]; then
-    cd $APP_DIR
-    git pull origin main
+    cd $APP_DIR && git pull origin main
 else
-    git clone $REPO $APP_DIR
-    cd $APP_DIR
+    git clone $REPO $APP_DIR && cd $APP_DIR
 fi
-echo "✓ Code récupéré"
 
-# --- 3. Fichier .env.production ---
+# --- 3. .env.production ---
+mkdir -p $APP_DIR/db
 if [ ! -f "$APP_DIR/.env.production" ]; then
-    echo "⚙️  Création du .env.production..."
     SECRET=$(openssl rand -base64 32)
-    mkdir -p $APP_DIR/db
     cat > $APP_DIR/.env.production << EOF
 DATABASE_URL=file:$APP_DIR/db/lousha.db
 NEXTAUTH_SECRET=$SECRET
 NEXTAUTH_URL=https://$DOMAIN
 PORT=$PORT
+HOSTNAME=127.0.0.1
 EOF
-    echo "✓ .env.production créé (secret généré)"
+    echo "✓ .env.production créé"
 else
-    echo "✓ .env.production existant conservé"
+    echo "✓ .env.production conservé"
 fi
 
-# --- 4. Installation dépendances + build ---
-echo "🔨 Installation des dépendances..."
+# --- 4. Build ---
+echo "🔨 Build..."
 npm install
-echo "🔨 Génération du client Prisma..."
 npx prisma generate
-echo "🔨 Build de production..."
 npm run build
-echo "✓ Build terminé"
+echo "✓ Build OK"
 
-# --- 5. Base de données ---
-echo "🗄️  Initialisation de la base de données..."
+# --- 5. DB + seed ---
+echo "🗄️  Base de données..."
 npx prisma db push
-# Seed (comptes admin/manager + produits + slides)
-node -e "
-const { execSync } = require('child_process');
-try { execSync('npx bun run scripts/seed.ts', { stdio: 'inherit' }); } catch(e) {
-    execSync('npx tsx scripts/seed.ts', { stdio: 'inherit' });
-}
-" 2>/dev/null || echo "⚠️  Seed ignoré (exécutez-le manuellement si besoin)"
-echo "✓ Base de données prête"
+# Seed via node (tsx/ts-node selon dispo)
+npx tsx scripts/seed.ts 2>/dev/null || npx ts-node scripts/seed.ts 2>/dev/null || echo "⚠️  Seed manuel: npx tsx scripts/seed.ts"
+echo "✓ DB prête"
 
 # --- 6. Permissions ---
 sudo chown -R www-data:www-data $APP_DIR
-echo "✓ Permissions configurées"
+sudo chmod -R 755 $APP_DIR
 
 # --- 7. Service systemd ---
-echo "⚙️  Installation du service systemd..."
+echo "⚙️  Service systemd..."
 sudo cp deploy/lousha.service /etc/systemd/system/lousha.service
 sudo systemctl daemon-reload
 sudo systemctl enable lousha
 sudo systemctl restart lousha
-echo "✓ Service démarré (port $PORT)"
+sleep 3
+if curl -s -o /dev/null -w "" http://127.0.0.1:$PORT; then
+    echo "✓ Serveur actif sur port $PORT"
+else
+    echo "⚠️  Vérifiez: sudo journalctl -u lousha -f"
+fi
 
-# --- 8. Nginx ---
-echo "🌐 Configuration Nginx..."
+# --- 8. Nginx (AJOUT d'un server block, ne touche pas aux sites existants) ---
+echo "🌐 Nginx..."
 sudo cp deploy/nginx-lousha.conf /etc/nginx/sites-available/lousha
 sudo ln -sf /etc/nginx/sites-available/lousha /etc/nginx/sites-enabled/lousha
-sudo nginx -t
-sudo systemctl reload nginx
-echo "✓ Nginx configuré"
+if sudo nginx -t; then
+    sudo systemctl reload nginx
+    echo "✓ Nginx rechargé"
+else
+    echo "❌ Erreur config Nginx — vérifiez /etc/nginx/sites-available/lousha"
+    exit 1
+fi
 
-# --- 9. SSL HTTPS ---
-echo "🔒 Activation du HTTPS..."
-sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --register-unsafely-without-email || echo "⚠️  Échec SSL — lancez manuellement : sudo certbot --nginx -d $DOMAIN"
-echo "✓ HTTPS activé"
+# --- 9. HTTPS ---
+echo "🔒 HTTPS..."
+read -p "DuckDNS pointe-t-il vers cette IP ($(curl -s ifconfig.me)) ? [o/N] " CONFIRM
+if [[ "$CONFIRM" =~ ^[Oo] ]]; then
+    sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN || \
+    sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --register-unsafely-without-email
+    echo "✓ HTTPS activé"
+else
+    echo "⏭️  SSL ignoré. Lancez plus tard: sudo certbot --nginx -d $DOMAIN"
+fi
 
-# --- Vérification ---
 echo ""
 echo "============================================"
-echo "✅ DÉPLOIEMENT TERMINÉ"
-echo "============================================"
-echo "🌐 Site : https://$DOMAIN"
-echo "👤 Admin : admin@lousha-accessories.com / lousha-admin"
-echo "👥 Manager : manager@lousha-accessories.com / lousha-manager"
+echo "✅ TERMINÉ"
+echo "🌐 https://$DOMAIN (ou http:// si SSL en attente)"
+echo "👤 admin@lousha-accessories.com / lousha-admin"
+echo "👥 manager@lousha-accessories.com / lousha-manager"
 echo ""
-echo "Commandes utiles :"
-echo "  Logs serveur : sudo journalctl -u lousha -f"
-echo "  Redémarrer  : sudo systemctl restart lousha"
-echo "  Statut      : sudo systemctl status lousha"
+echo "Logs: sudo journalctl -u lousha -f"
+echo "Restart: sudo systemctl restart lousha"
 echo "============================================"
