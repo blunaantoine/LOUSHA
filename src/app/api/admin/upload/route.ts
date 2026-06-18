@@ -42,22 +42,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Détermine le dossier d'upload.
-    // En production standalone, on utilise le chemin absolu de l'app.
+    // En production standalone, process.cwd() pointe vers .next/standalone.
+    // On utilise UPLOAD_DIR (chemin absolu) si défini, sinon fallback.
     const baseDir =
       process.env.UPLOAD_DIR ||
       path.join(process.cwd(), "public", "uploads");
 
-    // Crée le dossier s'il n'existe pas (avec permissions 755)
+    // Crée le dossier s'il n'existe pas
     if (!fs.existsSync(baseDir)) {
-      fs.mkdirSync(baseDir, { recursive: true, mode: 0o755 });
-    }
-
-    // Vérifie qu'on peut écrire
-    try {
-      fs.accessSync(baseDir, fs.constants.W_OK);
-    } catch {
-      // Tente de corriger les permissions
-      fs.chmodSync(baseDir, 0o755);
+      fs.mkdirSync(baseDir, { recursive: true, mode: 0o777 });
     }
 
     // Nom unique
@@ -67,8 +60,9 @@ export async function POST(req: NextRequest) {
 
     // Écrit le fichier
     const arrayBuffer = await file.arrayBuffer();
-    fs.writeFileSync(filepath, Buffer.from(arrayBuffer), { mode: 0o644 });
+    fs.writeFileSync(filepath, Buffer.from(arrayBuffer));
 
+    // URL publique : /uploads/name (servi par Next.js static ou Nginx)
     return NextResponse.json({ url: `/uploads/${name}` });
   } catch (error) {
     console.error("POST /api/admin/upload error:", error);
