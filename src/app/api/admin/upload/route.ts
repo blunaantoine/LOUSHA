@@ -7,9 +7,10 @@ import crypto from "crypto";
 /**
  * POST /api/admin/upload — upload d'une image (multipart/form-data).
  * Stocke le fichier dans /public/uploads/ et retourne l'URL publique.
- * Protégé : ADMIN uniquement.
+ * Protégé : staff (ADMIN ou MANAGER).
  *
- * Champs attendus : "file" (image, max ~5 Mo).
+ * En production standalone, process.cwd() peut pointer ailleurs.
+ * On utilise un chemin absolu basé sur __dirname ou une variable d'env.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -32,34 +33,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validation taille (~5 Mo)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validation taille (~10 Mo)
+    if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "Image trop volumineuse (max 5 Mo)." },
+        { error: "Image trop volumineuse (max 10 Mo)." },
         { status: 400 }
       );
     }
 
-    // Prépare le dossier
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    // Détermine le dossier d'upload.
+    // En production standalone, on utilise le chemin absolu de l'app.
+    const baseDir =
+      process.env.UPLOAD_DIR ||
+      path.join(process.cwd(), "public", "uploads");
+
+    // Crée le dossier s'il n'existe pas (avec permissions 755)
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true, mode: 0o755 });
+    }
+
+    // Vérifie qu'on peut écrire
+    try {
+      fs.accessSync(baseDir, fs.constants.W_OK);
+    } catch {
+      // Tente de corriger les permissions
+      fs.chmodSync(baseDir, 0o755);
     }
 
     // Nom unique
     const ext = file.name.split(".").pop()?.toLowerCase() || "png";
     const name = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}.${ext}`;
-    const filepath = path.join(uploadDir, name);
+    const filepath = path.join(baseDir, name);
 
     // Écrit le fichier
     const arrayBuffer = await file.arrayBuffer();
-    fs.writeFileSync(filepath, Buffer.from(arrayBuffer));
+    fs.writeFileSync(filepath, Buffer.from(arrayBuffer), { mode: 0o644 });
 
     return NextResponse.json({ url: `/uploads/${name}` });
   } catch (error) {
     console.error("POST /api/admin/upload error:", error);
+    const message =
+      error instanceof Error ? error.message : "Upload impossible.";
     return NextResponse.json(
-      { error: "Upload impossible." },
+      { error: `Upload impossible : ${message}` },
       { status: 500 }
     );
   }

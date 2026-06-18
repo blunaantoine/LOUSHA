@@ -43,7 +43,6 @@ export function ProductCard({ product }: { product: Product }) {
         <InteractiveProductCard
           imageUrl={product.image}
           title={name}
-          price={formatPrice(product.priceCents, lang, currency)}
           badge={badgeLabel}
         />
       </button>
