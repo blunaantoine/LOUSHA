@@ -26,15 +26,31 @@ if [ "$NODE_MAJOR" -lt 18 ]; then
 fi
 echo "✓ Node.js $(node -v)"
 
-# --- 2. Clonage ---
-echo "📥 Code..."
+# --- 2. Déploiement du code vers /var/www/lousha ---
+echo "📁 Préparation de $APP_DIR..."
 sudo mkdir -p $APP_DIR
 sudo chown -R $USER:$USER $APP_DIR
-if [ -d "$APP_DIR/.git" ]; then
-    cd $APP_DIR && git pull origin main
+
+# Si on lance le script depuis /tmp/LOUSHA (clone local), on copie
+# Sinon on clone depuis GitHub
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/package.json" ] && [ -f "$SCRIPT_DIR/deploy/deploy.sh" ]; then
+    echo "📦 Copie depuis $SCRIPT_DIR..."
+    rsync -a --exclude node_modules --exclude .next --exclude .git \
+          --exclude 'db/*.db' --exclude '.env*' --exclude 'public/uploads' \
+          "$SCRIPT_DIR/" "$APP_DIR/"
 else
-    git clone $REPO $APP_DIR && cd $APP_DIR
+    echo "📦 Clone depuis GitHub..."
+    if [ -d "$APP_DIR/.git" ]; then
+        cd $APP_DIR && git pull origin main
+    else
+        rm -rf $APP_DIR/*
+        git clone $REPO $APP_DIR
+    fi
 fi
+echo "✓ Code en place dans $APP_DIR"
+
+cd $APP_DIR
 
 # --- 3. .env.production ---
 mkdir -p $APP_DIR/db
@@ -53,17 +69,21 @@ else
 fi
 
 # --- 4. Build ---
-echo "🔨 Build..."
+echo "🔨 Installation dépendances..."
 npm install
+echo "🔨 Génération Prisma..."
 npx prisma generate
+echo "🔨 Build de production..."
 npm run build
 echo "✓ Build OK"
 
 # --- 5. DB + seed ---
 echo "🗄️  Base de données..."
 npx prisma db push
-# Seed via node (tsx/ts-node selon dispo)
-npx tsx scripts/seed.ts 2>/dev/null || npx ts-node scripts/seed.ts 2>/dev/null || echo "⚠️  Seed manuel: npx tsx scripts/seed.ts"
+echo "🌱 Seed..."
+npx tsx scripts/seed.ts 2>/dev/null || npx ts-node scripts/seed.ts 2>/dev/null || \
+    node -e "require('child_process').execSync('npx tsx scripts/seed.ts',{stdio:'inherit'})" 2>/dev/null || \
+    echo "⚠️  Seed manuel: cd $APP_DIR && npx tsx scripts/seed.ts"
 echo "✓ DB prête"
 
 # --- 6. Permissions ---
@@ -77,7 +97,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable lousha
 sudo systemctl restart lousha
 sleep 3
-if curl -s -o /dev/null -w "" http://127.0.0.1:$PORT; then
+if curl -s -o /dev/null -w "" http://127.0.0.1:$PORT 2>/dev/null; then
     echo "✓ Serveur actif sur port $PORT"
 else
     echo "⚠️  Vérifiez: sudo journalctl -u lousha -f"
