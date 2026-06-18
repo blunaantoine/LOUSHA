@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getProductWithRelated } from "@/lib/services/product-service";
 
 export async function GET(
   _req: NextRequest,
@@ -7,10 +7,7 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const product = await db.product.findUnique({
-      where: { slug },
-      include: { category: true },
-    });
+    const { product, related } = await getProductWithRelated(slug);
 
     if (!product) {
       return NextResponse.json(
@@ -18,16 +15,6 @@ export async function GET(
         { status: 404 }
       );
     }
-
-    // Cross-sell: autres produits de la même catégorie
-    const related = await db.product.findMany({
-      where: {
-        categorySlug: product.categorySlug,
-        NOT: { id: product.id },
-      },
-      take: 4,
-      orderBy: { createdAt: "desc" },
-    });
 
     return NextResponse.json({ product, related });
   } catch (error) {

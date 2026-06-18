@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { listCategories } from "@/lib/services/product-service";
 
 export async function GET() {
   try {
-    const categories = await db.category.findMany({
-      orderBy: { order: "asc" },
-      include: { products: { select: { id: true } } },
-    });
+    const categories = await listCategories();
     return NextResponse.json({ categories });
   } catch (error) {
     console.error("GET /api/categories error:", error);

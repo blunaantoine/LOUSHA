@@ -3,12 +3,9 @@
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
+import { computeCartTotals } from "@/lib/services/cart-service";
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Seuil de livraison offerte : 80 € ≈ 52 500 XOF (en centimes de XOF)
-const FREE_SHIPPING_THRESHOLD = 5250000;
-const SHIPPING_COST_XOF_CENTS = 425000; // ~6,50 €
 
 export function CartDrawer() {
   const {
@@ -37,12 +34,16 @@ export function CartDrawer() {
     };
   }, [cartOpen]);
 
-  const subtotal = cartTotal();
-  const shippingFree = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0;
-  const shipping = shippingFree ? 0 : SHIPPING_COST_XOF_CENTS;
-  const total = subtotal + shipping;
-  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  // Calculs métier délégués au service panier (réutilisables côté API).
+  const totals = computeCartTotals(items);
+  const {
+    subtotal,
+    shipping,
+    total,
+    shippingFree,
+    remainingForFreeShipping: remaining,
+    freeShippingProgress: progress,
+  } = totals;
 
   return (
     <div

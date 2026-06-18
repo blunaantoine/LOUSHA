@@ -3,9 +3,36 @@ import { db } from "../src/lib/db";
 async function main() {
   console.log("🌱 Seeding Lousha Accessories database...");
 
-  // Clean
+  // Clean (ordre important pour les relations)
+  await db.payment.deleteMany();
+  await db.orderItem.deleteMany();
+  await db.order.deleteMany();
+  await db.coupon.deleteMany();
+  await db.user.deleteMany();
   await db.product.deleteMany();
   await db.category.deleteMany();
+
+  // --- Utilisateur admin par défaut ---
+  // Mot de passe : "lousha-admin" (hash simple pour démo ; en prod : bcrypt via API)
+  await db.user.create({
+    data: {
+      name: "Admin Lousha",
+      email: "admin@lousha-accessories.com",
+      password: "lousha-admin", // TODO: hasher côté API auth
+      role: "ADMIN",
+    },
+  });
+  console.log("✓ Admin user created (admin@lousha-accessories.com)");
+
+  // --- Coupon de bienvenue ---
+  await db.coupon.create({
+    data: {
+      code: "BIENVENUE10",
+      discountPct: 10,
+      active: true,
+    },
+  });
+  console.log("✓ Coupon BIENVENUE10 created (-10%)");
 
   const categories = [
     {
@@ -82,6 +109,7 @@ async function main() {
       material: "Raphia 100% naturel, cuir véritable",
       origin: "Togo",
       craftingTime: "3 jours",
+      stock: 12,
       badge: "bestseller",
       featured: true,
     },
@@ -100,6 +128,7 @@ async function main() {
       material: "Raphia 100% naturel",
       origin: "Togo",
       craftingTime: "2 jours",
+      stock: 12,
       badge: "new",
       featured: true,
     },
@@ -118,6 +147,7 @@ async function main() {
       material: "Raphia 100% naturel, cuir",
       origin: "Togo",
       craftingTime: "1,5 jour",
+      stock: 12,
       badge: "bestseller",
       featured: true,
     },
@@ -136,6 +166,7 @@ async function main() {
       material: "Raphia 100% naturel",
       origin: "Togo",
       craftingTime: "1 jour",
+      stock: 12,
       badge: "new",
       featured: false,
     },
@@ -154,6 +185,7 @@ async function main() {
       material: "Raphia 100% naturel",
       origin: "Togo",
       craftingTime: "4 jours",
+      stock: 12,
       badge: "bestseller",
       featured: true,
     },
@@ -172,6 +204,7 @@ async function main() {
       material: "Raphia 100% naturel",
       origin: "Togo",
       craftingTime: "5 jours",
+      stock: 12,
       badge: "new",
       featured: true,
     },
@@ -190,6 +223,7 @@ async function main() {
       material: "Raphia 100% naturel",
       origin: "Togo",
       craftingTime: "1 jour",
+      stock: 12,
       badge: "none",
       featured: false,
     },
@@ -208,6 +242,7 @@ async function main() {
       material: "Raphia 100% naturel",
       origin: "Togo",
       craftingTime: "1 jour",
+      stock: 12,
       badge: "new",
       featured: false,
     },
