@@ -9,6 +9,7 @@ async function main() {
   await db.orderItem.deleteMany();
   await db.order.deleteMany();
   await db.coupon.deleteMany();
+  await db.heroSlide.deleteMany();
   await db.user.deleteMany();
   await db.product.deleteMany();
   await db.category.deleteMany();
@@ -252,6 +253,47 @@ async function main() {
   for (const p of products) {
     await db.product.create({ data: p });
   }
+
+  // --- Slides du carrousel hero ---
+  const heroSlides = [
+    {
+      image: "/images/hero/hero-1.png",
+      eyebrowFr: "Le geste",
+      eyebrowEn: "The gesture",
+      titleFr: "Le savoir-faire des artisans",
+      titleEn: "The artisans' know-how",
+      textFr: "Chaque objet de décoration naît de mains expertes et de fibres naturelles.",
+      textEn: "Each decorative object is born from expert hands and natural fibers.",
+      order: 0,
+      active: true,
+    },
+    {
+      image: "/images/hero/hero-2.png",
+      eyebrowFr: "La matière",
+      eyebrowEn: "The material",
+      titleFr: "Raphia 100% naturel",
+      titleEn: "100% natural raffia",
+      textFr: "Une fibre noble, durable, puisée dans la richesse du Togo.",
+      textEn: "A noble, durable fiber drawn from the richness of Togo.",
+      order: 1,
+      active: true,
+    },
+    {
+      image: "/images/hero/hero-3.png",
+      eyebrowFr: "L'élégance",
+      eyebrowEn: "Elegance",
+      titleFr: "Un intérieur habité d'âme",
+      titleEn: "An interior filled with soul",
+      textFr: "Des créations de décoration qui réchauffent vos espaces de vie.",
+      textEn: "Decorative creations that warm your living spaces.",
+      order: 2,
+      active: true,
+    },
+  ];
+  for (const s of heroSlides) {
+    await db.heroSlide.create({ data: s });
+  }
+  console.log(`✓ ${heroSlides.length} hero slides created`);
 
   console.log(`✅ Seeded ${categories.length} categories and ${products.length} products.`);
 }

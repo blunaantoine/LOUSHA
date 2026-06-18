@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/guards";
-import { listAllProductsAdmin, createProduct } from "@/lib/services/admin-service";
+import { listHeroSlides, createHeroSlide } from "@/lib/services/admin-service";
 
 export async function GET() {
   try {
     if (!(await requireAdmin())) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
-    const products = await listAllProductsAdmin();
-    return NextResponse.json({ products });
+    const slides = await listHeroSlides(false);
+    return NextResponse.json({ slides });
   } catch (error) {
-    console.error("GET /api/admin/products error:", error);
+    console.error("GET /api/admin/slides error:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -21,16 +21,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
     const body = await req.json();
-    if (!body.slug || !body.name || !body.priceCents || !body.categorySlug || !body.image) {
+    if (!body.image || !body.titleFr || !body.titleEn) {
       return NextResponse.json(
-        { error: "Champs requis manquants (slug, name, priceCents, categorySlug, image)." },
+        { error: "Champs requis manquants (image, titleFr, titleEn)." },
         { status: 400 }
       );
     }
-    const product = await createProduct(body);
-    return NextResponse.json({ product });
+    const slide = await createHeroSlide(body);
+    return NextResponse.json({ slide });
   } catch (error) {
-    console.error("POST /api/admin/products error:", error);
+    console.error("POST /api/admin/slides error:", error);
     return NextResponse.json({ error: "Création impossible." }, { status: 500 });
   }
 }

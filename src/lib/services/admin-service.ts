@@ -113,3 +113,111 @@ export async function updateProductStock(id: string, stock: number) {
     data: { stock, inStock: stock > 0 },
   });
 }
+
+/* ============ CRUD Produits ============ */
+
+export interface ProductInput {
+  slug: string;
+  name: string;
+  nameEn: string;
+  description: string;
+  descriptionEn: string;
+  priceCents: number;
+  categorySlug: string;
+  image: string;
+  gallery?: string;
+  material: string;
+  origin: string;
+  craftingTime: string;
+  badge?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  stock?: number;
+}
+
+export async function createProduct(input: ProductInput) {
+  return db.product.create({
+    data: {
+      slug: input.slug,
+      name: input.name,
+      nameEn: input.nameEn,
+      description: input.description,
+      descriptionEn: input.descriptionEn,
+      priceCents: input.priceCents,
+      categorySlug: input.categorySlug,
+      image: input.image,
+      gallery: input.gallery || input.image,
+      material: input.material,
+      origin: input.origin,
+      craftingTime: input.craftingTime,
+      badge: input.badge || "none",
+      featured: input.featured ?? false,
+      inStock: input.inStock ?? true,
+      stock: input.stock ?? 0,
+    },
+  });
+}
+
+export async function updateProduct(id: string, input: Partial<ProductInput>) {
+  return db.product.update({
+    where: { id },
+    data: input,
+  });
+}
+
+export async function deleteProduct(id: string) {
+  return db.product.delete({ where: { id } });
+}
+
+/* ============ CRUD Hero Slides ============ */
+
+export async function listHeroSlides(activeOnly = false) {
+  return db.heroSlide.findMany({
+    where: activeOnly ? { active: true } : {},
+    orderBy: { order: "asc" },
+  });
+}
+
+export async function createHeroSlide(input: {
+  image: string;
+  eyebrowFr?: string;
+  eyebrowEn?: string;
+  titleFr: string;
+  titleEn: string;
+  textFr?: string;
+  textEn?: string;
+  order?: number;
+  active?: boolean;
+}) {
+  return db.heroSlide.create({
+    data: {
+      image: input.image,
+      eyebrowFr: input.eyebrowFr || "",
+      eyebrowEn: input.eyebrowEn || "",
+      titleFr: input.titleFr,
+      titleEn: input.titleEn,
+      textFr: input.textFr || "",
+      textEn: input.textEn || "",
+      order: input.order ?? 0,
+      active: input.active ?? true,
+    },
+  });
+}
+
+export async function updateHeroSlide(id: string, input: Partial<{
+  image: string;
+  eyebrowFr: string;
+  eyebrowEn: string;
+  titleFr: string;
+  titleEn: string;
+  textFr: string;
+  textEn: string;
+  order: number;
+  active: boolean;
+}>) {
+  return db.heroSlide.update({ where: { id }, data: input });
+}
+
+export async function deleteHeroSlide(id: string) {
+  return db.heroSlide.delete({ where: { id } });
+}

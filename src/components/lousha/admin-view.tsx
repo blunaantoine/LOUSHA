@@ -11,7 +11,10 @@ import {
   type AdminProduct,
   type AdminCustomer,
 } from "@/hooks/use-admin-data";
+import { useCategories } from "@/hooks/use-catalog";
 import { cn } from "@/lib/utils";
+import { ProductEditor } from "./product-editor";
+import { CarouselManager } from "./carousel-manager";
 import {
   TrendingUp,
   Calendar,
@@ -21,9 +24,11 @@ import {
   ShoppingCart,
   Boxes,
   ArrowLeft,
+  Image as ImageIcon,
+  Plus,
 } from "lucide-react";
 
-type Tab = "dashboard" | "orders" | "products" | "customers";
+type Tab = "dashboard" | "orders" | "products" | "customers" | "carousel";
 
 export function AdminView() {
   const { lang, currency, setView } = useStore();
@@ -51,6 +56,7 @@ export function AdminView() {
     { key: "dashboard", label: t.admin.tabDashboard, icon: <TrendingUp className="h-4 w-4" /> },
     { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
+    { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
     { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
   ];
 
@@ -99,6 +105,7 @@ export function AdminView() {
         {tab === "dashboard" && <DashboardTab enabled={authenticated} />}
         {tab === "orders" && <OrdersTab enabled={authenticated} />}
         {tab === "products" && <ProductsTab enabled={authenticated} />}
+        {tab === "carousel" && <CarouselManager />}
         {tab === "customers" && <CustomersTab enabled={authenticated} />}
       </div>
     </section>
@@ -339,38 +346,81 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
 function ProductsTab({ enabled }: { enabled: boolean }) {
   const { lang, currency } = useStore();
   const t = useDict(lang);
+  const { categories } = useCategories();
   const { data, loading } = useAdminData<{ products: AdminProduct[] }>("products", enabled);
+  const [editing, setEditing] = useState<AdminProduct | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [localProducts, setLocalProducts] = useState<AdminProduct[] | null>(null);
 
-  if (loading || !data) return <SkeletonGrid count={4} />;
-  const products = data.products;
+  const products = localProducts ?? data?.products ?? [];
+
+  const openNew = () => {
+    setEditing(null);
+    setEditorOpen(true);
+  };
+  const openEdit = (p: AdminProduct) => {
+    setEditing(p);
+    setEditorOpen(true);
+  };
+  const handleSaved = async () => {
+    // Recharge les produits depuis l'API après création/modif/suppression
+    try {
+      const res = await fetch("/api/admin/products", { cache: "no-store" });
+      const d = await res.json();
+      setLocalProducts(d.products || []);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  if (loading && !data) return <SkeletonGrid count={4} />;
 
   return (
-    <div className="overflow-x-auto scroll-elegant">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left border-b border-border text-[10px] tracking-luxe-sm uppercase text-muted-foreground">
-            <th className="py-3 pr-4 font-medium">{t.admin.colProduct}</th>
-            <th className="py-3 px-4 font-medium hidden sm:table-cell">{t.admin.colCategory}</th>
-            <th className="py-3 px-4 font-medium">{t.admin.colPrice}</th>
-            <th className="py-3 px-4 font-medium">{t.admin.colStock}</th>
-            <th className="py-3 pl-4 font-medium">{t.admin.colStatus}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p) => (
-            <tr key={p.id} className="border-b border-border/60 hover:bg-secondary/30 transition-colors">
-              <td className="py-3 pr-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={p.image}
-                    alt=""
-                    className="h-10 w-10 rounded-lg object-cover bg-secondary shrink-0"
-                  />
-                  <span className="font-sans font-medium truncate">
-                    {lang === "fr" ? p.name : p.nameEn}
-                  </span>
-                </div>
-              </td>
+    <div>
+      {/* Barre d'actions */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-muted-foreground">
+          {products.length} {products.length > 1 ? "produits" : "produit"}
+        </p>
+        <button
+          onClick={openNew}
+          className="inline-flex items-center gap-2 bg-foreground text-background px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          {t.admin.newProduct}
+        </button>
+      </div>
+
+      <div className="overflow-x-auto scroll-elegant">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left border-b border-border text-[10px] tracking-luxe-sm uppercase text-muted-foreground">
+              <th className="py-3 pr-4 font-medium">{t.admin.colProduct}</th>
+              <th className="py-3 px-4 font-medium hidden sm:table-cell">{t.admin.colCategory}</th>
+              <th className="py-3 px-4 font-medium">{t.admin.colPrice}</th>
+              <th className="py-3 px-4 font-medium">{t.admin.colStock}</th>
+              <th className="py-3 pl-4 font-medium">{t.admin.colStatus}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((p) => (
+              <tr
+                key={p.id}
+                onClick={() => openEdit(p)}
+                className="border-b border-border/60 hover:bg-secondary/30 transition-colors cursor-pointer"
+              >
+                <td className="py-3 pr-4">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={p.image}
+                      alt=""
+                      className="h-10 w-10 rounded-lg object-cover bg-secondary shrink-0"
+                    />
+                    <span className="font-sans font-medium truncate">
+                      {lang === "fr" ? p.name : p.nameEn}
+                    </span>
+                  </div>
+                </td>
               <td className="py-3 px-4 hidden sm:table-cell text-muted-foreground">
                 {p.category ? (lang === "fr" ? p.category.name : p.category.nameEn) : "—"}
               </td>
@@ -406,6 +456,16 @@ function ProductsTab({ enabled }: { enabled: boolean }) {
           ))}
         </tbody>
       </table>
+      </div>
+
+      {/* Éditeur produit */}
+      <ProductEditor
+        open={editorOpen}
+        onClose={() => setEditorOpen(false)}
+        onSaved={handleSaved}
+        product={editing}
+        categories={categories}
+      />
     </div>
   );
 }

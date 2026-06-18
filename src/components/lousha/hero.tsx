@@ -6,32 +6,90 @@ import { useDict } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 
-const SLIDES = [
-  { image: "/images/hero/hero-1.png" },
-  { image: "/images/hero/hero-2.png" },
-  { image: "/images/hero/hero-3.png" },
+interface Slide {
+  id: string;
+  image: string;
+  eyebrowFr: string;
+  eyebrowEn: string;
+  titleFr: string;
+  titleEn: string;
+  textFr: string;
+  textEn: string;
+}
+
+// Fallback codé en dur si l'API ne répond pas (ex: premier rendu SSR)
+const FALLBACK_SLIDES: Slide[] = [
+  {
+    id: "fb-1",
+    image: "/images/hero/hero-1.png",
+    eyebrowFr: "Le geste",
+    eyebrowEn: "The gesture",
+    titleFr: "Le savoir-faire des artisans",
+    titleEn: "The artisans' know-how",
+    textFr: "Chaque objet de décoration naît de mains expertes et de fibres naturelles.",
+    textEn: "Each decorative object is born from expert hands and natural fibers.",
+  },
+  {
+    id: "fb-2",
+    image: "/images/hero/hero-2.png",
+    eyebrowFr: "La matière",
+    eyebrowEn: "The material",
+    titleFr: "Raphia 100% naturel",
+    titleEn: "100% natural raffia",
+    textFr: "Une fibre noble, durable, puisée dans la richesse du Togo.",
+    textEn: "A noble, durable fiber drawn from the richness of Togo.",
+  },
+  {
+    id: "fb-3",
+    image: "/images/hero/hero-3.png",
+    eyebrowFr: "L'élégance",
+    eyebrowEn: "Elegance",
+    titleFr: "Un intérieur habité d'âme",
+    titleEn: "An interior filled with soul",
+    textFr: "Des créations de décoration qui réchauffent vos espaces de vie.",
+    textEn: "Decorative creations that warm your living spaces.",
+  },
 ];
 
 export function HeroSlideshow() {
   const { lang, setView } = useStore();
   const t = useDict(lang);
   const [active, setActive] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>(FALLBACK_SLIDES);
+
+  // Charge les slides depuis la DB (gérés via admin)
+  useEffect(() => {
+    let active = true;
+    fetch("/api/hero", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { slides: [] }))
+      .then((d) => {
+        if (active && d.slides && d.slides.length > 0) {
+          setSlides(d.slides);
+        }
+      })
+      .catch(() => {
+        /* garde le fallback */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setActive((i) => (i + 1) % SLIDES.length);
+      setActive((i) => (i + 1) % slides.length);
     }, 6000);
     return () => clearInterval(id);
-  }, []);
+  }, [slides.length]);
 
   return (
     <section className="w-full px-3 sm:px-5 lg:px-8 pt-3 sm:pt-4">
       {/* === La grande carte flottante aux coins arrondis — hauteur = largeur / 2 === */}
       <div className="relative w-full overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[3rem] bg-secondary aspect-[2/1] min-h-[420px] shadow-[0_30px_80px_-40px_rgba(17,17,17,0.35)]">
         {/* Slides — visuel produit au centre de la carte */}
-        {SLIDES.map((slide, i) => (
+        {slides.map((slide, i) => (
           <div
-            key={i}
+            key={slide.id}
             className={cn(
               "absolute inset-0 transition-opacity duration-[1400ms] ease-out",
               i === active ? "opacity-100" : "opacity-0"
@@ -58,14 +116,14 @@ export function HeroSlideshow() {
               key={`eyebrow-${active}-${lang}`}
               className="animate-fade-up text-[10px] sm:text-xs tracking-luxe uppercase text-background/85 mb-4 sm:mb-5"
             >
-              {t.hero.slides[active].eyebrow}
+              {slides[active] ? (lang === "fr" ? slides[active].eyebrowFr : slides[active].eyebrowEn) : t.hero.slides[active].eyebrow}
             </p>
             <h1
               key={`title-${active}-${lang}`}
               className="animate-fade-up font-serif text-[2.2rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl text-background text-balance"
               style={{ animationDelay: "0.08s" }}
             >
-              {t.hero.slides[active].title}
+              {slides[active] ? (lang === "fr" ? slides[active].titleFr : slides[active].titleEn) : t.hero.slides[active].title}
             </h1>
 
             <div
@@ -97,7 +155,7 @@ export function HeroSlideshow() {
               key={`text-${active}-${lang}`}
               className="text-sm sm:text-base lg:text-lg text-background/90 max-w-md font-light leading-relaxed"
             >
-              {t.hero.slides[active].text}
+              {slides[active] ? (lang === "fr" ? slides[active].textFr : slides[active].textEn) : t.hero.slides[active].text}
             </p>
 
             {/* Petites descriptions / indicateurs */}
@@ -106,11 +164,11 @@ export function HeroSlideshow() {
                 {String(active + 1).padStart(2, "0")}
                 <span className="text-background/40">
                   {" "}
-                  / {String(SLIDES.length).padStart(2, "0")}
+                  / {String(slides.length).padStart(2, "0")}
                 </span>
               </span>
               <div className="flex items-center gap-2.5">
-                {SLIDES.map((_, i) => (
+                {slides.map((slide, i) => (
                   <button
                     key={i}
                     onClick={() => setActive(i)}
