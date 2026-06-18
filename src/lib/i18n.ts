@@ -14,14 +14,14 @@ export const dict = {
       title1: "L'art du raphia,",
       title2: "tressé à la main",
       subtitle:
-        "Des accessoires et objets de décoration en raphia 100% naturel, façonnés par les artisans de Lousha Accessories au cœur du Togo.",
-      cta1: "Découvrir la boutique",
+        "Des objets de décoration et accessoires d'intérieur en raphia 100% naturel, façonnés par les artisans de Lousha au cœur du Togo.",
+      cta1: "Découvrir nos collections",
       cta2: "Notre histoire",
       slides: [
         {
           eyebrow: "Le geste",
           title: "Le savoir-faire des artisans",
-          text: "Chaque pièce naît de mains expertes et de fibres naturelles.",
+          text: "Chaque objet de décoration naît de mains expertes et de fibres naturelles.",
         },
         {
           eyebrow: "La matière",
@@ -30,14 +30,14 @@ export const dict = {
         },
         {
           eyebrow: "L'élégance",
-          title: "Un luxe discret et authentique",
-          text: "Des créations pensées pour accompagner vos plus beaux moments.",
+          title: "Un intérieur habité d'âme",
+          text: "Des créations de décoration qui réchauffent vos espaces de vie.",
         },
       ],
     },
     categories: {
       title: "Nos collections",
-      subtitle: "Explorez l'univers Lousha",
+      subtitle: "L'univers décoration Lousha",
       discover: "Découvrir",
     },
     engagements: {
@@ -65,29 +65,29 @@ export const dict = {
       eyebrow: "Made in Togo · Fait main",
       title: "L'art du raphia,",
       titleAccent: "à portée de main",
-      text: "Des accessoires uniques en raphia 100% naturel, tressés main par nos artisans au Togo. Élégance, authenticité et savoir-faire.",
-      cta: "Découvrir la boutique",
+      text: "Des objets de décoration uniques en raphia 100% naturel, tressés main par nos artisans au Togo. Pour habiller vos intérieurs d'authenticité et de chaleur.",
+      cta: "Découvrir nos collections",
       secondary: "Nos engagements",
     },
     products: {
       title: "Nouveautés & Best-sellers",
-      subtitle: "Les piècesSignature Lousha",
+      subtitle: "Les pièces signature Lousha",
       new: "Nouveauté",
       bestseller: "Best-seller",
       addToCart: "Ajouter au panier",
       quickView: "Aperçu rapide",
       from: "À partir de",
-      viewAll: "Voir toute la boutique",
+      viewAll: "Voir toutes nos collections",
     },
     shop: {
-      title: "La Boutique",
-      subtitle: "Toutes nos créations en raphia fait main",
+      title: "LOUSHA",
+      subtitle: "Toutes nos créations de décoration en raphia fait main",
       all: "Toutes",
       sort: "Trier",
       sortNew: "Nouveautés",
       sortPriceAsc: "Prix croissant",
       sortPriceDesc: "Prix décroissant",
-      empty: "Aucun produit dans cette catégorie pour l'instant.",
+      empty: "Aucune création dans cette catégorie pour l'instant.",
       results: (n: number) => `${n} pièce${n > 1 ? "s" : ""}`,
     },
     product: {
@@ -105,7 +105,7 @@ export const dict = {
     cart: {
       title: "Votre panier",
       empty: "Votre panier est vide.",
-      emptyCta: "Explorer la boutique",
+      emptyCta: "Explorer nos collections",
       subtotal: "Sous-total",
       shipping: "Livraison",
       shippingFree: "Offerte",
@@ -146,9 +146,9 @@ export const dict = {
       eyebrow: "Notre histoire",
       title: "Né au Togo, tressé pour le monde",
       text1:
-        "Lousha Accessories est née d'une conviction simple : le savoir-faire artisanal togolais mérite une place de choix dans l'univers du luxe. Dans nos ateliers, des mains expertes transforment la fibre de raphia en pièces uniques, héritières d'un tressage transmis de génération en génération.",
+        "Lousha est née d'une conviction simple : le savoir-faire artisanal togolais mérite une place de choix dans l'univers de la décoration. Dans nos ateliers, des mains expertes transforment la fibre de raphia en pièces uniques, héritières d'un tressage transmis de génération en génération.",
       text2:
-        "Chaque sac, chaque chapeau, chaque objet raconte cette rencontre entre tradition africaine et esthétique contemporaine. Nous célébrons la lenteur du geste juste, la beauté des matières naturelles, et la fierté de celles et ceux qui créent.",
+        "Chaque panier, chaque suspension, chaque objet de décoration raconte cette rencontre entre tradition africaine et esthétique contemporaine. Nous célébrons la lenteur du geste juste, la beauté des matières naturelles, et la fierté de celles et ceux qui créent.",
       stats: [
         { value: "100%", label: "Fait main" },
         { value: "8", label: "Artisans associés" },
@@ -161,9 +161,9 @@ export const dict = {
       eyebrow: "La matière",
       title: "Le raphia, une fibre noble",
       text1:
-        "Le raphia est une fibre végétale naturelle récoltée sur le palmier raphia. Souple, résistante et lumineuse, elle se prête à un tressage d'une finesse remarquable.",
+        "Le raphia est une fibre végétale naturelle récoltée sur le palmier raphia. Souple, résistante et lumineuse, elle se prête à un tressage d'une finesse remarquable, idéal pour habiller vos intérieurs.",
       text2:
-        "Récolté de manière responsable puis séché, teinté à l'eau et à la main, le raphia de Lousha conserve ses tons chauds et vivants. Chaque création est unique, et peut présenter de subtiles variations de teinte qui témoignent de son caractère artisanal.",
+        "Récolté de manière responsable puis séché, teinté à l'eau et à la main, le raphia de Lousha conserve ses tons chauds et vivants. Chaque objet de décoration est unique, et peut présenter de subtiles variations de teinte qui témoignent de son caractère artisanal.",
       points: [
         { title: "Naturel", text: "Fibre 100% végétale, sans plastique." },
         { title: "Durable", text: "Des pièces pensées pour durer dans le temps." },
@@ -173,9 +173,9 @@ export const dict = {
     },
     contact: {
       eyebrow: "Contact",
-      title: "Parlons de votre univers",
+      title: "Parlons de votre intérieur",
       subtitle:
-        "Une question, une commande sur-mesure, une envie de collaboration ? Notre équipe vous répond avec plaisir.",
+        "Une question, une commande de décoration sur-mesure, une envie de collaboration ? Notre équipe vous répond avec plaisir.",
       whatsapp: "Écrire sur WhatsApp",
       whatsappNumber: "+228 96 69 29 72",
       email: "E-mail",
@@ -191,7 +191,7 @@ export const dict = {
       },
     },
     footer: {
-      tagline: "Accessoires & objets de décoration en raphia, faits main au Togo.",
+      tagline: "Objets de décoration & accessoires d'intérieur en raphia, faits main au Togo.",
       explore: "Explorer",
       maison: "La Maison",
       help: "Aide",
@@ -231,14 +231,14 @@ export const dict = {
       title1: "The art of raffia,",
       title2: "handwoven",
       subtitle:
-        "Accessories and decorative objects in 100% natural raffia, crafted by the artisans of Lousha Accessories in the heart of Togo.",
-      cta1: "Discover the shop",
+        "Decorative objects and home accessories in 100% natural raffia, crafted by the artisans of Lousha in the heart of Togo.",
+      cta1: "Discover our collections",
       cta2: "Our story",
       slides: [
         {
           eyebrow: "The gesture",
           title: "The artisans' know-how",
-          text: "Each piece is born from expert hands and natural fibers.",
+          text: "Each decorative object is born from expert hands and natural fibers.",
         },
         {
           eyebrow: "The material",
@@ -247,14 +247,14 @@ export const dict = {
         },
         {
           eyebrow: "Elegance",
-          title: "A discreet, authentic luxury",
-          text: "Creations designed to accompany your finest moments.",
+          title: "An interior filled with soul",
+          text: "Decorative creations that warm your living spaces.",
         },
       ],
     },
     categories: {
       title: "Our collections",
-      subtitle: "Explore the Lousha universe",
+      subtitle: "The Lousha decoration universe",
       discover: "Discover",
     },
     engagements: {
@@ -270,8 +270,8 @@ export const dict = {
       eyebrow: "Made in Togo · Handmade",
       title: "The art of raffia,",
       titleAccent: "within reach",
-      text: "Unique accessories in 100% natural raffia, hand-woven by our artisans in Togo. Elegance, authenticity and know-how.",
-      cta: "Discover the shop",
+      text: "Unique decorative objects in 100% natural raffia, hand-woven by our artisans in Togo. To dress your interiors with authenticity and warmth.",
+      cta: "Discover our collections",
       secondary: "Our commitments",
     },
     products: {
@@ -282,17 +282,17 @@ export const dict = {
       addToCart: "Add to cart",
       quickView: "Quick view",
       from: "From",
-      viewAll: "View the full shop",
+      viewAll: "View all our collections",
     },
     shop: {
-      title: "The Shop",
-      subtitle: "All our handmade raffia creations",
+      title: "LOUSHA",
+      subtitle: "All our handmade raffia decoration creations",
       all: "All",
       sort: "Sort",
       sortNew: "Newest",
       sortPriceAsc: "Price low to high",
       sortPriceDesc: "Price high to low",
-      empty: "No products in this category yet.",
+      empty: "No creations in this category yet.",
       results: (n: number) => `${n} piece${n > 1 ? "s" : ""}`,
     },
     product: {
@@ -310,7 +310,7 @@ export const dict = {
     cart: {
       title: "Your cart",
       empty: "Your cart is empty.",
-      emptyCta: "Explore the shop",
+      emptyCta: "Explore our collections",
       subtotal: "Subtotal",
       shipping: "Shipping",
       shippingFree: "Free",
@@ -351,9 +351,9 @@ export const dict = {
       eyebrow: "Our story",
       title: "Born in Togo, woven for the world",
       text1:
-        "Lousha Accessories was born from a simple conviction: Togolese artisanal know-how deserves a place of choice in the world of luxury. In our ateliers, expert hands transform raffia fiber into unique pieces, heirs of a weaving passed down from generation to generation.",
+        "Lousha was born from a simple conviction: Togolese artisanal know-how deserves a place of choice in the world of decoration. In our ateliers, expert hands transform raffia fiber into unique pieces, heirs of a weaving passed down from generation to generation.",
       text2:
-        "Each bag, each hat, each object tells of this encounter between African tradition and contemporary aesthetics. We celebrate the slowness of the right gesture, the beauty of natural materials, and the pride of those who create.",
+        "Each basket, each pendant light, each decorative object tells of this encounter between African tradition and contemporary aesthetics. We celebrate the slowness of the right gesture, the beauty of natural materials, and the pride of those who create.",
       stats: [
         { value: "100%", label: "Handmade" },
         { value: "8", label: "Artisans partnered" },
@@ -366,9 +366,9 @@ export const dict = {
       eyebrow: "The material",
       title: "Raffia, a noble fiber",
       text1:
-        "Raffia is a natural plant fiber harvested from the raffia palm. Supple, resistant and luminous, it lends itself to a remarkably fine weave.",
+        "Raffia is a natural plant fiber harvested from the raffia palm. Supple, resistant and luminous, it lends itself to a remarkably fine weave, ideal for dressing your interiors.",
       text2:
-        "Harvested responsibly then dried, dyed with water and by hand, Lousha's raffia retains its warm and vibrant tones. Each creation is unique, and may show subtle shade variations that testify to its artisanal character.",
+        "Harvested responsibly then dried, dyed with water and by hand, Lousha's raffia retains its warm and vibrant tones. Each decorative object is unique, and may show subtle shade variations that testify to its artisanal character.",
       points: [
         { title: "Natural", text: "100% plant fiber, plastic-free." },
         { title: "Durable", text: "Pieces designed to last over time." },
@@ -378,9 +378,9 @@ export const dict = {
     },
     contact: {
       eyebrow: "Contact",
-      title: "Let's talk about your world",
+      title: "Let's talk about your interior",
       subtitle:
-        "A question, a made-to-measure order, a desire to collaborate? Our team replies with pleasure.",
+        "A question, a made-to-measure decoration order, a desire to collaborate? Our team replies with pleasure.",
       whatsapp: "Message on WhatsApp",
       whatsappNumber: "+228 96 69 29 72",
       email: "Email",
@@ -396,7 +396,7 @@ export const dict = {
       },
     },
     footer: {
-      tagline: "Raffia accessories & decorative objects, handmade in Togo.",
+      tagline: "Decorative objects & home accessories in raffia, handmade in Togo.",
       explore: "Explore",
       maison: "The House",
       help: "Help",
