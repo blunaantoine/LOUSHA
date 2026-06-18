@@ -224,6 +224,39 @@ export async function deleteHeroSlide(id: string) {
   return db.heroSlide.delete({ where: { id } });
 }
 
+/* ============ CRUD Catégories (Collections) ============ */
+
+export interface CategoryInput {
+  slug: string;
+  name: string;
+  nameEn: string;
+  tagline: string;
+  taglineEn: string;
+  description: string;
+  descriptionEn: string;
+  image: string;
+  order: number;
+}
+
+export async function listAllCategoriesAdmin() {
+  return db.category.findMany({
+    orderBy: { order: "asc" },
+    include: { _count: { select: { products: true } } },
+  });
+}
+
+export async function createCategory(input: CategoryInput) {
+  return db.category.create({ data: input });
+}
+
+export async function updateCategory(slug: string, input: Partial<CategoryInput>) {
+  return db.category.update({ where: { slug }, data: input });
+}
+
+export async function deleteCategory(slug: string) {
+  return db.category.delete({ where: { slug } });
+}
+
 /* ============ Gestion des utilisateurs (ADMIN uniquement) ============ */
 
 export async function listAllUsers() {

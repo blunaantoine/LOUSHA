@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { ProductEditor } from "./product-editor";
 import { CarouselManager } from "./carousel-manager";
 import { ContentManager } from "./content-manager";
+import { CollectionManager } from "./collection-manager";
 import {
   TrendingUp,
   Calendar,
@@ -32,9 +33,10 @@ import {
   Eye,
   EyeOff,
   FileText,
+  LayoutGrid,
 } from "lucide-react";
 
-type Tab = "dashboard" | "orders" | "products" | "customers" | "carousel" | "content" | "users";
+type Tab = "dashboard" | "orders" | "products" | "customers" | "carousel" | "collections" | "content" | "users";
 
 export function AdminView() {
   const { lang, currency, setView } = useStore();
@@ -66,6 +68,7 @@ export function AdminView() {
     { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
     { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
+    { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-4 w-4" /> },
     { key: "content", label: t.admin.tabContent, icon: <FileText className="h-4 w-4" /> },
     { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
     // Onglet utilisateurs : ADMIN uniquement (pas MANAGER)
@@ -120,6 +123,7 @@ export function AdminView() {
         {tab === "orders" && <OrdersTab enabled={authenticated} />}
         {tab === "products" && <ProductsTab enabled={authenticated} />}
         {tab === "carousel" && <CarouselManager />}
+        {tab === "collections" && <CollectionManager />}
         {tab === "content" && <ContentManager />}
         {tab === "customers" && <CustomersTab enabled={authenticated} />}
         {tab === "users" && isAdmin && <UsersTab enabled={isAdmin} />}
