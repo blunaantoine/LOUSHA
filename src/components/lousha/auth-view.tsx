@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, User, Mail, Lock, Phone } from "lucide-react";
+import { ArrowRight, User, Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Mode = "login" | "register";
@@ -14,6 +14,7 @@ export function AuthView() {
   const t = useDict(lang);
   const { login, register, loading } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -97,14 +98,34 @@ export function AuthView() {
             onChange={(v) => update("email", v)}
             required
           />
-          <Field
-            icon={<Lock className="h-4 w-4" />}
-            label={t.auth.password}
-            type="password"
-            value={form.password}
-            onChange={(v) => update("password", v)}
-            required
-          />
+          {/* Champ mot de passe avec bouton "voir/masquer" */}
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+              {t.auth.password}
+              <span className="text-accent"> *</span>
+            </span>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <Lock className="h-4 w-4" />
+              </span>
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={form.password}
+                onChange={(e) => update("password", e.target.value)}
+                className="w-full h-12 bg-background border border-border pl-10 pr-11 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </label>
           {mode === "register" && (
             <Field
               icon={<Phone className="h-4 w-4" />}

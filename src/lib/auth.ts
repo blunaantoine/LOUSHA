@@ -10,13 +10,22 @@ import { validateCredentials } from "@/lib/services/auth-service";
  * Le callback session expose ces champs côté client.
  */
 export const authOptions: NextAuthOptions = {
+  // Indispensable derrière un reverse proxy (Nginx) :
+  // NextAuth doit faire confiance au header X-Forwarded-Proto pour
+  // déterminer le schéma (https) et setter les cookies secure correctement.
+  trustHost: true,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 jours
   },
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      // En production HTTPS, on préfixe par "__Host-" (plus sécurisé, exige
+      // secure + path=/ + pas de domain). En dev, nom simple.
+      name:
+        process.env.NODE_ENV === "production"
+          ? `__Host-next-auth.session-token`
+          : `next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
