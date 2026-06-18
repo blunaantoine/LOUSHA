@@ -5,6 +5,7 @@ import { useDict, formatPrice } from "@/lib/i18n";
 import type { Product } from "@/hooks/use-catalog";
 import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
+import { InteractiveProductCard } from "@/components/ui/card-7";
 
 export function ProductCard({ product }: { product: Product }) {
   const { lang, currency, setQuickView, addToCart, setCartOpen } = useStore();
@@ -37,22 +38,14 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="group flex flex-col">
       <button
         onClick={() => setQuickView(product.slug)}
-        className="relative block overflow-hidden bg-secondary aspect-[4/3] text-left rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-500"
+        className="block text-left w-full"
       >
-        <img
-          src={product.image}
-          alt={name}
-          className="h-full w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105"
-          loading="lazy"
+        <InteractiveProductCard
+          imageUrl={product.image}
+          title={name}
+          price={formatPrice(product.priceCents, lang, currency)}
+          badge={badgeLabel}
         />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-        {badgeLabel && (
-          <span className="absolute top-3 left-3 bg-background/95 backdrop-blur text-foreground text-[10px] tracking-luxe-sm uppercase px-3 py-1.5 font-sans rounded-full">
-            {badgeLabel}
-          </span>
-        )}
       </button>
 
       <div className="mt-4 flex items-start justify-between gap-3">
