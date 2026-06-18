@@ -33,7 +33,7 @@ export function PromoBanner() {
 
         {/* === Image pop-out 3D — PNG transparent, centrée, déborde au-dessus === */}
         {/* Positionnée en absolu, centrée horizontalement, remontée pour dépasser la bordure du haut */}
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-20 sm:-top-24 lg:-top-32 z-20 w-[180px] sm:w-[240px] lg:w-[300px]">
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-36 lg:-top-48 z-20 w-[240px] sm:w-[320px] lg:w-[420px]">
           <img
             src="/images/hero-bag-transparent.png"
             alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
@@ -47,7 +47,7 @@ export function PromoBanner() {
         </div>
 
         {/* === Contenu interne === */}
-        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-36 sm:pt-44 lg:pt-52 pb-10 sm:pb-12 lg:pb-14">
+        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-44 sm:pt-56 lg:pt-64 pb-10 sm:pb-12 lg:pb-14">
           {/* --- Gauche : accroches --- */}
           <div className="text-center lg:text-left z-10">
             <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-accent-foreground/70 mb-3 sm:mb-4">
