@@ -12,6 +12,7 @@ import { ShopView } from "@/components/lousha/shop-view";
 import { ContactSection } from "@/components/lousha/contact-section";
 import { AuthView } from "@/components/lousha/auth-view";
 import { AccountView } from "@/components/lousha/account-view";
+import { AdminView } from "@/components/lousha/admin-view";
 import { Footer } from "@/components/lousha/footer";
 import { WhatsAppWidget } from "@/components/lousha/whatsapp-widget";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
@@ -66,6 +67,8 @@ export default function Home() {
         {view === "auth" && <AuthView />}
 
         {view === "account" && <AccountView />}
+
+        {view === "admin" && <AdminView />}
       </main>
 
       <Footer />

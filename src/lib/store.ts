@@ -11,7 +11,8 @@ export type View =
   | "material"
   | "contact"
   | "auth"
-  | "account";
+  | "account"
+  | "admin";
 export type Currency = "XOF" | "EUR" | "USD";
 
 // Taux de change approximatifs (base XOF — Franc CFA).

@@ -1,0 +1,495 @@
+"use client";
+
+import { useState } from "react";
+import { useStore } from "@/lib/store";
+import { useDict, formatPrice } from "@/lib/i18n";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  useAdminData,
+  type AdminStats,
+  type AdminOrder,
+  type AdminProduct,
+  type AdminCustomer,
+} from "@/hooks/use-admin-data";
+import { cn } from "@/lib/utils";
+import {
+  TrendingUp,
+  Calendar,
+  Package,
+  Users,
+  AlertTriangle,
+  ShoppingCart,
+  Boxes,
+  ArrowLeft,
+} from "lucide-react";
+
+type Tab = "dashboard" | "orders" | "products" | "customers";
+
+export function AdminView() {
+  const { lang, currency, setView } = useStore();
+  const t = useDict(lang);
+  const { user, status } = useAuth();
+  const [tab, setTab] = useState<Tab>("dashboard");
+
+  const authenticated = status === "authenticated" && user?.role === "ADMIN";
+
+  if (status === "loading") {
+    return (
+      <section className="min-h-[60vh] flex items-center justify-center">
+        <span className="h-6 w-6 border-2 border-border border-t-accent rounded-full animate-spin" />
+      </section>
+    );
+  }
+
+  // Redirige si non-admin
+  if (!authenticated) {
+    if (typeof window !== "undefined") setTimeout(() => setView("home"), 0);
+    return null;
+  }
+
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: "dashboard", label: t.admin.tabDashboard, icon: <TrendingUp className="h-4 w-4" /> },
+    { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
+    { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
+    { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
+  ];
+
+  return (
+    <section className="py-12 sm:py-16 bg-background min-h-[60vh]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <p className="text-[11px] tracking-luxe uppercase text-accent mb-2">
+              {t.admin.eyebrow}
+            </p>
+            <h1 className="font-serif text-4xl sm:text-5xl text-foreground">
+              {t.admin.title}
+            </h1>
+          </div>
+          <button
+            onClick={() => setView("account")}
+            className="inline-flex items-center gap-2 border border-border text-foreground px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            {t.admin.backToAccount}
+          </button>
+        </div>
+
+        {/* Onglets */}
+        <div className="flex gap-1 border-b border-border mb-8 overflow-x-auto scroll-elegant">
+          {tabs.map((tb) => (
+            <button
+              key={tb.key}
+              onClick={() => setTab(tb.key)}
+              className={cn(
+                "inline-flex items-center gap-2 px-5 py-3 text-[12px] tracking-luxe-sm uppercase font-sans transition-colors border-b-2 -mb-px whitespace-nowrap",
+                tab === tb.key
+                  ? "border-accent text-accent"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tb.icon}
+              {tb.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Contenu */}
+        {tab === "dashboard" && <DashboardTab enabled={authenticated} />}
+        {tab === "orders" && <OrdersTab enabled={authenticated} />}
+        {tab === "products" && <ProductsTab enabled={authenticated} />}
+        {tab === "customers" && <CustomersTab enabled={authenticated} />}
+      </div>
+    </section>
+  );
+}
+
+/* ============ Dashboard ============ */
+function DashboardTab({ enabled }: { enabled: boolean }) {
+  const { lang, currency } = useStore();
+  const t = useDict(lang);
+  const { data, loading } = useAdminData<{ stats: AdminStats }>("stats", enabled);
+
+  if (loading || !data) {
+    return <SkeletonGrid count={4} />;
+  }
+  const s = data.stats;
+
+  return (
+    <div className="space-y-8">
+      {/* KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          icon={<Calendar className="h-5 w-5" />}
+          label={t.admin.revenueToday}
+          value={formatPrice(s.revenueToday, lang, currency)}
+          accent
+        />
+        <KpiCard
+          icon={<TrendingUp className="h-5 w-5" />}
+          label={t.admin.revenueMonth}
+          value={formatPrice(s.revenueMonth, lang, currency)}
+          accent
+        />
+        <KpiCard
+          icon={<ShoppingCart className="h-5 w-5" />}
+          label={t.admin.pendingOrders}
+          value={String(s.pendingOrders)}
+          sub={`${s.totalOrders} ${t.admin.totalOrdersLabel}`}
+        />
+        <KpiCard
+          icon={<Users className="h-5 w-5" />}
+          label={t.admin.totalCustomers}
+          value={String(s.totalCustomers)}
+        />
+      </div>
+
+      {/* Stock bas / rupture */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="border border-border rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertTriangle className="h-5 w-5 text-amber-600" />
+            <h3 className="font-serif text-xl">{t.admin.lowStock}</h3>
+          </div>
+          {s.lowStockProducts.length === 0 ? (
+            <p className="text-sm text-muted-foreground font-light">
+              {t.admin.noLowStock}
+            </p>
+          ) : (
+            <ul className="space-y-3 max-h-72 overflow-y-auto scroll-elegant">
+              {s.lowStockProducts.map((p) => (
+                <li key={p.id} className="flex items-center gap-3">
+                  <img
+                    src={p.image}
+                    alt=""
+                    className="h-12 w-12 rounded-lg object-cover bg-secondary"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-sans text-sm font-medium truncate">
+                      {lang === "fr" ? p.name : p.nameEn}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t.admin.stockLabel}: {p.stock}
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] tracking-luxe-sm uppercase font-sans">
+                    {t.admin.lowBadge}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {s.outOfStockCount > 0 && (
+            <p className="mt-4 pt-4 border-t border-border text-sm text-destructive">
+              {s.outOfStockCount} {t.admin.outOfStockLabel}
+            </p>
+          )}
+        </div>
+
+        {/* Aperçu commandes */}
+        <div className="border border-border rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Package className="h-5 w-5 text-accent" />
+            <h3 className="font-serif text-xl">{t.admin.recentActivity}</h3>
+          </div>
+          <OrdersTab enabled={enabled} compact />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KpiCard({
+  icon,
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  sub?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl p-5 border",
+        accent ? "bg-accent text-accent-foreground border-accent" : "bg-background border-border"
+      )}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <span
+          className={cn(
+            "h-9 w-9 rounded-full flex items-center justify-center",
+            accent ? "bg-accent-foreground/15" : "bg-accent/10 text-accent"
+          )}
+        >
+          {icon}
+        </span>
+      </div>
+      <p
+        className={cn(
+          "text-[11px] tracking-luxe-sm uppercase font-sans",
+          accent ? "text-accent-foreground/75" : "text-muted-foreground"
+        )}
+      >
+        {label}
+      </p>
+      <p className="font-serif text-2xl sm:text-3xl mt-1">{value}</p>
+      {sub && (
+        <p
+          className={cn(
+            "text-xs font-sans mt-1",
+            accent ? "text-accent-foreground/75" : "text-muted-foreground"
+          )}
+        >
+          {sub}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ============ Commandes ============ */
+const ORDER_STATUS_STYLES: Record<string, string> = {
+  PENDING: "text-amber-600 bg-amber-50",
+  PAID: "text-accent bg-accent/10",
+  SHIPPED: "text-blue-600 bg-blue-50",
+  DELIVERED: "text-green-700 bg-green-50",
+  CANCELLED: "text-destructive bg-destructive/10",
+};
+
+function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }) {
+  const { lang, currency } = useStore();
+  const t = useDict(lang);
+  const { data, loading } = useAdminData<{ orders: AdminOrder[] }>("orders", enabled);
+
+  if (loading || !data) return compact ? <p className="text-sm text-muted-foreground">{t.common.loading}</p> : <SkeletonGrid count={3} />;
+  const orders = compact ? data.orders.slice(0, 5) : data.orders;
+
+  if (orders.length === 0) {
+    return (
+      <EmptyState
+        icon={<ShoppingCart className="h-6 w-6" />}
+        title={t.admin.noOrders}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {orders.map((o) => {
+        const date = new Date(o.createdAt).toLocaleDateString(
+          lang === "fr" ? "fr-FR" : "en-US",
+          { day: "2-digit", month: "short", year: "numeric" }
+        );
+        const itemCount = o.items.reduce((n, i) => n + i.qty, 0);
+        const statusLabel = (s: string) => {
+          const map: Record<string, string> = {
+            PENDING: t.account.statusPending,
+            PAID: t.account.statusPaid,
+            SHIPPED: t.account.statusShipped,
+            DELIVERED: t.account.statusDelivered,
+            CANCELLED: t.account.statusCancelled,
+          };
+          return map[s] || s;
+        };
+        return (
+          <div
+            key={o.id}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl hover:border-accent/40 transition-colors"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground shrink-0">
+                <Package className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-sans font-medium text-sm truncate">
+                  #{o.id.slice(-6).toUpperCase()} · {o.fullName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {date} · {itemCount} {t.account.items}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span
+                className={cn(
+                  "px-2.5 py-1 rounded-full text-[10px] tracking-luxe-sm uppercase font-sans",
+                  ORDER_STATUS_STYLES[o.status] || ""
+                )}
+              >
+                {statusLabel(o.status)}
+              </span>
+              <span className="font-serif text-base whitespace-nowrap">
+                {formatPrice(o.totalCents, lang, currency)}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ============ Produits ============ */
+function ProductsTab({ enabled }: { enabled: boolean }) {
+  const { lang, currency } = useStore();
+  const t = useDict(lang);
+  const { data, loading } = useAdminData<{ products: AdminProduct[] }>("products", enabled);
+
+  if (loading || !data) return <SkeletonGrid count={4} />;
+  const products = data.products;
+
+  return (
+    <div className="overflow-x-auto scroll-elegant">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left border-b border-border text-[10px] tracking-luxe-sm uppercase text-muted-foreground">
+            <th className="py-3 pr-4 font-medium">{t.admin.colProduct}</th>
+            <th className="py-3 px-4 font-medium hidden sm:table-cell">{t.admin.colCategory}</th>
+            <th className="py-3 px-4 font-medium">{t.admin.colPrice}</th>
+            <th className="py-3 px-4 font-medium">{t.admin.colStock}</th>
+            <th className="py-3 pl-4 font-medium">{t.admin.colStatus}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr key={p.id} className="border-b border-border/60 hover:bg-secondary/30 transition-colors">
+              <td className="py-3 pr-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={p.image}
+                    alt=""
+                    className="h-10 w-10 rounded-lg object-cover bg-secondary shrink-0"
+                  />
+                  <span className="font-sans font-medium truncate">
+                    {lang === "fr" ? p.name : p.nameEn}
+                  </span>
+                </div>
+              </td>
+              <td className="py-3 px-4 hidden sm:table-cell text-muted-foreground">
+                {p.category ? (lang === "fr" ? p.category.name : p.category.nameEn) : "—"}
+              </td>
+              <td className="py-3 px-4 font-sans">
+                {formatPrice(p.priceCents, lang, currency)}
+              </td>
+              <td className="py-3 px-4">
+                <span
+                  className={cn(
+                    "font-sans font-medium",
+                    p.stock === 0
+                      ? "text-destructive"
+                      : p.stock <= 3
+                      ? "text-amber-600"
+                      : "text-foreground"
+                  )}
+                >
+                  {p.stock}
+                </span>
+              </td>
+              <td className="py-3 pl-4">
+                {p.inStock ? (
+                  <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[10px] tracking-luxe-sm uppercase font-sans">
+                    {t.admin.inStock}
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-full bg-destructive/10 text-destructive text-[10px] tracking-luxe-sm uppercase font-sans">
+                    {t.admin.outOfStock}
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ============ Clients ============ */
+function CustomersTab({ enabled }: { enabled: boolean }) {
+  const { lang, currency } = useStore();
+  const t = useDict(lang);
+  const { data, loading } = useAdminData<{ customers: AdminCustomer[] }>("customers", enabled);
+
+  if (loading || !data) return <SkeletonGrid count={4} />;
+  const customers = data.customers;
+
+  if (customers.length === 0) {
+    return (
+      <EmptyState icon={<Users className="h-6 w-6" />} title={t.admin.noCustomers} />
+    );
+  }
+
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {customers.map((c) => {
+        const date = new Date(c.createdAt).toLocaleDateString(
+          lang === "fr" ? "fr-FR" : "en-US",
+          { day: "2-digit", month: "short", year: "numeric" }
+        );
+        return (
+          <div
+            key={c.id}
+            className="border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-11 w-11 rounded-full bg-accent/10 text-accent flex items-center justify-center font-serif text-lg shrink-0">
+                {c.name.charAt(0).toUpperCase()}
+              </span>
+              <div className="min-w-0">
+                <p className="font-sans font-medium truncate">{c.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+              </div>
+            </div>
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t.admin.customerSince}</span>
+                <span className="font-sans">{date}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t.admin.customerOrders}</span>
+                <span className="font-sans font-medium">{c.orderCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t.admin.customerSpent}</span>
+                <span className="font-serif">{formatPrice(c.totalSpent, lang, currency)}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ============ Helpers UI ============ */
+function SkeletonGrid({ count }: { count: number }) {
+  return (
+    <div
+      className={cn(
+        "grid gap-4",
+        count >= 4 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"
+      )}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="h-28 bg-secondary animate-pulse rounded-2xl" />
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <div className="text-center py-16 border border-dashed border-border rounded-2xl">
+      <span className="inline-flex h-14 w-14 rounded-full bg-secondary text-muted-foreground items-center justify-center mb-4">
+        {icon}
+      </span>
+      <p className="font-serif text-xl text-muted-foreground">{title}</p>
+    </div>
+  );
+}

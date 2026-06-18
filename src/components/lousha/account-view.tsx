@@ -4,7 +4,7 @@ import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyOrders } from "@/hooks/use-orders";
-import { ArrowRight, LogOut, Package } from "lucide-react";
+import { ArrowRight, LogOut, Package, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -98,6 +98,27 @@ export function AccountView() {
             </button>
           </div>
         </div>
+
+        {/* Lien tableau de bord admin (ADMIN seulement) */}
+        {user!.role === "ADMIN" && (
+          <button
+            onClick={() => setView("admin")}
+            className="group mb-10 w-full flex items-center justify-between gap-3 p-5 bg-accent text-accent-foreground rounded-2xl hover:bg-accent/90 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="h-10 w-10 rounded-full bg-accent-foreground/15 flex items-center justify-center">
+                <LayoutDashboard className="h-5 w-5" />
+              </span>
+              <div className="text-left">
+                <p className="font-serif text-lg">{t.account.adminPanel}</p>
+                <p className="text-xs text-accent-foreground/75">
+                  {t.admin.eyebrow}
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </button>
+        )}
 
         {/* Commandes */}
         <div>
