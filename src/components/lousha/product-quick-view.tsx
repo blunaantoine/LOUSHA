@@ -97,26 +97,29 @@ export function ProductQuickView() {
               <X className="h-4 w-4" />
             </button>
 
-            <div className="grid md:grid-cols-2">
-              {/* Image */}
-              <div className="relative aspect-square md:aspect-auto md:min-h-[560px] bg-secondary">
+            {/* === Layout 50/50 : image pleine hauteur à gauche, contenu à droite === */}
+            <div className="grid md:grid-cols-2 min-h-[520px]">
+              {/* --- Gauche : Image (50%, pleine hauteur, pas de texte par-dessus) --- */}
+              <div className="relative bg-secondary md:min-h-[600px] aspect-square md:aspect-auto">
                 <img
                   src={product.image}
                   alt={name}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
+              </div>
+
+              {/* --- Droite : Informations (50%) --- */}
+              <div className="p-6 sm:p-10 flex flex-col">
+                {/* Badge discret juste au-dessus du titre */}
                 {product.badge !== "none" && (
-                  <span className="absolute top-4 left-4 bg-background/95 backdrop-blur text-foreground text-[10px] tracking-luxe-sm uppercase px-3 py-1.5 font-sans rounded-full">
+                  <span className="inline-flex self-start mb-3 bg-accent/10 text-accent text-[10px] tracking-luxe-sm uppercase px-3 py-1 font-sans rounded-full">
                     {product.badge === "new"
                       ? t.products.new
                       : t.products.bestseller}
                   </span>
                 )}
-              </div>
 
-              {/* Details */}
-              <div className="p-6 sm:p-10 flex flex-col">
-                <p className="text-[11px] tracking-luxe uppercase text-accent mb-3">
+                <p className="text-[11px] tracking-luxe uppercase text-muted-foreground mb-2">
                   {product.category
                     ? lang === "fr"
                       ? product.category.name

@@ -42,7 +42,7 @@ export function CategoryGrid() {
                   key={cat.slug}
                   onClick={() => setView("shop")}
                   className={cn(
-                    "group relative overflow-hidden bg-secondary text-left",
+                    "group relative overflow-hidden bg-secondary text-left rounded-2xl",
                     idx % 4 === 0 && "lg:col-span-1"
                   )}
                 >
