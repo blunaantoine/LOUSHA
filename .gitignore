@@ -52,3 +52,15 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# Lousha — fichiers runtime/sandbox à ne pas committer
+nohup.out
+dev-err.log
+daemon.log
+start-dev.sh
+dev-daemon.sh
+/dev-*.log
+public/uploads/
+db/*.db
+db/*.db-journal
+screenshots/
