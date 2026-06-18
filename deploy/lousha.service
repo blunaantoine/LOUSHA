@@ -1,0 +1,35 @@
+# ============================================================
+# Service systemd — Lousha Accessories
+# Garde le serveur Next.js en vie sur le port 3004
+# ============================================================
+#
+# Installation :
+#   sudo cp deploy/lousha.service /etc/systemd/system/lousha.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable lousha
+#   sudo systemctl start lousha
+#
+# Logs :
+#   sudo journalctl -u lousha -f
+# ============================================================
+
+[Unit]
+Description=Lousha Accessories — Next.js (port 3004)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/lousha
+EnvironmentFile=/var/www/lousha/.env.production
+Environment=NODE_ENV=production
+Environment=PORT=3004
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/bin/node /var/www/lousha/.next/standalone/server.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
