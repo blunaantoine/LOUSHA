@@ -11,7 +11,7 @@ const EMPTY: SiteContent = { content: {}, images: {} };
 
 /**
  * Charge tous les textes + images éditables de la page d'accueil.
- * Une seule requête, avec fallback vide si l'API ne répond pas.
+ * Recharge à chaque montage (quand on revient sur la home).
  */
 export function useSiteContent() {
   const [state, setState] = useState<{ data: SiteContent; loaded: boolean }>({
@@ -21,6 +21,7 @@ export function useSiteContent() {
 
   useEffect(() => {
     let active = true;
+    // Cache: no-store pour toujours récupérer les dernières données
     fetch("/api/site-content", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : EMPTY))
       .then((d) => {

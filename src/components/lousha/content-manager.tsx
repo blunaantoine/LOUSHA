@@ -110,22 +110,32 @@ export function ContentManager() {
   const handleUpload = async (key: string, file: File) => {
     setUploadingKey(key);
     try {
+      // 1. Upload le fichier
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error);
+      const uploadRes = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) {
+        toast.error(uploadData.error || "Upload échoué");
         return;
       }
-      // Sauvegarde l'URL en DB
-      await fetch("/api/admin/content/images", {
+
+      // 2. Sauvegarde l'URL en DB
+      const saveRes = await fetch("/api/admin/content/images", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entries: [{ key, url: data.url }] }),
+        body: JSON.stringify({ entries: [{ key, url: uploadData.url }] }),
       });
-      setImages((i) => ({ ...i, [key]: data.url }));
+      if (!saveRes.ok) {
+        toast.error("Image uploadée mais non sauvegardée en DB");
+        return;
+      }
+
+      // 3. Met à jour l'état local
+      setImages((i) => ({ ...i, [key]: uploadData.url }));
       toast.success("Image mise à jour");
+    } catch (e) {
+      toast.error("Erreur réseau");
     } finally {
       setUploadingKey(null);
     }
