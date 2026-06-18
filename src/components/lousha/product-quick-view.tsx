@@ -220,20 +220,6 @@ export function ProductQuickView() {
                 </div>
               </div>
             </div>
-
-            {/* Related */}
-            {related.length > 0 && (
-              <div className="border-t-2 border-border p-6 sm:p-10 bg-secondary/40">
-                <h3 className="font-serif text-2xl text-foreground mb-6 mt-2">
-                  {t.product.related}
-                </h3>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8">
-                  {related.map((p) => (
-                    <ProductCard key={p.id} product={p} />
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         )}
       </DialogContent>
