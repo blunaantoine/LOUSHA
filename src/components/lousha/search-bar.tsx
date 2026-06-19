@@ -22,7 +22,6 @@ export function SearchBar() {
 
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setResults([]);
       return;
     }
     const timer = setTimeout(() => {
