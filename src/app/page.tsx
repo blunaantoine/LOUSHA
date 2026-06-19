@@ -17,7 +17,6 @@ import { ResetPasswordView } from "@/components/lousha/reset-password-view";
 import { AccountView } from "@/components/lousha/account-view";
 import { AdminView } from "@/components/lousha/admin-view";
 import { Footer } from "@/components/lousha/footer";
-import { WhatsAppWidget } from "@/components/lousha/whatsapp-widget";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
 import { CheckoutDrawer } from "@/components/lousha/checkout-drawer";
 import { ProductPage } from "@/components/lousha/product-page";
@@ -97,7 +96,6 @@ export default function Home() {
       {/* Overlays */}
       <CartDrawer />
       <CheckoutDrawer />
-      <WhatsAppWidget />
     </div>
   );
 

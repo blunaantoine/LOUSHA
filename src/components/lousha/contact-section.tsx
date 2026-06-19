@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useSiteContent, getContent } from "@/hooks/use-site-content";
+import { ChatBot } from "./chatbot";
 import { toast } from "sonner";
 import { MessageCircle, Mail, Clock, ArrowRight } from "lucide-react";
 
@@ -156,6 +157,23 @@ export function ContactSection() {
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
+        </div>
+      </div>
+
+      {/* === Chatbot === */}
+      <div className="mt-16 sm:mt-20">
+        <div className="text-center mb-8">
+          <h3 className="font-serif text-2xl sm:text-3xl text-foreground mb-2">
+            {lang === "fr" ? "Discutez avec Lousha Bot" : "Chat with Lousha Bot"}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {lang === "fr"
+              ? "Posez vos questions sur nos produits, prix, et plus encore."
+              : "Ask questions about our products, prices, and more."}
+          </p>
+        </div>
+        <div className="max-w-md mx-auto">
+          <ChatBot />
         </div>
       </div>
     </section>
