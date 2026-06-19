@@ -42,7 +42,7 @@ export function formatPrice(
   if (currency === "XOF") {
     // XOF : pas de décimales (le FCFA s'arrondit à l'entier)
     locale = "fr-FR";
-    symbol = "FCFA";
+    symbol = "XOF";
     minDigits = 0;
     maxDigits = 0;
   } else if (currency === "EUR") {
@@ -60,7 +60,7 @@ export function formatPrice(
     maximumFractionDigits: maxDigits,
   });
 
-  // Pour EUR/USD, symbole avant ; pour FCFA, symbole après.
+  // Pour EUR/USD, symbole avant ; pour XOF, symbole après.
   if (currency === "XOF") return `${formatted} ${symbol}`;
   return `${symbol}${formatted}`;
 }

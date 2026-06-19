@@ -16,6 +16,8 @@ import { ForgotPasswordView } from "@/components/lousha/forgot-password-view";
 import { ResetPasswordView } from "@/components/lousha/reset-password-view";
 import { AccountView } from "@/components/lousha/account-view";
 import { AdminView } from "@/components/lousha/admin-view";
+import { FAQView } from "@/components/lousha/faq-view";
+import { HelpView } from "@/components/lousha/help-view";
 import { Footer } from "@/components/lousha/footer";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
 import { CheckoutDrawer } from "@/components/lousha/checkout-drawer";
@@ -89,6 +91,10 @@ export default function Home() {
         {view === "admin" && <AdminView />}
 
         {view === "product" && <ProductPage />}
+
+        {view === "faq" && <FAQView />}
+
+        {view === "help" && <HelpView />}
       </main>
 
       <Footer />

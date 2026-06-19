@@ -171,9 +171,20 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <span className="text-sm text-background/50 cursor-default">
+                <button
+                  onClick={() => setView("help")}
+                  className="text-sm text-background/80 hover:text-background transition-colors"
+                >
+                  {lang === "fr" ? "Aide" : "Help"}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setView("faq")}
+                  className="text-sm text-background/80 hover:text-background transition-colors"
+                >
                   {t.footer.links.faq}
-                </span>
+                </button>
               </li>
               <li>
                 <button
