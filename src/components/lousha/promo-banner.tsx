@@ -48,14 +48,14 @@ export function PromoBanner() {
         />
 
         {/* === Image pop-out 3D — 2/3 de la taille doublée === */}
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-36 lg:-top-48 z-20 w-[320px] sm:w-[427px] lg:w-[560px]">
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-36 lg:-top-48 z-20 w-[320px] sm:w-[427px] lg:w-[560px] flex justify-center">
           {promoImages.map((img, i) => (
             <img
               key={i}
               src={img}
               alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
-              className={`absolute inset-0 w-full h-auto object-contain transition-opacity duration-[1400ms] ease-out ${
-                i === activeSlide ? "opacity-100" : "opacity-0"
+              className={`w-full h-auto object-contain transition-opacity duration-[1400ms] ease-out ${
+                i === activeSlide ? "opacity-100 relative" : "opacity-0 absolute"
               }`}
               style={{
                 filter:
