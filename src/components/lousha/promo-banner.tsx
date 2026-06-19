@@ -47,8 +47,8 @@ export function PromoBanner() {
           }}
         />
 
-        {/* === Image pop-out 3D — taille doublée === */}
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-40 sm:-top-52 lg:-top-72 z-20 w-[480px] sm:w-[640px] lg:w-[840px]">
+        {/* === Image pop-out 3D — 2/3 de la taille doublée === */}
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-36 lg:-top-48 z-20 w-[320px] sm:w-[427px] lg:w-[560px]">
           {promoImages.map((img, i) => (
             <img
               key={i}
@@ -84,7 +84,7 @@ export function PromoBanner() {
         )}
 
         {/* === Contenu interne === */}
-        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-56 sm:pt-72 lg:pt-96 pb-10 sm:pb-12 lg:pb-14">
+        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-44 sm:pt-56 lg:pt-64 pb-10 sm:pb-12 lg:pb-14">
           {/* --- Gauche : accroches --- */}
           <div className="text-center lg:text-left z-10">
             <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-accent-foreground/70 mb-3 sm:mb-4">
