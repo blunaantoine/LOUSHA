@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       shippingCents: 0,
       totalCents: totals.total,
       paymentProvider: "WHATSAPP",
-      paymentTransactionId: `wa_${Date.now()}`,
+      // Pas de paymentTransactionId → statut PENDING (en attente)
     });
 
     return NextResponse.json({ orderId: order.id, ok: true });
