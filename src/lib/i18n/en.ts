@@ -265,6 +265,8 @@ nav: {
       tabCarousel: "Carousel",
       tabCollections: "Collections",
       tabContent: "Content",
+      tabMessages: "Messages",
+      tabNewsletter: "Newsletter",
       tabCustomers: "Customers",
       revenueToday: "Today's revenue",
       revenueMonth: "Month's revenue",

@@ -15,6 +15,7 @@ export interface ProductListOptions {
 
 export async function listCategories() {
   return db.category.findMany({
+    where: { active: true },
     orderBy: { order: "asc" },
     include: { products: { select: { id: true } } },
   });

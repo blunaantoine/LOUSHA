@@ -277,6 +277,8 @@ nav: {
       tabCarousel: "Carrousel",
       tabCollections: "Collections",
       tabContent: "Contenu",
+      tabMessages: "Messages",
+      tabNewsletter: "Newsletter",
       tabCustomers: "Clients",
       revenueToday: "CA du jour",
       revenueMonth: "CA du mois",

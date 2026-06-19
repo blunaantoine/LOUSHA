@@ -15,12 +15,31 @@ export function ContactSection() {
   const t = useDict(lang);
   const [sent, setSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
-    toast.success(t.contact.form.success);
-    setTimeout(() => setSent(false), 4000);
-    (e.target as HTMLFormElement).reset();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const message = formData.get("message") as string;
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      if (res.ok) {
+        setSent(true);
+        toast.success(t.contact.form.success);
+        setTimeout(() => setSent(false), 4000);
+        form.reset();
+      } else {
+        toast.error(lang === "fr" ? "Échec de l'envoi" : "Failed to send");
+      }
+    } catch {
+      toast.error(lang === "fr" ? "Erreur réseau" : "Network error");
+    }
   };
 
   return (
@@ -100,6 +119,7 @@ export function ContactSection() {
                 {t.contact.form.name}
               </span>
               <input
+                name="name"
                 required
                 className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
               />
@@ -109,6 +129,7 @@ export function ContactSection() {
                 {t.contact.form.email}
               </span>
               <input
+                name="email"
                 type="email"
                 required
                 className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
@@ -119,6 +140,7 @@ export function ContactSection() {
                 {t.contact.form.message}
               </span>
               <textarea
+                name="message"
                 required
                 rows={5}
                 className="w-full bg-background border border-border px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none rounded-xl"

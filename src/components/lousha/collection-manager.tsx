@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Upload, Trash2, Loader2, Plus, Pencil } from "lucide-react";
+import { Upload, Trash2, Loader2, Plus, Pencil, Eye, EyeOff } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -17,6 +18,7 @@ interface Category {
   descriptionEn: string;
   image: string;
   order: number;
+  active: boolean;
   _count?: { products: number };
 }
 
@@ -94,6 +96,23 @@ export function CollectionManager() {
               )}
             </div>
             <div className="flex items-center gap-1">
+              {/* Masquer / Afficher */}
+              <button
+                onClick={async () => {
+                  await fetch(`/api/admin/categories/${c.slug}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ active: !c.active }),
+                  });
+                  toast.success(c.active ? (lang === "fr" ? "Collection masquée" : "Collection hidden") : (lang === "fr" ? "Collection affichée" : "Collection visible"));
+                  load();
+                }}
+                className={cn("h-9 w-9 rounded-full border flex items-center justify-center transition-colors", c.active ? "text-muted-foreground hover:bg-secondary" : "text-amber-600 border-amber-300 hover:bg-amber-50")}
+                title={c.active ? (lang === "fr" ? "Masquer" : "Hide") : (lang === "fr" ? "Afficher" : "Show")}
+              >
+                {c.active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </button>
+              {/* Éditer */}
               <button
                 onClick={() => setEditing(c)}
                 className="h-9 w-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"

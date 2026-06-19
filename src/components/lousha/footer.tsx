@@ -11,13 +11,26 @@ export function Footer() {
   const t = useDict(lang);
   const [email, setEmail] = useState("");
 
-  const subscribe = (e: React.FormEvent) => {
+  const subscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    toast.success(
-      lang === "fr" ? "Merci ! Inscription confirmée." : "Thank you! Subscribed."
-    );
-    setEmail("");
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        toast.success(
+          lang === "fr" ? "Merci ! Inscription confirmée." : "Thank you! Subscribed."
+        );
+        setEmail("");
+      } else {
+        toast.error(lang === "fr" ? "Échec" : "Failed");
+      }
+    } catch {
+      toast.error(lang === "fr" ? "Erreur réseau" : "Network error");
+    }
   };
 
   return (

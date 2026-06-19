@@ -21,6 +21,7 @@ model Category {
   descriptionEn String
   image       String
   order       Int      @default(0)
+  active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -187,7 +188,27 @@ model SiteImage {
 /// Textes éditables de la page d'accueil (promo, story, material, contact).
 /// L'admin peut les modifier en FR et EN sans toucher au code.
 model SiteContent {
-  key      String  @id  // "promo.title", "story.text1", "material.title", etc.
+  key      String  @id
   valueFr  String  @default("")
   valueEn  String  @default("")
+}
+
+/// Messages reçus depuis le formulaire de contact.
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  read      Boolean  @default(false)
+  replied   Boolean  @default(false)
+  reply     String?  @default("")
+  createdAt DateTime @default(now())
+}
+
+/// Abonnés à la newsletter (footer).
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
 }

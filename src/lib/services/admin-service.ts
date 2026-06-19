@@ -245,6 +245,10 @@ export async function listAllCategoriesAdmin() {
   });
 }
 
+export async function toggleCategoryActive(slug: string, active: boolean) {
+  return db.category.update({ where: { slug }, data: { active } });
+}
+
 export async function createCategory(input: CategoryInput) {
   return db.category.create({ data: input });
 }
