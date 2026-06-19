@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, Plus, Trash2 } from "lucide-react";
 import type { AdminProduct } from "@/hooks/use-admin-data";
 import type { Category } from "@/hooks/use-catalog";
 import { useStore } from "@/lib/store";
@@ -243,6 +243,11 @@ export function ProductEditor({
           )}
         </div>
 
+        {/* === Section Variantes (édition uniquement) === */}
+        {product && (
+          <VariantManager productId={product.id} />
+        )}
+
         <div className="sticky bottom-0 flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-background">
           {product ? (
             <button
@@ -379,5 +384,210 @@ function Toggle({
         {label}
       </span>
     </label>
+  );
+}
+
+/* ============ Gestionnaire de Variantes ============ */
+
+interface Variant {
+  id: string;
+  label: string;
+  labelEn: string;
+  value: string;
+  priceCents: number;
+  stock: number;
+  image: string | null;
+  order: number;
+}
+
+function VariantManager({ productId }: { productId: string }) {
+  const { lang, currency } = useStore();
+  const t = useDict(lang);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [newVariant, setNewVariant] = useState({
+    label: "",
+    labelEn: "",
+    value: "",
+    priceCents: 0,
+    stock: 0,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    fetch(`/api/admin/products/${productId}/variants`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { variants: [] }))
+      .then((d) => setVariants(d.variants || []))
+      .finally(() => setLoading(false));
+  }, [productId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleCreate = async () => {
+    if (!newVariant.label || !newVariant.value) {
+      toast.error(lang === "fr" ? "Libellé et valeur requis" : "Label and value required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/products/${productId}/variants`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newVariant),
+      });
+      if (!res.ok) {
+        toast.error("Échec");
+        return;
+      }
+      toast.success(lang === "fr" ? "Variante créée" : "Variant created");
+      setNewVariant({ label: "", labelEn: "", value: "", priceCents: 0, stock: 0 });
+      setShowForm(false);
+      load();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(lang === "fr" ? "Supprimer cette variante ?" : "Delete this variant?")) return;
+    await fetch(`/api/admin/variants/${id}`, { method: "DELETE" });
+    toast.success(lang === "fr" ? "Variante supprimée" : "Variant deleted");
+    load();
+  };
+
+  return (
+    <div className="border-t border-border px-6 py-5 bg-secondary/20">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-serif text-lg">{t.product.variants}</h3>
+        <button
+          onClick={() => setShowForm((s) => !s)}
+          className="inline-flex items-center gap-1.5 text-[11px] tracking-luxe-sm uppercase font-sans text-accent hover:underline"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          {lang === "fr" ? "Ajouter" : "Add"}
+        </button>
+      </div>
+
+      {/* Liste des variantes */}
+      {loading ? (
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+      ) : variants.length === 0 && !showForm ? (
+        <p className="text-sm text-muted-foreground">
+          {lang === "fr"
+            ? "Aucune variante. Le produit sera vendu dans sa version standard."
+            : "No variants. Product will be sold in its standard version."}
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {variants.map((v) => (
+            <div
+              key={v.id}
+              className="flex items-center gap-3 p-3 bg-background border border-border rounded-xl"
+            >
+              {v.image && (
+                <img src={v.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-sans font-medium truncate">{v.label}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatPrice(v.priceCents, lang, currency)} · {lang === "fr" ? "Stock" : "Stock"}: {v.stock}
+                </p>
+              </div>
+              <button
+                onClick={() => handleDelete(v.id)}
+                className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Formulaire nouvelle variante */}
+      {showForm && (
+        <div className="mt-3 p-4 bg-background border border-border rounded-xl space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Libellé (FR)" : "Label (FR)"} *
+              </span>
+              <input
+                value={newVariant.label}
+                onChange={(e) => setNewVariant((v) => ({ ...v, label: e.target.value }))}
+                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+                placeholder="Grand"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Libellé (EN)" : "Label (EN)"}
+              </span>
+              <input
+                value={newVariant.labelEn}
+                onChange={(e) => setNewVariant((v) => ({ ...v, labelEn: e.target.value }))}
+                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+                placeholder="Large"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Valeur (slug)" : "Value (slug)"} *
+              </span>
+              <input
+                value={newVariant.value}
+                onChange={(e) => setNewVariant((v) => ({ ...v, value: e.target.value.toLowerCase().replace(/\s+/g, "-") }))}
+                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+                placeholder="grand"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Prix (XOF)" : "Price (XOF)"}
+              </span>
+              <input
+                type="number"
+                value={String(newVariant.priceCents)}
+                onChange={(e) => setNewVariant((v) => ({ ...v, priceCents: Number(e.target.value) }))}
+                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+                placeholder="7000000"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Stock" : "Stock"}
+              </span>
+              <input
+                type="number"
+                value={String(newVariant.stock)}
+                onChange={(e) => setNewVariant((v) => ({ ...v, stock: Number(e.target.value) }))}
+                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+                placeholder="5"
+              />
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(false)}
+              className="px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary"
+            >
+              {t.admin.cancel}
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
+            >
+              {saving && <Loader2 className="h-3 w-3 animate-spin" />}
+              {t.admin.save}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
