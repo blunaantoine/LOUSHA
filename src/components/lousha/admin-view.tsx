@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
@@ -42,7 +42,7 @@ import {
   Bell,
 } from "lucide-react";
 
-type Tab = "dashboard" | "orders" | "products" | "customers" | "carousel" | "collections" | "content" | "messages" | "newsletter" | "notifications" | "users";
+type Tab = "dashboard" | "orders" | "products" | "content" | "messages" | "customers" | "users";
 
 export function AdminView() {
   const { lang, currency, setView } = useStore();
@@ -73,14 +73,9 @@ export function AdminView() {
     { key: "dashboard", label: t.admin.tabDashboard, icon: <TrendingUp className="h-4 w-4" /> },
     { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
-    { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
-    { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-4 w-4" /> },
     { key: "content", label: t.admin.tabContent, icon: <FileText className="h-4 w-4" /> },
     { key: "messages", label: t.admin.tabMessages, icon: <Mail className="h-4 w-4" /> },
-    { key: "newsletter", label: t.admin.tabNewsletter, icon: <UsersIcon className="h-4 w-4" /> },
-    { key: "notifications", label: t.admin.tabNotifications, icon: <Bell className="h-4 w-4" /> },
     { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
-    // Onglet utilisateurs : ADMIN uniquement (pas MANAGER)
     ...(isAdmin
       ? [{ key: "users" as Tab, label: t.admin.tabUsers, icon: <UserCog className="h-4 w-4" /> }]
       : []),
@@ -131,16 +126,75 @@ export function AdminView() {
         {tab === "dashboard" && <DashboardTab enabled={authenticated} />}
         {tab === "orders" && <OrdersTab enabled={authenticated} />}
         {tab === "products" && <ProductsTab enabled={authenticated} />}
-        {tab === "carousel" && <CarouselManager />}
-        {tab === "collections" && <CollectionManager />}
-        {tab === "content" && <ContentManager />}
-        {tab === "messages" && <MessagesManager />}
-        {tab === "newsletter" && <NewsletterManager />}
-        {tab === "notifications" && <NotificationsManager />}
+        {tab === "content" && (
+          <SubTabs
+            tabs={[
+              { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-3.5 w-3.5" /> },
+              { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-3.5 w-3.5" /> },
+              { key: "content", label: t.admin.tabContent, icon: <FileText className="h-3.5 w-3.5" /> },
+            ]}
+            panels={[
+              { key: "carousel", content: <CarouselManager /> },
+              { key: "collections", content: <CollectionManager /> },
+              { key: "content", content: <ContentManager /> },
+            ]}
+          />
+        )}
+        {tab === "messages" && (
+          <SubTabs
+            tabs={[
+              { key: "messages", label: t.admin.tabMessages, icon: <Mail className="h-3.5 w-3.5" /> },
+              { key: "newsletter", label: t.admin.tabNewsletter, icon: <UsersIcon className="h-3.5 w-3.5" /> },
+              { key: "notifications", label: t.admin.tabNotifications, icon: <Bell className="h-3.5 w-3.5" /> },
+            ]}
+            panels={[
+              { key: "messages", content: <MessagesManager /> },
+              { key: "newsletter", content: <NewsletterManager /> },
+              { key: "notifications", content: <NotificationsManager /> },
+            ]}
+          />
+        )}
         {tab === "customers" && <CustomersTab enabled={authenticated} />}
         {tab === "users" && isAdmin && <UsersTab enabled={isAdmin} />}
       </div>
     </section>
+  );
+}
+
+/* ============ Sous-onglets (regroupement) ============ */
+function SubTabs({
+  tabs,
+  panels,
+}: {
+  tabs: { key: string; label: string; icon: React.ReactNode }[];
+  panels: { key: string; content: React.ReactNode }[];
+}) {
+  const [active, setActive] = useState(tabs[0]?.key);
+  const panel = panels.find((p) => p.key === active);
+
+  return (
+    <div>
+      {/* Sous-onglets */}
+      <div className="flex gap-1 mb-6 border-b border-border">
+        {tabs.map((tb) => (
+          <button
+            key={tb.key}
+            onClick={() => setActive(tb.key)}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans transition-colors border-b-2 -mb-px whitespace-nowrap",
+              active === tb.key
+                ? "border-accent text-accent"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {tb.icon}
+            {tb.label}
+          </button>
+        ))}
+      </div>
+      {/* Contenu */}
+      {panel?.content}
+    </div>
   );
 }
 
@@ -149,11 +203,21 @@ function DashboardTab({ enabled }: { enabled: boolean }) {
   const { lang, currency } = useStore();
   const t = useDict(lang);
   const { data, loading } = useAdminData<{ stats: AdminStats }>("stats", enabled);
+  const [localStats, setLocalStats] = useState<AdminStats | null>(null);
 
-  if (loading || !data) {
+  // Recharge les stats quand le dashboard monte
+  useEffect(() => {
+    fetch("/api/admin/stats", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.stats) setLocalStats(d.stats); })
+      .catch(() => {});
+  }, []);
+
+  const s = localStats ?? data?.stats;
+
+  if (loading || !s) {
     return <SkeletonGrid count={4} />;
   }
-  const s = data.stats;
 
   return (
     <div className="space-y-8">
