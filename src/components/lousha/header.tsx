@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ShoppingBag, User, Globe, Menu, X, Search } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
+import { SearchBar } from "./search-bar";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -128,14 +129,17 @@ export function Header() {
               {/* Notifications — toujours visible */}
               <NotificationBell />
 
-              {/* Recherche — toujours visible */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="p-1.5 text-foreground hover:opacity-60 transition"
-                aria-label={lang === "fr" ? "Rechercher" : "Search"}
-              >
-                <Search className="h-5 w-5" />
-              </button>
+              {/* Recherche — dropdown sous l'icône */}
+              <div className="relative">
+                <button
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  className="p-1.5 text-foreground hover:opacity-60 transition"
+                  aria-label={lang === "fr" ? "Rechercher" : "Search"}
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+                <SearchBar />
+              </div>
 
               {/* Panier — toujours visible */}
               <button

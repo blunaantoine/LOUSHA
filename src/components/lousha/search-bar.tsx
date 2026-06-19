@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { Search, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface SearchResult {
   id: string;
@@ -13,18 +12,17 @@ interface SearchResult {
   nameEn: string;
   priceCents: number;
   image: string;
-  categorySlug: string;
 }
 
 export function SearchBar() {
-  const { lang, currency, searchOpen, setSearchOpen, searchQuery, setSearchQuery, openProduct, setView } = useStore();
+  const { lang, currency, searchOpen, setSearchOpen, searchQuery, setSearchQuery, openProduct } = useStore();
   const t = useDict(lang);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
 
-  // Recherche en temps réel (debounce 300ms)
   useEffect(() => {
     if (!searchQuery.trim()) {
+      setResults([]);
       return;
     }
     const timer = setTimeout(() => {
@@ -42,103 +40,95 @@ export function SearchBar() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const loading = searchQuery.trim() && loadingKey !== searchQuery;
-
   if (!searchOpen) return null;
 
+  const loading = searchQuery.trim() && loadingKey !== searchQuery;
+
   return (
-    <div className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md animate-fade-in">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-20">
-        {/* Barre de recherche */}
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+    <>
+      {/* Overlay transparent pour fermer au clic */}
+      <div
+        className="fixed inset-0 z-40"
+        onClick={() => {
+          setSearchQuery("");
+          setSearchOpen(false);
+        }}
+      />
+
+      {/* Dropdown de recherche */}
+      <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-background border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
+        {/* Champ de recherche */}
+        <div className="relative p-3 border-b border-border">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-pointer" />
           <input
             autoFocus
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={lang === "fr" ? "Rechercher un produit..." : "Search for a product..."}
-            className="w-full h-14 pl-12 pr-12 text-lg font-sans bg-background border border-border rounded-full focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors"
+            placeholder={lang === "fr" ? "Rechercher un produit..." : "Search products..."}
+            className="w-full h-10 pl-8 pr-8 text-sm font-sans bg-secondary/50 border border-border rounded-full focus:outline-none focus:border-accent transition-colors"
           />
           <button
             onClick={() => {
               setSearchQuery("");
               setSearchOpen(false);
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
-            aria-label="Close"
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Résultats */}
-        {searchQuery.trim() && (
-          <div className="mt-6">
-            {loading ? (
-              <p className="text-center text-muted-foreground py-8">{t.common.loading}</p>
-            ) : results.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
+        <div className="max-h-80 overflow-y-auto scroll-elegant">
+          {searchQuery.trim() === "" ? (
+            <div className="p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                {lang === "fr" ? "Tapez le nom d'un produit..." : "Type a product name..."}
+              </p>
+            </div>
+          ) : loading ? (
+            <div className="p-6 text-center">
+              <span className="h-5 w-5 border-2 border-border border-t-accent rounded-full animate-spin inline-block" />
+            </div>
+          ) : results.length === 0 ? (
+            <div className="p-6 text-center">
+              <p className="text-sm text-muted-foreground">
                 {lang === "fr" ? "Aucun produit trouvé." : "No products found."}
               </p>
-            ) : (
-              <>
-                <p className="text-xs tracking-luxe-sm uppercase text-muted-foreground mb-4">
-                  {results.length} {lang === "fr" ? "résultat(s)" : "result(s)"}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto scroll-elegant pb-8">
-                  {results.map((p) => {
-                    const name = lang === "fr" ? p.name : p.nameEn;
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => {
-                          openProduct(p.slug);
-                          setSearchOpen(false);
-                          setSearchQuery("");
-                        }}
-                        className="flex items-center gap-4 p-3 border border-border rounded-2xl hover:border-accent/40 hover:bg-secondary/30 transition-all text-left"
-                      >
-                        <img
-                          src={p.image}
-                          alt={name}
-                          className="h-16 w-16 rounded-xl object-cover bg-secondary shrink-0"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-sans font-medium text-sm truncate">{name}</p>
-                          <p className="text-sm text-accent font-medium mt-0.5">
-                            {formatPrice(p.priceCents, lang, currency)}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Suggestions quand vide */}
-        {!searchQuery.trim() && (
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              {lang === "fr"
-                ? "Tapez le nom d'un produit (panier, set de table...)"
-                : "Type a product name (basket, placemat...)"}
-            </p>
-            <button
-              onClick={() => {
-                setSearchOpen(false);
-                setView("shop");
-              }}
-              className="mt-4 text-sm text-accent hover:underline"
-            >
-              {t.products.viewAll}
-            </button>
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className="p-2">
+              {results.map((p) => {
+                const name = lang === "fr" ? p.name : p.nameEn;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      openProduct(p.slug);
+                      setSearchQuery("");
+                      setSearchOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-secondary/50 transition-colors text-left"
+                  >
+                    <img
+                      src={p.image}
+                      alt={name}
+                      className="h-12 w-12 rounded-lg object-cover bg-secondary shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-sans font-medium text-sm truncate">{name}</p>
+                      <p className="text-xs text-accent font-medium">
+                        {formatPrice(p.priceCents, lang, currency)}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
