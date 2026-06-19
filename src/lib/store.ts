@@ -14,7 +14,8 @@ export type View =
   | "forgot"
   | "reset"
   | "account"
-  | "admin";
+  | "admin"
+  | "product";
 export type Currency = "XOF" | "EUR" | "USD";
 
 // Taux de change approximatifs (base XOF — Franc CFA).
@@ -49,9 +50,13 @@ interface StoreState {
   view: View;
   setView: (v: View) => void;
 
-  // Quick view product
+  // Quick view product (legacy modal — still used by search)
   quickViewSlug: string | null;
   setQuickView: (slug: string | null) => void;
+
+  // Product page (full page view)
+  productSlug: string | null;
+  openProduct: (slug: string) => void;
 
   // Reset password token (passé depuis l'URL vers la vue reset)
   resetToken: string | null;
@@ -111,6 +116,14 @@ export const useStore = create<StoreState>()(
 
       quickViewSlug: null,
       setQuickView: (slug) => set({ quickViewSlug: slug }),
+
+      productSlug: null,
+      openProduct: (slug) => {
+        set({ productSlug: slug, view: "product" });
+        if (typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }
+      },
 
       resetToken: null,
       setResetToken: (token) => set({ resetToken: token }),

@@ -8,7 +8,7 @@ import { ShoppingBag } from "lucide-react";
 import { InteractiveProductCard } from "@/components/ui/card-7";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { lang, currency, setQuickView, addToCart, setCartOpen } = useStore();
+  const { lang, currency, openProduct, addToCart, setCartOpen } = useStore();
   const t = useDict(lang);
 
   const name = lang === "fr" ? product.name : product.nameEn;
@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group flex flex-col">
       <button
-        onClick={() => setQuickView(product.slug)}
+        onClick={() => openProduct(product.slug)}
         className="block text-left w-full"
       >
         <InteractiveProductCard
@@ -50,7 +50,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="mt-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <button
-            onClick={() => setQuickView(product.slug)}
+            onClick={() => openProduct(product.slug)}
             className="block text-left"
           >
             <h3 className="font-serif text-lg sm:text-xl text-foreground leading-snug hover:text-accent transition-colors">

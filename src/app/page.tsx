@@ -20,7 +20,7 @@ import { Footer } from "@/components/lousha/footer";
 import { WhatsAppWidget } from "@/components/lousha/whatsapp-widget";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
 import { CheckoutDrawer } from "@/components/lousha/checkout-drawer";
-import { ProductDetail } from "@/components/lousha/product-detail";
+import { ProductPage } from "@/components/lousha/product-page";
 import { SearchBar } from "@/components/lousha/search-bar";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight } from "lucide-react";
@@ -89,6 +89,8 @@ export default function Home() {
         {view === "account" && <AccountView />}
 
         {view === "admin" && <AdminView />}
+
+        {view === "product" && <ProductPage />}
       </main>
 
       <Footer />
@@ -96,7 +98,6 @@ export default function Home() {
       {/* Overlays */}
       <CartDrawer />
       <CheckoutDrawer />
-      <ProductDetail />
       <SearchBar />
       <WhatsAppWidget />
     </div>

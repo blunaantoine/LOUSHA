@@ -17,7 +17,7 @@ interface SearchResult {
 }
 
 export function SearchBar() {
-  const { lang, currency, searchOpen, setSearchOpen, searchQuery, setSearchQuery, setQuickView, setView } = useStore();
+  const { lang, currency, searchOpen, setSearchOpen, searchQuery, setSearchQuery, openProduct, setView } = useStore();
   const t = useDict(lang);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export function SearchBar() {
                       <button
                         key={p.id}
                         onClick={() => {
-                          setQuickView(p.slug);
+                          openProduct(p.slug);
                           setSearchOpen(false);
                           setSearchQuery("");
                         }}
