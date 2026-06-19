@@ -13,6 +13,10 @@ import {
   Layers,
   ArrowLeft,
   Check,
+  Share2,
+  Link2,
+  MessageCircle,
+  Facebook,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProductCard } from "./product-card";
@@ -27,6 +31,7 @@ export function ProductPage() {
     addToCart,
     setCartOpen,
     setCheckoutOpen,
+    paymentEnabled,
   } = useStore();
   const t = useDict(lang);
   const { product, related, loading, error } = useProduct(productSlug);
@@ -100,6 +105,17 @@ export function ProductPage() {
       qty
     );
     setCheckoutOpen(true);
+  };
+
+  const handleWhatsAppOrder = () => {
+    const WHATSAPP_NUMBER = "22896692972";
+    const variantLabel = selectedVariant
+      ? ` — ${lang === "fr" ? selectedVariant.label : selectedVariant.labelEn || selectedVariant.label}`
+      : "";
+    const message = lang === "fr"
+      ? `Bonjour Lousha Accessories 👋\n\nJe souhaite commander :\n\n📦 ${name}${variantLabel}\n💰 Prix : ${formatPrice(currentPrice, lang, currency)}\n🔢 Quantité : ${qty}\n\nLien : ${window.location.origin}/?product=${product.slug}\n\nMerci de me confirmer la disponibilité et les modalités.`
+      : `Hello Lousha Accessories 👋\n\nI'd like to order:\n\n📦 ${name}${variantLabel}\n💰 Price: ${formatPrice(currentPrice, lang, currency)}\n🔢 Quantity: ${qty}\n\nLink: ${window.location.origin}/?product=${product.slug}\n\nPlease confirm availability and payment details.`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   return (
@@ -283,6 +299,48 @@ export function ProductPage() {
               <Spec icon={<Clock className="h-4 w-4" />} label={t.product.craftingTime} value={product.craftingTime} />
             </div>
 
+            {/* === Partage === */}
+            <div className="mt-6 flex items-center gap-3">
+              <span className="text-[11px] tracking-luxe-sm uppercase text-muted-foreground flex items-center gap-1.5">
+                <Share2 className="h-3.5 w-3.5" />
+                {lang === "fr" ? "Partager" : "Share"}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const url = window.location.href;
+                    const text = lang === "fr" ? `Découvrez ${name} sur Lousha Accessories` : `Check out ${name} on Lousha Accessories`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, "_blank");
+                  }}
+                  className="h-9 w-9 rounded-full bg-[#25D366]/10 text-[#25D366] flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors"
+                  title="WhatsApp"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    const url = window.location.href;
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");
+                  }}
+                  className="h-9 w-9 rounded-full bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
+                  title="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url);
+                    toast.success(lang === "fr" ? "Lien copié" : "Link copied");
+                  }}
+                  className="h-9 w-9 rounded-full bg-secondary text-muted-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+                  title={lang === "fr" ? "Copier le lien" : "Copy link"}
+                >
+                  <Link2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
             {/* Quantité + total */}
             <div className="mt-6 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -320,12 +378,22 @@ export function ProductPage() {
                 <ShoppingBag className="h-4 w-4" />
                 {t.product.addToCart}
               </button>
+              {paymentEnabled && (
+                <button
+                  onClick={handleBuyNow}
+                  disabled={!inStock}
+                  className="inline-flex items-center justify-center bg-accent text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent/90 transition-all flex-1 rounded-full shadow-sm disabled:opacity-50"
+                >
+                  {t.product.buyNow}
+                </button>
+              )}
               <button
-                onClick={handleBuyNow}
+                onClick={handleWhatsAppOrder}
                 disabled={!inStock}
-                className="inline-flex items-center justify-center bg-accent text-accent-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent/90 transition-all flex-1 rounded-full shadow-sm disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-[#1eb858] transition-all flex-1 rounded-full shadow-sm disabled:opacity-50"
               >
-                {t.product.buyNow}
+                <MessageCircle className="h-4 w-4" />
+                {lang === "fr" ? "Commander sur WhatsApp" : "Order on WhatsApp"}
               </button>
             </div>
           </div>

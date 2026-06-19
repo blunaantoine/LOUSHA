@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { toast } from "sonner";
-import { Upload, Loader2, Save } from "lucide-react";
+import { Upload, Loader2, Save, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SiteContentEntry {
@@ -73,7 +73,7 @@ const IMAGES: ImageField[] = [
 ];
 
 export function ContentManager() {
-  const { lang } = useStore();
+  const { lang, paymentEnabled, setPaymentEnabled } = useStore();
   const t = useDict(lang);
   const [content, setContent] = useState<Record<string, SiteContentEntry>>({});
   const [images, setImages] = useState<Record<string, string>>({});
@@ -172,6 +172,41 @@ export function ContentManager() {
 
   return (
     <div className="space-y-8">
+      {/* Toggle paiement */}
+      <div className="border border-border rounded-2xl p-5 bg-background">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-serif text-lg flex items-center gap-2">
+              <Lock className="h-4 w-4 text-accent" />
+              {lang === "fr" ? "Paiement en ligne" : "Online payment"}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              {lang === "fr"
+                ? paymentEnabled
+                  ? "Les boutons de paiement sont visibles."
+                  : "Les boutons de paiement sont masqués (panne)."
+                : paymentEnabled
+                  ? "Payment buttons are visible."
+                  : "Payment buttons are hidden (maintenance)."}
+            </p>
+          </div>
+          <button
+            onClick={() => setPaymentEnabled(!paymentEnabled)}
+            className={cn(
+              "relative h-7 w-14 rounded-full transition-colors",
+              paymentEnabled ? "bg-accent" : "bg-border"
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-6 w-6 rounded-full bg-background transition-transform",
+                paymentEnabled ? "translate-x-7" : "translate-x-0.5"
+              )}
+            />
+          </button>
+        </div>
+      </div>
+
       {/* Textes éditables */}
       {SECTIONS.map((section) => (
         <div key={section.title} className="border border-border rounded-2xl p-5">

@@ -80,6 +80,10 @@ interface StoreState {
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
 
+  // Payment toggle (admin can disable)
+  paymentEnabled: boolean;
+  setPaymentEnabled: (enabled: boolean) => void;
+
   // Cart
   items: CartItem[];
   addToCart: (item: Omit<CartItem, "qty">, qty?: number) => void;
@@ -142,6 +146,9 @@ export const useStore = create<StoreState>()(
       searchOpen: false,
       setSearchOpen: (open) => set({ searchOpen: open }),
 
+      paymentEnabled: true,
+      setPaymentEnabled: (enabled) => set({ paymentEnabled: enabled }),
+
       items: [],
       addToCart: (item, qty = 1) =>
         set((s) => {
@@ -170,7 +177,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: "lousha-store",
-      partialize: (s) => ({ lang: s.lang, currency: s.currency, items: s.items }),
+      partialize: (s) => ({ lang: s.lang, currency: s.currency, items: s.items, paymentEnabled: s.paymentEnabled }),
     }
   )
 );

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
-import { X, ArrowLeft, Check, Lock, ShieldCheck } from "lucide-react";
+import { X, ArrowLeft, Check, Lock, ShieldCheck, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -18,6 +18,7 @@ export function CheckoutDrawer() {
     cartTotal,
     clearCart,
     setView,
+    paymentEnabled,
   } = useStore();
   const t = useDict(lang);
 
@@ -248,22 +249,46 @@ export function CheckoutDrawer() {
                   </div>
                 </div>
 
+                {/* Bouton de paiement carte (masquable par l'admin) */}
+                {paymentEnabled && (
+                  <button
+                    type="submit"
+                    disabled={submitting || items.length === 0}
+                    className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60 rounded-full rounded-full"
+                  >
+                    {submitting ? (
+                      <>
+                        <span className="h-4 w-4 border-2 border-background/40 border-t-background rounded-full animate-spin" />
+                        {t.common.loading}
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="h-4 w-4" />
+                        {t.checkout.payAmount(formatPrice(total, lang, currency))}
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {/* Bouton commande WhatsApp (toujours visible) */}
                 <button
-                  type="submit"
-                  disabled={submitting || items.length === 0}
-                  className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60 rounded-full rounded-full"
+                  type="button"
+                  onClick={() => {
+                    const WHATSAPP_NUMBER = "22896692972";
+                    const itemsList = items.map((i) => {
+                      const n = lang === "fr" ? i.name : i.nameEn;
+                      return `• ${n} ×${i.qty} — ${formatPrice(i.priceCents * i.qty, lang, currency)}`;
+                    }).join("\n");
+                    const msg = lang === "fr"
+                      ? `Bonjour Lousha Accessories 👋\n\nJe souhaite commander :\n\n${itemsList}\n\n💰 Total : ${formatPrice(total, lang, currency)}\n\nMerci de me confirmer la disponibilité et les modalités.`
+                      : `Hello Lousha Accessories 👋\n\nI'd like to order:\n\n${itemsList}\n\n💰 Total: ${formatPrice(total, lang, currency)}\n\nPlease confirm availability and payment details.`;
+                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+                  }}
+                  disabled={items.length === 0}
+                  className="w-full mt-3 inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-[#1eb858] transition-colors disabled:opacity-60 rounded-full"
                 >
-                  {submitting ? (
-                    <>
-                      <span className="h-4 w-4 border-2 border-background/40 border-t-background rounded-full animate-spin" />
-                      {t.common.loading}
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="h-4 w-4" />
-                      {t.checkout.payAmount(formatPrice(total, lang, currency))}
-                    </>
-                  )}
+                  <MessageCircle className="h-4 w-4" />
+                  {lang === "fr" ? "Commander sur WhatsApp" : "Order on WhatsApp"}
                 </button>
               </div>
             </div>
