@@ -23,16 +23,20 @@ export function ChatBot() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMessages([
-      {
-        role: "bot",
-        text:
-          lang === "fr"
-            ? "Bonjour 👋 Je suis Lousha Bot. Comment puis-je vous aider ?"
-            : "Hello 👋 I'm Lousha Bot. How can I help you?",
-      },
-    ]);
-  }, [lang]);
+    // Init message only on first mount
+    if (messages.length === 0) {
+      setMessages([
+        {
+          role: "bot",
+          text:
+            lang === "fr"
+              ? "Bonjour 👋 Je suis Lousha Bot. Comment puis-je vous aider ?"
+              : "Hello 👋 I'm Lousha Bot. How can I help you?",
+        },
+      ]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
