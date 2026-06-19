@@ -212,3 +212,15 @@ model NewsletterSubscriber {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+/// Notifications créées par l'admin (annonces, promos, infos).
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  titleEn   String   @default("")
+  message   String
+  messageEn String   @default("")
+  type      String   @default("info") // info, promo, update
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

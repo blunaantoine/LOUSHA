@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ShoppingBag, User, Globe, Menu, X, Search } from "lucide-react";
+import { NotificationBell } from "./notification-bell";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -123,6 +124,9 @@ export function Header() {
 
               {/* Compte (desktop) */}
               <AccountButton />
+
+              {/* Notifications — toujours visible */}
+              <NotificationBell />
 
               {/* Recherche — toujours visible */}
               <button

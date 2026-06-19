@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyOrders } from "@/hooks/use-orders";
-import { ArrowRight, LogOut, Package, LayoutDashboard } from "lucide-react";
+import { ArrowRight, LogOut, Package, LayoutDashboard, Pencil, Lock, Loader2, Check } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -98,6 +100,12 @@ export function AccountView() {
             </button>
           </div>
         </div>
+
+        {/* === Modifier mes informations === */}
+        <ProfileEditor />
+
+        {/* === Changer le mot de passe === */}
+        <PasswordChanger />
 
         {/* Lien tableau de bord admin (ADMIN ou MANAGER) */}
         {(user!.role === "ADMIN" || user!.role === "MANAGER") && (
@@ -198,5 +206,213 @@ export function AccountView() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ============ Éditeur de profil ============ */
+function ProfileEditor() {
+  const { lang } = useStore();
+  const t = useDict(lang);
+  const { user, status } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [saving, setSaving] = useState(false);
+
+  if (status !== "authenticated" || !user) return null;
+
+  const handleOpen = () => {
+    setForm({ name: user.name || "", email: user.email || "", phone: "" });
+    setOpen(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/auth/update-profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Échec");
+        return;
+      }
+      toast.success(lang === "fr" ? "Profil mis à jour" : "Profile updated");
+      setOpen(false);
+      // Recharge la page pour mettre à jour la session
+      setTimeout(() => window.location.reload(), 500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-6 border border-border rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-serif text-lg flex items-center gap-2">
+          <Pencil className="h-4 w-4 text-accent" />
+          {lang === "fr" ? "Mes informations" : "My information"}
+        </h3>
+        <button
+          onClick={handleOpen}
+          className="text-[11px] tracking-luxe-sm uppercase text-accent hover:underline"
+        >
+          {lang === "fr" ? "Modifier" : "Edit"}
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <p className="text-[10px] tracking-luxe-sm uppercase text-muted-foreground">{lang === "fr" ? "Nom" : "Name"}</p>
+          <p className="font-sans">{user.name}</p>
+        </div>
+        <div>
+          <p className="text-[10px] tracking-luxe-sm uppercase text-muted-foreground">{t.account.emailLabel}</p>
+          <p className="font-sans truncate">{user.email}</p>
+        </div>
+      </div>
+
+      {open && (
+        <div className="mt-4 pt-4 border-t border-border space-y-3">
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{lang === "fr" ? "Nom" : "Name"}</span>
+            <input
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{t.account.emailLabel}</span>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{lang === "fr" ? "Téléphone" : "Phone"}</span>
+            <input
+              value={form.phone}
+              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+              placeholder="+228 ..."
+            />
+          </label>
+          <div className="flex gap-2">
+            <button onClick={() => setOpen(false)} className="px-4 py-2 text-[11px] tracking-luxe-sm uppercase border border-border rounded-full hover:bg-secondary">
+              {t.admin.cancel}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-[11px] tracking-luxe-sm uppercase bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
+            >
+              {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+              {t.admin.save}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============ Changement de mot de passe ============ */
+function PasswordChanger() {
+  const { lang } = useStore();
+  const t = useDict(lang);
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (form.newPassword !== form.confirmPassword) {
+      toast.error(lang === "fr" ? "Les mots de passe ne correspondent pas" : "Passwords don't match");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: form.currentPassword, newPassword: form.newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Échec");
+        return;
+      }
+      toast.success(lang === "fr" ? "Mot de passe modifié" : "Password changed");
+      setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setOpen(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-6 border border-border rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-serif text-lg flex items-center gap-2">
+          <Lock className="h-4 w-4 text-accent" />
+          {lang === "fr" ? "Mot de passe" : "Password"}
+        </h3>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="text-[11px] tracking-luxe-sm uppercase text-accent hover:underline"
+        >
+          {lang === "fr" ? "Changer" : "Change"}
+        </button>
+      </div>
+
+      {open && (
+        <div className="mt-4 pt-4 border-t border-border space-y-3">
+          <label className="block">
+            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{lang === "fr" ? "Mot de passe actuel" : "Current password"}</span>
+            <input
+              type="password"
+              value={form.currentPassword}
+              onChange={(e) => setForm((f) => ({ ...f, currentPassword: e.target.value }))}
+              className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{lang === "fr" ? "Nouveau" : "New"}</span>
+              <input
+                type="password"
+                value={form.newPassword}
+                onChange={(e) => setForm((f) => ({ ...f, newPassword: e.target.value }))}
+                className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{lang === "fr" ? "Confirmer" : "Confirm"}</span>
+              <input
+                type="password"
+                value={form.confirmPassword}
+                onChange={(e) => setForm((f) => ({ ...f, confirmPassword: e.target.value }))}
+                className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+              />
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setOpen(false)} className="px-4 py-2 text-[11px] tracking-luxe-sm uppercase border border-border rounded-full hover:bg-secondary">
+              {t.admin.cancel}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || !form.currentPassword || !form.newPassword}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-[11px] tracking-luxe-sm uppercase bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
+            >
+              {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+              {t.admin.save}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

@@ -279,6 +279,7 @@ nav: {
       tabContent: "Contenu",
       tabMessages: "Messages",
       tabNewsletter: "Newsletter",
+      tabNotifications: "Notifications",
       tabCustomers: "Clients",
       revenueToday: "CA du jour",
       revenueMonth: "CA du mois",
