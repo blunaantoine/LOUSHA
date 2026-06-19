@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { toast } from "sonner";
-import { Trash2, Users } from "lucide-react";
+import { Trash2, Users, Copy, Check } from "lucide-react";
 
 interface Subscriber {
   id: string;
@@ -58,9 +58,22 @@ export function NewsletterManager() {
 
   return (
     <div>
-      <p className="text-sm text-muted-foreground mb-4">
-        {subscribers.length} {lang === "fr" ? "abonné(s)" : "subscriber(s)"}
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-muted-foreground">
+          {subscribers.length} {lang === "fr" ? "abonné(s)" : "subscriber(s)"}
+        </p>
+        <button
+          onClick={() => {
+            const allEmails = subscribers.map((s) => s.email).join(", ");
+            navigator.clipboard.writeText(allEmails);
+            toast.success(lang === "fr" ? `${subscribers.length} emails copiés` : `${subscribers.length} emails copied`);
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary transition-colors"
+        >
+          <Copy className="h-3.5 w-3.5" />
+          {lang === "fr" ? "Tout copier" : "Copy all"}
+        </button>
+      </div>
       <div className="space-y-2">
         {subscribers.map((sub) => (
           <div
@@ -76,6 +89,16 @@ export function NewsletterManager() {
                 {new Date(sub.createdAt).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-US", { day: "2-digit", month: "short", year: "numeric" })}
               </p>
             </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(sub.email);
+                toast.success(lang === "fr" ? "Email copié" : "Email copied");
+              }}
+              className="shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              title={lang === "fr" ? "Copier" : "Copy"}
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
             <button
               onClick={() => handleDelete(sub.id)}
               className="shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"

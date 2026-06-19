@@ -71,10 +71,12 @@ export async function POST(
       if (!res.ok) {
         const err = await res.text();
         console.error("[reply] Resend error:", err);
-        return NextResponse.json(
-          { error: "Email non envoyé: " + err },
-          { status: 500 }
-        );
+        // On marque quand même comme répondu même si l'email échoue
+        await replyToMessage(id, reply);
+        return NextResponse.json({
+          ok: true,
+          warning: "Email non envoyé (domaine non vérifié ?) mais réponse enregistrée.",
+        });
       }
     } else {
       console.log("[reply] Mode dev — pas de token Resend. Réponse:", reply);
