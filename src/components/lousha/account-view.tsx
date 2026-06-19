@@ -46,6 +46,8 @@ export function AccountView() {
     switch (s) {
       case "PENDING":
         return t.account.statusPending;
+      case "CONFIRMED":
+        return lang === "fr" ? "Confirmée" : "Confirmed";
       case "PAID":
         return t.account.statusPaid;
       case "SHIPPED":

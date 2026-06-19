@@ -107,11 +107,33 @@ export function ProductPage() {
     setCheckoutOpen(true);
   };
 
-  const handleWhatsAppOrder = () => {
+  const handleWhatsAppOrder = async () => {
     const WHATSAPP_NUMBER = "22896692972";
     const variantLabel = selectedVariant
       ? ` — ${lang === "fr" ? selectedVariant.label : selectedVariant.labelEn || selectedVariant.label}`
       : "";
+
+    // Sauvegarde la commande en DB
+    try {
+      await fetch("/api/orders/whatsapp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [{
+            slug: product.slug,
+            name: product.name,
+            priceCents: currentPrice,
+            qty,
+          }],
+          fullName: product.name,
+          email: "",
+          source: "product_page",
+        }),
+      });
+    } catch {
+      // Ignore l'erreur — on ouvre WhatsApp quand même
+    }
+
     const message = lang === "fr"
       ? `Bonjour Lousha Accessories 👋\n\nJe souhaite commander :\n\n📦 ${name}${variantLabel}\n💰 Prix : ${formatPrice(currentPrice, lang, currency)}\n🔢 Quantité : ${qty}\n\nLien : ${window.location.origin}/?product=${product.slug}\n\nMerci de me confirmer la disponibilité et les modalités.`
       : `Hello Lousha Accessories 👋\n\nI'd like to order:\n\n📦 ${name}${variantLabel}\n💰 Price: ${formatPrice(currentPrice, lang, currency)}\n🔢 Quantity: ${qty}\n\nLink: ${window.location.origin}/?product=${product.slug}\n\nPlease confirm availability and payment details.`;

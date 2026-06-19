@@ -270,11 +270,33 @@ export function CheckoutDrawer() {
                   </button>
                 )}
 
-                {/* Bouton commande WhatsApp (toujours visible) */}
+                {/* Bouton commande WhatsApp (toujours visible) — sauvegarde en DB */}
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     const WHATSAPP_NUMBER = "22896692972";
+
+                    // Sauvegarde la commande en DB
+                    try {
+                      await fetch("/api/orders/whatsapp", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          items: items.map((i) => ({
+                            slug: i.slug,
+                            name: i.name,
+                            priceCents: i.priceCents,
+                            qty: i.qty,
+                          })),
+                          fullName: "Client WhatsApp",
+                          email: "",
+                          source: "checkout",
+                        }),
+                      });
+                    } catch {
+                      // Ignore — on ouvre WhatsApp quand même
+                    }
+
                     const itemsList = items.map((i) => {
                       const n = lang === "fr" ? i.name : i.nameEn;
                       return `• ${n} ×${i.qty} — ${formatPrice(i.priceCents * i.qty, lang, currency)}`;

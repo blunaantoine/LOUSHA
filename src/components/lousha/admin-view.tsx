@@ -295,6 +295,7 @@ function KpiCard({
 /* ============ Commandes ============ */
 const ORDER_STATUS_STYLES: Record<string, string> = {
   PENDING: "text-amber-600 bg-amber-50",
+  CONFIRMED: "text-blue-600 bg-blue-50",
   PAID: "text-accent bg-accent/10",
   SHIPPED: "text-blue-600 bg-blue-50",
   DELIVERED: "text-green-700 bg-green-50",
@@ -305,9 +306,10 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
   const { lang, currency } = useStore();
   const t = useDict(lang);
   const { data, loading } = useAdminData<{ orders: AdminOrder[] }>("orders", enabled);
+  const [localOrders, setLocalOrders] = useState<AdminOrder[] | null>(null);
 
   if (loading || !data) return compact ? <p className="text-sm text-muted-foreground">{t.common.loading}</p> : <SkeletonGrid count={3} />;
-  const orders = compact ? data.orders.slice(0, 5) : data.orders;
+  const orders = localOrders ?? (compact ? data.orders.slice(0, 5) : data.orders);
 
   if (orders.length === 0) {
     return (
@@ -318,6 +320,31 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
     );
   }
 
+  const statusLabel = (s: string) => {
+    const map: Record<string, string> = {
+      PENDING: t.account.statusPending,
+      CONFIRMED: lang === "fr" ? "Confirmée" : "Confirmed",
+      PAID: t.account.statusPaid,
+      SHIPPED: t.account.statusShipped,
+      DELIVERED: t.account.statusDelivered,
+      CANCELLED: t.account.statusCancelled,
+    };
+    return map[s] || s;
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    await fetch(`/api/admin/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    // Met à jour localement
+    setLocalOrders((prev) => {
+      const base = prev ?? data.orders;
+      return base.map((o) => o.id === orderId ? { ...o, status: newStatus } : o);
+    });
+  };
+
   return (
     <div className="space-y-3">
       {orders.map((o) => {
@@ -326,16 +353,7 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
           { day: "2-digit", month: "short", year: "numeric" }
         );
         const itemCount = o.items.reduce((n, i) => n + i.qty, 0);
-        const statusLabel = (s: string) => {
-          const map: Record<string, string> = {
-            PENDING: t.account.statusPending,
-            PAID: t.account.statusPaid,
-            SHIPPED: t.account.statusShipped,
-            DELIVERED: t.account.statusDelivered,
-            CANCELLED: t.account.statusCancelled,
-          };
-          return map[s] || s;
-        };
+        const isWhatsApp = o.payment?.provider === "WHATSAPP";
         return (
           <div
             key={o.id}
@@ -346,8 +364,11 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
                 <Package className="h-4 w-4" />
               </span>
               <div className="min-w-0">
-                <p className="font-sans font-medium text-sm truncate">
+                <p className="font-sans font-medium text-sm truncate flex items-center gap-2">
                   #{o.id.slice(-6).toUpperCase()} · {o.fullName}
+                  {isWhatsApp && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-[#25D366]/10 text-[#25D366] text-[8px] tracking-luxe-sm uppercase">WhatsApp</span>
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {date} · {itemCount} {t.account.items}
@@ -355,14 +376,32 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span
-                className={cn(
-                  "px-2.5 py-1 rounded-full text-[10px] tracking-luxe-sm uppercase font-sans",
-                  ORDER_STATUS_STYLES[o.status] || ""
-                )}
-              >
-                {statusLabel(o.status)}
-              </span>
+              {compact ? (
+                <span
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-[10px] tracking-luxe-sm uppercase font-sans",
+                    ORDER_STATUS_STYLES[o.status] || ""
+                  )}
+                >
+                  {statusLabel(o.status)}
+                </span>
+              ) : (
+                <select
+                  value={o.status}
+                  onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                  className={cn(
+                    "h-8 px-2 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full border-0 cursor-pointer",
+                    ORDER_STATUS_STYLES[o.status] || "bg-secondary"
+                  )}
+                >
+                  <option value="PENDING">{statusLabel("PENDING")}</option>
+                  <option value="CONFIRMED">{statusLabel("CONFIRMED")}</option>
+                  <option value="PAID">{statusLabel("PAID")}</option>
+                  <option value="SHIPPED">{statusLabel("SHIPPED")}</option>
+                  <option value="DELIVERED">{statusLabel("DELIVERED")}</option>
+                  <option value="CANCELLED">{statusLabel("CANCELLED")}</option>
+                </select>
+              )}
               <span className="font-serif text-base whitespace-nowrap">
                 {formatPrice(o.totalCents, lang, currency)}
               </span>
