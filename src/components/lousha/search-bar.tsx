@@ -20,24 +20,31 @@ export function SearchBar() {
   const { lang, currency, searchOpen, setSearchOpen, searchQuery, setSearchQuery, setQuickView, setView } = useStore();
   const t = useDict(lang);
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
 
   // Recherche en temps réel (debounce 300ms)
   useEffect(() => {
     if (!searchQuery.trim()) {
       setResults([]);
+      setLoadingKey(null);
       return;
     }
-    setLoading(true);
     const timer = setTimeout(() => {
       fetch(`/api/products?search=${encodeURIComponent(searchQuery)}`, { cache: "no-store" })
         .then((r) => (r.ok ? r.json() : { products: [] }))
-        .then((d) => setResults(d.products || []))
-        .catch(() => setResults([]))
-        .finally(() => setLoading(false));
+        .then((d) => {
+          setResults(d.products || []);
+          setLoadingKey(searchQuery);
+        })
+        .catch(() => {
+          setResults([]);
+          setLoadingKey(searchQuery);
+        });
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  const loading = searchQuery.trim() && loadingKey !== searchQuery;
 
   if (!searchOpen) return null;
 
