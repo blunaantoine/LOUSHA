@@ -394,6 +394,7 @@ interface Variant {
   label: string;
   labelEn: string;
   value: string;
+  color: string | null;
   priceCents: number;
   stock: number;
   image: string | null;
@@ -410,8 +411,10 @@ function VariantManager({ productId }: { productId: string }) {
     label: "",
     labelEn: "",
     value: "",
+    color: "",
     priceCents: 0,
     stock: 0,
+    image: "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -444,7 +447,7 @@ function VariantManager({ productId }: { productId: string }) {
         return;
       }
       toast.success(lang === "fr" ? "Variante créée" : "Variant created");
-      setNewVariant({ label: "", labelEn: "", value: "", priceCents: 0, stock: 0 });
+      setNewVariant({ label: "", labelEn: "", value: "", color: "", priceCents: 0, stock: 0, image: "" });
       setShowForm(false);
       load();
     } finally {
@@ -568,6 +571,57 @@ function VariantManager({ productId }: { productId: string }) {
                 className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
                 placeholder="5"
               />
+            </label>
+          </div>
+
+          {/* Couleur + Image */}
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Couleur (hex)" : "Color (hex)"}
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={newVariant.color || "#000000"}
+                  onChange={(e) => setNewVariant((v) => ({ ...v, color: e.target.value }))}
+                  className="h-10 w-12 rounded-lg border border-border cursor-pointer"
+                />
+                <input
+                  value={newVariant.color}
+                  onChange={(e) => setNewVariant((v) => ({ ...v, color: e.target.value }))}
+                  className="flex-1 h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+                  placeholder="#FF0000 (vide = pas une couleur)"
+                />
+              </div>
+            </label>
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Image variante" : "Variant image"}
+              </span>
+              <div className="flex items-center gap-2">
+                {newVariant.image && (
+                  <img src={newVariant.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                )}
+                <label className="inline-flex items-center gap-1.5 px-3 py-2 text-[10px] tracking-luxe-sm uppercase font-sans border border-border rounded-lg cursor-pointer hover:bg-secondary">
+                  <Upload className="h-3 w-3" />
+                  {lang === "fr" ? "Téléverser" : "Upload"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      const fd = new FormData();
+                      fd.append("file", f);
+                      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+                      const data = await res.json();
+                      if (res.ok) setNewVariant((v) => ({ ...v, image: data.url }));
+                    }}
+                  />
+                </label>
+              </div>
             </label>
           </div>
           <div className="flex gap-2">

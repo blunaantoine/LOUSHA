@@ -272,6 +272,7 @@ export async function createVariant(
     label: string;
     labelEn?: string;
     value: string;
+    color?: string;
     priceCents: number;
     stock: number;
     sku?: string;
@@ -285,6 +286,7 @@ export async function createVariant(
       label: input.label,
       labelEn: input.labelEn || "",
       value: input.value,
+      color: input.color || null,
       priceCents: input.priceCents,
       stock: input.stock,
       sku: input.sku || null,

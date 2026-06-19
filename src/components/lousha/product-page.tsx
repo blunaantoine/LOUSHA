@@ -12,6 +12,7 @@ import {
   Clock,
   Layers,
   ArrowLeft,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProductCard } from "./product-card";
@@ -171,39 +172,107 @@ export function ProductPage() {
               {description}
             </p>
 
-            {/* === Variantes === */}
+            {/* === Variantes (couleurs + options) === */}
             {variants.length > 0 && (
               <div className="mt-6">
                 <p className="text-[11px] tracking-luxe-sm uppercase text-muted-foreground mb-3">
                   {t.product.variants}
+                  {selectedVariant && (
+                    <span className="ml-2 text-foreground/80 normal-case tracking-normal">
+                      : {lang === "fr" ? selectedVariant.label : selectedVariant.labelEn || selectedVariant.label}
+                    </span>
+                  )}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedVariantId(null)}
-                    className={cn(
-                      "px-4 py-2.5 text-[12px] tracking-luxe-sm uppercase font-sans rounded-full border transition-all",
-                      !selectedVariantId
-                        ? "bg-foreground text-background border-foreground"
-                        : "border-border text-foreground/70 hover:border-foreground"
-                    )}
-                  >
-                    {t.product.default}
-                  </button>
-                  {variants.map((v) => (
+
+                {/* Sélecteur de couleurs (cercles) */}
+                {variants.some((v) => v.color) && (
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    {/* Option standard */}
                     <button
-                      key={v.id}
-                      onClick={() => setSelectedVariantId(v.id)}
+                      onClick={() => setSelectedVariantId(null)}
                       className={cn(
-                        "px-4 py-2.5 text-[12px] tracking-luxe-sm uppercase font-sans rounded-full border transition-all",
-                        selectedVariantId === v.id
-                          ? "bg-foreground text-background border-foreground"
-                          : "border-border text-foreground/70 hover:border-foreground"
+                        "h-9 w-9 rounded-full border-2 transition-all flex items-center justify-center",
+                        !selectedVariantId
+                          ? "border-foreground scale-110"
+                          : "border-border hover:border-foreground/50"
+                      )}
+                      title={t.product.default}
+                    >
+                      <span className="h-6 w-6 rounded-full bg-gradient-to-br from-ecru to-sable" style={{ background: "linear-gradient(135deg, #F4F4F6, #5A5A5A)" }} />
+                    </button>
+                    {/* Cercles de couleur */}
+                    {variants.filter((v) => v.color).map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => setSelectedVariantId(v.id)}
+                        className={cn(
+                          "h-9 w-9 rounded-full border-2 transition-all flex items-center justify-center",
+                          selectedVariantId === v.id
+                            ? "border-foreground scale-110"
+                            : "border-border hover:border-foreground/50 hover:scale-105"
+                        )}
+                        title={lang === "fr" ? v.label : v.labelEn || v.label}
+                        style={{ backgroundColor: v.color || undefined }}
+                      >
+                        {selectedVariantId === v.id && (
+                          <Check className="h-4 w-4 text-white drop-shadow" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Boutons pour variantes sans couleur (taille, modèle...) */}
+                {variants.filter((v) => !v.color).length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {variants.filter((v) => !v.color).map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => setSelectedVariantId(v.id)}
+                        className={cn(
+                          "px-4 py-2.5 text-[12px] tracking-luxe-sm uppercase font-sans rounded-full border transition-all",
+                          selectedVariantId === v.id
+                            ? "bg-foreground text-background border-foreground"
+                            : "border-border text-foreground/70 hover:border-foreground"
+                        )}
+                      >
+                        {lang === "fr" ? v.label : v.labelEn || v.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Miniatures d'images des variantes */}
+                {variants.some((v) => v.image) && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {/* Miniature produit standard */}
+                    <button
+                      onClick={() => setSelectedVariantId(null)}
+                      className={cn(
+                        "h-16 w-16 rounded-xl overflow-hidden border-2 transition-all",
+                        !selectedVariantId
+                          ? "border-foreground"
+                          : "border-border hover:border-foreground/50"
                       )}
                     >
-                      {lang === "fr" ? v.label : v.labelEn || v.label}
+                      <img src={product.image} alt="" className="h-full w-full object-cover" />
                     </button>
-                  ))}
-                </div>
+                    {variants.filter((v) => v.image).map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => setSelectedVariantId(v.id)}
+                        className={cn(
+                          "h-16 w-16 rounded-xl overflow-hidden border-2 transition-all",
+                          selectedVariantId === v.id
+                            ? "border-foreground"
+                            : "border-border hover:border-foreground/50"
+                        )}
+                      >
+                        <img src={v.image!} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

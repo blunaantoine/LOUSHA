@@ -63,6 +63,7 @@ model ProductVariant {
   label      String   // "Rouge", "Grand", "Modèle A"
   labelEn    String   @default("")
   value      String   // "rouge", "grand", "modele-a"
+  color      String?  // code hex (ex: #FF0000) — null si pas une couleur
   priceCents Int      // prix spécifique à la variante (centimes XOF)
   stock      Int      @default(0)
   sku        String?  @unique

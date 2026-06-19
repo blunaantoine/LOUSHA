@@ -22,6 +22,7 @@ export interface ProductVariant {
   label: string;
   labelEn: string;
   value: string;
+  color: string | null;
   priceCents: number;
   stock: number;
   sku: string | null;
