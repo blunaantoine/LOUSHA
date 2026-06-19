@@ -28,14 +28,31 @@ export function ProductPage() {
     setCheckoutOpen,
   } = useStore();
   const t = useDict(lang);
-  const { product, related, loading } = useProduct(productSlug);
+  const { product, related, loading, error } = useProduct(productSlug);
   const [qty, setQty] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
-  if (loading || !product) {
+  if (loading || (!product && !error)) {
     return (
       <section className="min-h-[60vh] flex items-center justify-center">
         <span className="h-6 w-6 border-2 border-border border-t-accent rounded-full animate-spin" />
+      </section>
+    );
+  }
+
+  if (!product || error) {
+    return (
+      <section className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <p className="font-serif text-2xl text-muted-foreground">
+          {lang === "fr" ? "Produit introuvable" : "Product not found"}
+        </p>
+        <button
+          onClick={() => setView("shop")}
+          className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {lang === "fr" ? "Retour à la boutique" : "Back to shop"}
+        </button>
       </section>
     );
   }

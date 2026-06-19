@@ -36,28 +36,49 @@ export async function listProducts(opts: ProductListOptions = {}) {
 }
 
 export async function getProductWithRelated(slug: string) {
-  const product = await db.product.findUnique({
-    where: { slug },
-    include: {
-      category: true,
-      variants: {
-        where: { active: true },
-        orderBy: { order: "asc" },
+  try {
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        variants: {
+          where: { active: true },
+          orderBy: { order: "asc" },
+        },
       },
-    },
-  });
-  if (!product) return { product: null, related: [] };
+    });
+    if (!product) return { product: null, related: [] };
 
-  // Produits similaires : même catégorie, exclure le produit courant
-  const related = await db.product.findMany({
-    where: {
-      categorySlug: product.categorySlug,
-      NOT: { id: product.id },
-    },
-    take: 4,
-    orderBy: { createdAt: "desc" },
-    include: { category: true },
-  });
+    // Produits similaires : même catégorie, exclure le produit courant
+    const related = await db.product.findMany({
+      where: {
+        categorySlug: product.categorySlug,
+        NOT: { id: product.id },
+      },
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      include: { category: true },
+    });
 
-  return { product, related };
+    return { product, related };
+  } catch (e) {
+    // Fallback sans variantes (si la table n'existe pas en DB)
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: { category: true },
+    });
+    if (!product) return { product: null, related: [] };
+
+    const related = await db.product.findMany({
+      where: {
+        categorySlug: product.categorySlug,
+        NOT: { id: product.id },
+      },
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      include: { category: true },
+    });
+
+    return { product: { ...product, variants: [] } as typeof product, related };
+  }
 }
