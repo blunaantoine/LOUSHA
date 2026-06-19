@@ -25,8 +25,6 @@ export function SearchBar() {
   // Recherche en temps réel (debounce 300ms)
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setResults([]);
-      setLoadingKey(null);
       return;
     }
     const timer = setTimeout(() => {
