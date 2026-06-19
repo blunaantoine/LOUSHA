@@ -38,10 +38,17 @@ export async function listProducts(opts: ProductListOptions = {}) {
 export async function getProductWithRelated(slug: string) {
   const product = await db.product.findUnique({
     where: { slug },
-    include: { category: true },
+    include: {
+      category: true,
+      variants: {
+        where: { active: true },
+        orderBy: { order: "asc" },
+      },
+    },
   });
   if (!product) return { product: null, related: [] };
 
+  // Produits similaires : même catégorie, exclure le produit courant
   const related = await db.product.findMany({
     where: {
       categorySlug: product.categorySlug,
@@ -49,6 +56,7 @@ export async function getProductWithRelated(slug: string) {
     },
     take: 4,
     orderBy: { createdAt: "desc" },
+    include: { category: true },
   });
 
   return { product, related };

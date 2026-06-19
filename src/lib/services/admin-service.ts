@@ -257,6 +257,51 @@ export async function deleteCategory(slug: string) {
   return db.category.delete({ where: { slug } });
 }
 
+/* ============ CRUD Variantes produits ============ */
+
+export async function listVariants(productId: string) {
+  return db.productVariant.findMany({
+    where: { productId },
+    orderBy: { order: "asc" },
+  });
+}
+
+export async function createVariant(
+  productId: string,
+  input: {
+    label: string;
+    labelEn?: string;
+    value: string;
+    priceCents: number;
+    stock: number;
+    sku?: string;
+    image?: string;
+    order?: number;
+  }
+) {
+  return db.productVariant.create({
+    data: {
+      productId,
+      label: input.label,
+      labelEn: input.labelEn || "",
+      value: input.value,
+      priceCents: input.priceCents,
+      stock: input.stock,
+      sku: input.sku || null,
+      image: input.image || null,
+      order: input.order ?? 0,
+    },
+  });
+}
+
+export async function updateVariant(id: string, input: Record<string, unknown>) {
+  return db.productVariant.update({ where: { id }, data: input });
+}
+
+export async function deleteVariant(id: string) {
+  return db.productVariant.delete({ where: { id } });
+}
+
 /* ============ Gestion des utilisateurs (ADMIN uniquement) ============ */
 
 export async function listAllUsers() {

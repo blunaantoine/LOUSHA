@@ -16,6 +16,20 @@ export interface Category {
   _count?: { products: number };
 }
 
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  label: string;
+  labelEn: string;
+  value: string;
+  priceCents: number;
+  stock: number;
+  sku: string | null;
+  image: string | null;
+  order: number;
+  active: boolean;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -33,8 +47,10 @@ export interface Product {
   badge: string;
   featured: boolean;
   inStock: boolean;
+  stock: number;
   createdAt: string;
   category?: Category;
+  variants?: ProductVariant[];
 }
 
 export function useCategories() {

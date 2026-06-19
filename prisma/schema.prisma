@@ -49,10 +49,32 @@ model Product {
   updatedAt      DateTime @updatedAt
 
   category Category @relation(fields: [categorySlug], references: [slug])
+  variants ProductVariant[]
 
   @@index([categorySlug])
   @@index([featured])
   @@index([badge])
+}
+
+/// Variantes d'un produit (couleur, taille, capacité, etc.)
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  label      String   // "Rouge", "Grand", "Modèle A"
+  labelEn    String   @default("")
+  value      String   // "rouge", "grand", "modele-a"
+  priceCents Int      // prix spécifique à la variante (centimes XOF)
+  stock      Int      @default(0)
+  sku        String?  @unique
+  image      String?  // image spécifique (si null → image du produit)
+  order      Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 /// Comptes utilisateurs (clients + administrateurs).

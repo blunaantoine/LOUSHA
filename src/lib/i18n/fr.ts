@@ -101,6 +101,8 @@ nav: {
       outOfStock: "Épuisé",
       quantity: "Quantité",
       details: "Le détail",
+      variants: "Variantes",
+      default: "Standard",
     },
     cart: {
       title: "Votre panier",

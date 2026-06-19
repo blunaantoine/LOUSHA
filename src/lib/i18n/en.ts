@@ -89,6 +89,8 @@ nav: {
       outOfStock: "Sold out",
       quantity: "Quantity",
       details: "The detail",
+      variants: "Variants",
+      default: "Standard",
     },
     cart: {
       title: "Your cart",
