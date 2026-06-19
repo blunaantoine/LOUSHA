@@ -69,6 +69,12 @@ interface StoreState {
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
 
+  // Search
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  searchOpen: boolean;
+  setSearchOpen: (open: boolean) => void;
+
   // Cart
   items: CartItem[];
   addToCart: (item: Omit<CartItem, "qty">, qty?: number) => void;
@@ -117,6 +123,11 @@ export const useStore = create<StoreState>()(
 
       menuOpen: false,
       setMenuOpen: (open) => set({ menuOpen: open }),
+
+      searchQuery: "",
+      setSearchQuery: (q) => set({ searchQuery: q }),
+      searchOpen: false,
+      setSearchOpen: (open) => set({ searchOpen: open }),
 
       items: [],
       addToCart: (item, qty = 1) =>

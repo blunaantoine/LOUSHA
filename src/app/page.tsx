@@ -21,6 +21,7 @@ import { WhatsAppWidget } from "@/components/lousha/whatsapp-widget";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
 import { CheckoutDrawer } from "@/components/lousha/checkout-drawer";
 import { ProductQuickView } from "@/components/lousha/product-quick-view";
+import { SearchBar } from "@/components/lousha/search-bar";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight } from "lucide-react";
 
@@ -96,6 +97,7 @@ export default function Home() {
       <CartDrawer />
       <CheckoutDrawer />
       <ProductQuickView />
+      <SearchBar />
       <WhatsAppWidget />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag, User, Globe, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Globe, Menu, X, Search } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -20,6 +20,7 @@ export function Header() {
     cartCount,
     menuOpen,
     setMenuOpen,
+    setSearchOpen,
   } = useStore();
   const t = useDict(lang);
   const hydrated = useHydrated();
@@ -122,6 +123,15 @@ export function Header() {
 
               {/* Compte (desktop) */}
               <AccountButton />
+
+              {/* Recherche — toujours visible */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="p-1.5 text-foreground hover:opacity-60 transition"
+                aria-label={lang === "fr" ? "Rechercher" : "Search"}
+              >
+                <Search className="h-5 w-5" />
+              </button>
 
               {/* Panier — toujours visible */}
               <button
