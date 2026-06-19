@@ -21,12 +21,16 @@ export function NotificationBell() {
   const [permission, setPermission] = useState<NotificationPermission>("default");
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      setPermission(Notification.permission);
-    }
+    // Récupère les notifications
     fetch("/api/notifications", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { notifications: [] }))
-      .then((d) => setNotifs(d.notifications || []))
+      .then((d) => {
+        setNotifs(d.notifications || []);
+        // Initialise la permission après le rendu
+        if (typeof window !== "undefined" && "Notification" in window) {
+          setPermission(Notification.permission);
+        }
+      })
       .catch(() => {});
   }, []);
 
