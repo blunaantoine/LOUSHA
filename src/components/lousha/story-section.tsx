@@ -10,38 +10,18 @@ export function StorySection() {
   const t = useDict(lang);
   const { data } = useSiteContent();
 
-  const imgPortrait = getImage(data, "story-1", "/images/story/portrait-artisan.png");
-  const imgAtelier = getImage(data, "story-2", "/images/story/atelier-1.png");
-  const imgDetail = getImage(data, "story-3", "/images/story/atelier-2.png");
+  const imgStory = getImage(data, "story-1", "/images/story/portrait-artisan.png");
 
   return (
     <section className="py-20 sm:py-28 bg-secondary/30 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Images */}
+          {/* Image unique */}
           <div className="relative">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="aspect-[3/4] overflow-hidden bg-secondary mt-10">
-                <img
-                  src={imgPortrait}
-                  alt={lang === "fr" ? "Artisan Lousha" : "Lousha artisan"}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="aspect-[3/4] overflow-hidden bg-secondary">
-                <img
-                  src={imgAtelier}
-                  alt={lang === "fr" ? "Atelier Lousha au Togo" : "Lousha atelier in Togo"}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 aspect-[16/9] overflow-hidden bg-secondary shadow-xl hidden sm:block">
+            <div className="aspect-[4/5] overflow-hidden bg-secondary rounded-2xl shadow-lg">
               <img
-                src={imgDetail}
-                alt=""
+                src={imgStory}
+                alt={lang === "fr" ? "Artisan Lousha" : "Lousha artisan"}
                 className="h-full w-full object-cover"
                 loading="lazy"
               />

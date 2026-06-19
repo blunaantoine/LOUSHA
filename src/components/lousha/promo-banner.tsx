@@ -1,24 +1,37 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useSiteContent, getContent, getImage } from "@/hooks/use-site-content";
 import { ArrowRight } from "lucide-react";
 
 /**
- * Bandeau promotionnel avec effet "pop-out 3D".
- * - Grande carte horizontale aux coins fortement arrondis.
- * - Texte à gauche (accroches) + CTA à droite, zone centrale libre.
- * - Image du sac raphia (PNG transparent) centrée horizontalement,
- *   qui déborde franchement au-dessus de la bordure supérieure.
- * - IMPORTANT : pas de `overflow-hidden` sur la carte pour ne pas couper l'effet.
- * - Sur mobile : image réduite + texte replacé sous l'image.
+ * Bandeau promo — carousel avec multiple images.
+ * Image pop-out 3D (taille doublée), texte à gauche, CTA à droite.
+ * Les images défilent automatiquement (promo-1, promo-2, etc.).
  */
 export function PromoBanner() {
   const { lang, setView } = useStore();
   const t = useDict(lang);
   const { data } = useSiteContent();
-  const promoImg = getImage(data, "promo", "/images/hero-bag-transparent.png");
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Récupère toutes les images promo (promo, promo-1, promo-2, etc.)
+  const promoImages = [
+    getImage(data, "promo", "/images/hero-bag-transparent.png"),
+    getImage(data, "promo-1", "/images/hero-bag-transparent.png"),
+    getImage(data, "promo-2", "/images/hero-bag-transparent.png"),
+  ].filter((url, idx, arr) => arr.indexOf(url) === idx); // unique
+
+  // Carousel auto
+  useEffect(() => {
+    if (promoImages.length <= 1) return;
+    const id = setInterval(() => {
+      setActiveSlide((i) => (i + 1) % promoImages.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [promoImages.length]);
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-24 sm:my-32 lg:my-36">
@@ -34,23 +47,44 @@ export function PromoBanner() {
           }}
         />
 
-        {/* === Image pop-out 3D — PNG transparent, centrée, déborde au-dessus === */}
-        {/* Positionnée en absolu, centrée horizontalement, remontée pour dépasser la bordure du haut */}
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-36 lg:-top-48 z-20 w-[240px] sm:w-[320px] lg:w-[420px]">
-          <img
-            src={promoImg}
-            alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
-            className="w-full h-auto object-contain"
-            style={{
-              filter:
-                "drop-shadow(0 30px 30px rgba(0,0,0,0.45)) drop-shadow(0 12px 12px rgba(0,0,0,0.3))",
-            }}
-            draggable={false}
-          />
+        {/* === Image pop-out 3D — taille doublée === */}
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-40 sm:-top-52 lg:-top-72 z-20 w-[480px] sm:w-[640px] lg:w-[840px]">
+          {promoImages.map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              alt={lang === "fr" ? "Sac raphia Lousha" : "Lousha raffia bag"}
+              className={`absolute inset-0 w-full h-auto object-contain transition-opacity duration-[1400ms] ease-out ${
+                i === activeSlide ? "opacity-100" : "opacity-0"
+              }`}
+              style={{
+                filter:
+                  "drop-shadow(0 30px 30px rgba(0,0,0,0.45)) drop-shadow(0 12px 12px rgba(0,0,0,0.3))",
+              }}
+              draggable={false}
+            />
+          ))}
         </div>
 
+        {/* Indicateurs carousel */}
+        {promoImages.length > 1 && (
+          <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+            {promoImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveSlide(i)}
+                className="h-px transition-all duration-500"
+                style={{
+                  width: i === activeSlide ? "32px" : "16px",
+                  backgroundColor: i === activeSlide ? "#FFFFFF" : "rgba(255,255,255,0.4)",
+                }}
+              />
+            ))}
+          </div>
+        )}
+
         {/* === Contenu interne === */}
-        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-44 sm:pt-56 lg:pt-64 pb-10 sm:pb-12 lg:pb-14">
+        <div className="relative grid lg:grid-cols-2 items-center gap-8 px-6 sm:px-10 lg:px-14 pt-56 sm:pt-72 lg:pt-96 pb-10 sm:pb-12 lg:pb-14">
           {/* --- Gauche : accroches --- */}
           <div className="text-center lg:text-left z-10">
             <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-accent-foreground/70 mb-3 sm:mb-4">

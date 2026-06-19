@@ -27,7 +27,7 @@ interface ImageField {
   fallback: string;
 }
 
-// Définition des champs textes éditables par section
+// Définition des champs textes éditables — uniquement le bandeau promo
 const SECTIONS: { title: string; fields: ContentField[] }[] = [
   {
     title: "Bandeau promo",
@@ -38,38 +38,15 @@ const SECTIONS: { title: string; fields: ContentField[] }[] = [
       { key: "promo.text", label: "Texte", type: "textarea" },
     ],
   },
-  {
-    title: "Notre histoire",
-    fields: [
-      { key: "story.title", label: "Titre", type: "text" },
-      { key: "story.text1", label: "Texte 1", type: "textarea" },
-      { key: "story.text2", label: "Texte 2", type: "textarea" },
-    ],
-  },
-  {
-    title: "La matière",
-    fields: [
-      { key: "material.title", label: "Titre", type: "text" },
-      { key: "material.text1", label: "Texte 1", type: "textarea" },
-      { key: "material.text2", label: "Texte 2", type: "textarea" },
-    ],
-  },
-  {
-    title: "Contact",
-    fields: [
-      { key: "contact.title", label: "Titre", type: "text" },
-      { key: "contact.subtitle", label: "Sous-titre", type: "textarea" },
-    ],
-  },
 ];
 
 // Définition des images éditables
 const IMAGES: ImageField[] = [
-  { key: "story-1", label: "Story — Portrait artisan", fallback: "/images/story/portrait-artisan.png" },
-  { key: "story-2", label: "Story — Atelier", fallback: "/images/story/atelier-1.png" },
-  { key: "story-3", label: "Story — Détail", fallback: "/images/story/atelier-2.png" },
+  { key: "story-1", label: "Story — Image", fallback: "/images/story/portrait-artisan.png" },
   { key: "material", label: "La matière — Image", fallback: "/images/categories/cat-artisanat.png" },
-  { key: "promo", label: "Promo — Image pop-out", fallback: "/images/hero-bag-transparent.png" },
+  { key: "promo", label: "Promo — Image 1 (carousel)", fallback: "/images/hero-bag-transparent.png" },
+  { key: "promo-1", label: "Promo — Image 2 (carousel)", fallback: "/images/hero-bag-transparent.png" },
+  { key: "promo-2", label: "Promo — Image 3 (carousel)", fallback: "/images/hero-bag-transparent.png" },
 ];
 
 export function ContentManager() {
