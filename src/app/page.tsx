@@ -22,6 +22,7 @@ import { Footer } from "@/components/lousha/footer";
 import { CartDrawer } from "@/components/lousha/cart-drawer";
 import { CheckoutDrawer } from "@/components/lousha/checkout-drawer";
 import { ProductPage } from "@/components/lousha/product-page";
+import { NotificationPermissionPopup } from "@/components/lousha/notification-permission-popup";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight } from "lucide-react";
 
@@ -102,6 +103,7 @@ export default function Home() {
       {/* Overlays */}
       <CartDrawer />
       <CheckoutDrawer />
+      <NotificationPermissionPopup />
     </div>
   );
 

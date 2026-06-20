@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ShoppingBag, User, Globe, Menu, X, Search } from "lucide-react";
-import { NotificationBell } from "./notification-bell";
 import { SearchBar } from "./search-bar";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
@@ -125,9 +124,6 @@ export function Header() {
 
               {/* Compte (desktop) */}
               <AccountButton />
-
-              {/* Notifications — toujours visible */}
-              <NotificationBell />
 
               {/* Recherche — dropdown sous l'icône */}
               <div className="relative">
