@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { X, Upload, Loader2, Plus, Trash2 } from "lucide-react";
+import { X, Upload, Loader2, Plus, Trash2, Sparkles } from "lucide-react";
 import type { AdminProduct } from "@/hooks/use-admin-data";
 import type { Category } from "@/hooks/use-catalog";
 import { useStore } from "@/lib/store";
@@ -87,11 +87,50 @@ export function ProductEditor({
         return;
       }
       update("image", data.url);
-      toast.success("Image téléversée");
+      toast.success(lang === "fr" ? "Image téléversée" : "Image uploaded");
+
+      // Auto-génération IA après upload
+      handleAIGenerate(data.url);
     } catch {
       toast.error("Upload impossible");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const handleAIGenerate = async (imageUrl?: string) => {
+    const url = imageUrl || form.image;
+    if (!url) {
+      toast.error(lang === "fr" ? "Téléversez d'abord une image" : "Upload an image first");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/admin/ai-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: url }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "IA échouée");
+        return;
+      }
+      const g = data.generated;
+      // Remplit les champs vides seulement (ne écrase pas ce qui est déjà saisi)
+      if (!form.name && g.name) update("name", g.name);
+      if (!form.nameEn && g.nameEn) update("nameEn", g.nameEn);
+      if (!form.slug && g.slug) update("slug", g.slug);
+      if (!form.material && g.material) update("material", g.material);
+      if (!form.craftingTime && g.craftingTime) update("craftingTime", g.craftingTime);
+      // Pour la description, on remplit toujours (pas de champ description dans le form actuel)
+      toast.success(lang === "fr" ? "✨ Contenu généré par IA" : "✨ AI content generated");
+    } catch {
+      toast.error("IA indisponible");
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -188,7 +227,28 @@ export function ProductEditor({
                   }}
                 />
               </label>
+              {/* Bouton génération IA */}
+              {form.image && (
+                <button
+                  onClick={() => handleAIGenerate()}
+                  disabled={aiLoading}
+                  className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent/90 transition-colors disabled:opacity-60"
+                  title={lang === "fr" ? "Générer le contenu avec l'IA" : "Generate content with AI"}
+                >
+                  {aiLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  {lang === "fr" ? "Générer IA" : "AI Generate"}
+                </button>
+              )}
             </div>
+            {aiLoading && (
+              <p className="text-xs text-accent mt-2 animate-pulse">
+                {lang === "fr" ? "✨ L'IA analyse l'image..." : "✨ AI analyzing image..."}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
