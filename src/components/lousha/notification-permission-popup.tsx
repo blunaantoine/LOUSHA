@@ -15,21 +15,21 @@ export function NotificationPermissionPopup() {
   useEffect(() => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
 
-    setPermission(Notification.permission);
+    // Initialisation de la permission dans le timer pour éviter setState synchrone
+    const initTimer = setTimeout(() => {
+      setPermission(Notification.permission);
 
-    // Vérifie si on a déjà demandé (sessionStorage)
-    const alreadyAsked = sessionStorage.getItem("notifAsked");
-    if (alreadyAsked) return;
+      // Vérifie si on a déjà demandé (sessionStorage)
+      const alreadyAsked = sessionStorage.getItem("notifAsked");
+      if (alreadyAsked) return;
 
-    // Attend 3 secondes après le chargement avant de demander
-    const timer = setTimeout(() => {
       if (Notification.permission === "default") {
         setShow(true);
         sessionStorage.setItem("notifAsked", "true");
       }
     }, 3000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(initTimer);
   }, []);
 
   const handleAllow = async () => {
