@@ -128,7 +128,7 @@ export function Header() {
               {/* Recherche — dropdown sous l'icône */}
               <div className="relative">
                 <button
-                  onClick={() => setSearchOpen(!searchOpen)}
+                  onClick={() => setSearchOpen(true)}
                   className="p-1.5 text-foreground hover:opacity-60 transition"
                   aria-label={lang === "fr" ? "Rechercher" : "Search"}
                 >
@@ -199,6 +199,20 @@ export function Header() {
               </button>
             ))}
           </nav>
+
+          {/* Recherche mobile */}
+          <div className="px-6 pb-4">
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setSearchOpen(true);
+              }}
+              className="flex items-center gap-2 w-full p-3 border border-border rounded-full text-muted-foreground hover:bg-secondary transition-colors"
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-sm">{lang === "fr" ? "Rechercher..." : "Search..."}</span>
+            </button>
+          </div>
 
           {/* Langue + Devise + Compte (mobile) */}
           <div className="mt-auto px-6 py-6 border-t border-border space-y-4">

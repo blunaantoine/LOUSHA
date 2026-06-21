@@ -54,8 +54,8 @@ export function SearchBar() {
         }}
       />
 
-      {/* Dropdown de recherche */}
-      <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-background border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
+      {/* Dropdown de recherche — fixed pour marcher sur mobile et desktop */}
+      <div className="fixed top-16 sm:top-20 right-2 sm:right-4 w-80 sm:w-96 max-w-[calc(100vw-1rem)] bg-background border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
         {/* Champ de recherche */}
         <div className="relative p-3 border-b border-border">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-pointer" />
