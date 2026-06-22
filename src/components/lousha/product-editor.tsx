@@ -89,8 +89,8 @@ export function ProductEditor({
       update("image", data.url);
       toast.success(lang === "fr" ? "Image téléversée" : "Image uploaded");
 
-      // Auto-génération IA après upload
-      handleAIGenerate(data.url);
+      // Auto-génération IA après upload (silencieux si indisponible)
+      handleAIGenerate(data.url).catch(() => {});
     } catch {
       toast.error("Upload impossible");
     } finally {
@@ -103,7 +103,6 @@ export function ProductEditor({
   const handleAIGenerate = async (imageUrl?: string) => {
     const url = imageUrl || form.image;
     if (!url) {
-      toast.error(lang === "fr" ? "Téléversez d'abord une image" : "Upload an image first");
       return;
     }
     setAiLoading(true);
@@ -115,20 +114,19 @@ export function ProductEditor({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "IA échouée");
+        // IA indisponible — message discret, pas d'erreur bloquante
+        toast(lang === "fr" ? "IA indisponible sur ce serveur. Remplissez manuellement." : "AI unavailable. Fill manually.");
         return;
       }
       const g = data.generated;
-      // Remplit les champs vides seulement (ne écrase pas ce qui est déjà saisi)
       if (!form.name && g.name) update("name", g.name);
       if (!form.nameEn && g.nameEn) update("nameEn", g.nameEn);
       if (!form.slug && g.slug) update("slug", g.slug);
       if (!form.material && g.material) update("material", g.material);
       if (!form.craftingTime && g.craftingTime) update("craftingTime", g.craftingTime);
-      // Pour la description, on remplit toujours (pas de champ description dans le form actuel)
       toast.success(lang === "fr" ? "✨ Contenu généré par IA" : "✨ AI content generated");
     } catch {
-      toast.error("IA indisponible");
+      // Erreur réseau — silencieux
     } finally {
       setAiLoading(false);
     }
