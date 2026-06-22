@@ -42,12 +42,17 @@ import {
   Bell,
 } from "lucide-react";
 
-type Tab = "dashboard" | "orders" | "products" | "content" | "messages" | "customers" | "users";
+type Tab = "dashboard" | "orders" | "products" | "carousel" | "collections" | "messages" | "customers" | "users";
 
 export function AdminView() {
   const { lang, currency, setView } = useStore();
   const t = useDict(lang);
   const { user, status } = useAuth();
+  const roleLabel = user?.role === "ADMIN"
+    ? (lang === "fr" ? "Administrateur" : "Administrator")
+    : user?.role === "MANAGER"
+    ? (lang === "fr" ? "Gestionnaire" : "Manager")
+    : (lang === "fr" ? "Client" : "Customer");
   const [tab, setTab] = useState<Tab>("dashboard");
 
   // Accès admin : ADMIN (complet) ou MANAGER (sans gestion utilisateurs)
@@ -73,7 +78,8 @@ export function AdminView() {
     { key: "dashboard", label: t.admin.tabDashboard, icon: <TrendingUp className="h-4 w-4" /> },
     { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
-    { key: "content", label: t.admin.tabContent, icon: <FileText className="h-4 w-4" /> },
+    { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
+    { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-4 w-4" /> },
     { key: "messages", label: t.admin.tabMessages, icon: <Mail className="h-4 w-4" /> },
     { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
     ...(isAdmin
@@ -93,6 +99,9 @@ export function AdminView() {
             <h1 className="font-serif text-4xl sm:text-5xl text-foreground">
               {t.admin.title}
             </h1>
+            <p className="text-sm text-muted-foreground mt-2">
+              {user?.name} · <span className="text-accent font-medium">{roleLabel}</span>
+            </p>
           </div>
           <button
             onClick={() => setView("account")}
@@ -126,20 +135,8 @@ export function AdminView() {
         {tab === "dashboard" && <DashboardTab enabled={authenticated} />}
         {tab === "orders" && <OrdersTab enabled={authenticated} />}
         {tab === "products" && <ProductsTab enabled={authenticated} />}
-        {tab === "content" && (
-          <SubTabs
-            tabs={[
-              { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-3.5 w-3.5" /> },
-              { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-3.5 w-3.5" /> },
-              { key: "content", label: t.admin.tabContent, icon: <FileText className="h-3.5 w-3.5" /> },
-            ]}
-            panels={[
-              { key: "carousel", content: <CarouselManager /> },
-              { key: "collections", content: <CollectionManager /> },
-              { key: "content", content: <ContentManager /> },
-            ]}
-          />
-        )}
+        {tab === "carousel" && <CarouselManager />}
+        {tab === "collections" && <CollectionManager />}
         {tab === "messages" && (
           <SubTabs
             tabs={[
