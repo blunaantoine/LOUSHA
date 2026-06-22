@@ -62,11 +62,15 @@ NEXTAUTH_SECRET=$SECRET
 NEXTAUTH_URL=https://$DOMAIN
 PORT=$PORT
 HOSTNAME=127.0.0.1
+UPLOAD_DIR=$APP_DIR/public/uploads
 EOF
     echo "✓ .env.production créé"
 else
     echo "✓ .env.production conservé"
 fi
+
+# Crée le dossier uploads (writable par www-data)
+mkdir -p $APP_DIR/public/uploads
 
 # --- 4. Build ---
 echo "🔨 Installation dépendances..."
