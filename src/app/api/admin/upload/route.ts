@@ -82,10 +82,11 @@ export async function POST(req: NextRequest) {
     fs.writeFileSync(filepath, buffer);
 
     // 8. Retourne l'URL publique
-    // /uploads/filename est servi directement par Nginx en production
-    // (location /uploads/ alias public/uploads/), et par Next.js en dev
-    // (dossier public/uploads servi automatiquement).
-    const url = `/uploads/${filename}`;
+    // On utilise /api/uploads/[file] pour servir l'image — cette route
+    // lit le fichier depuis UPLOAD_DIR (ou public/uploads avec fallbacks).
+    // C'est fiable en production standalone car ça ne dépend pas du
+    // static serving de Next.js ni de la config Nginx.
+    const url = `/api/uploads/${filename}`;
 
     return NextResponse.json({
       url,
