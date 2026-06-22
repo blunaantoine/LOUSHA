@@ -86,12 +86,16 @@ export function AccountView() {
                 "px-3 py-1.5 rounded-full text-[10px] tracking-luxe-sm uppercase font-sans",
                 user!.role === "ADMIN"
                   ? "bg-accent text-accent-foreground"
-                  : "bg-secondary text-foreground"
+                  : user!.role === "MANAGER"
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-foreground"
               )}
             >
               {user!.role === "ADMIN"
                 ? t.auth.adminBadge
-                : t.auth.customerBadge}
+                : user!.role === "MANAGER"
+                  ? t.auth.managerBadge
+                  : t.auth.customerBadge}
             </span>
             <button
               onClick={logout}

@@ -219,6 +219,7 @@ nav: {
       loginCta: "Sign in",
       registerCta: "Register",
       adminBadge: "Administrator",
+      managerBadge: "Manager",
       customerBadge: "Customer",
       forgotPassword: "Forgot password?",
       forgotTitle: "Forgot password",
