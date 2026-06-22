@@ -91,8 +91,14 @@ npx tsx scripts/seed.ts 2>/dev/null || npx ts-node scripts/seed.ts 2>/dev/null |
 echo "✓ DB prête"
 
 # --- 6. Permissions ---
+# Crée le dossier uploads (writable par www-data)
+mkdir -p $APP_DIR/public/uploads
+# Copie aussi dans standalone pour le serving Next.js
+mkdir -p $APP_DIR/.next/standalone/public/uploads 2>/dev/null || true
 sudo chown -R www-data:www-data $APP_DIR
 sudo chmod -R 755 $APP_DIR
+# Le dossier uploads doit être writable par www-data
+sudo chmod -R 775 $APP_DIR/public/uploads
 
 # --- 7. Service systemd ---
 echo "⚙️  Service systemd..."
