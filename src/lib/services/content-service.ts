@@ -66,3 +66,11 @@ export async function bulkUpsertSiteContent(entries: SiteContentEntry[]) {
 export async function bulkUpsertSiteImages(entries: SiteImageEntry[]) {
   await Promise.all(entries.map((e) => upsertSiteImage(e.key, e.url)));
 }
+
+/** Supprime une image éditable (admin) — retourne l'URL supprimée pour permettre le nettoyage du fichier. */
+export async function deleteSiteImage(key: string): Promise<string | null> {
+  const existing = await db.siteImage.findUnique({ where: { key } });
+  if (!existing) return null;
+  await db.siteImage.delete({ where: { key } });
+  return existing.url;
+}

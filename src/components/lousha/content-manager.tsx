@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { toast } from "sonner";
-import { Upload, Loader2, Save, Lock } from "lucide-react";
+import { Upload, Loader2, Save, Lock, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SiteContentEntry {
@@ -27,8 +27,24 @@ interface ImageField {
   fallback: string;
 }
 
-// Définition des champs textes éditables — uniquement le bandeau promo
+// Définition des champs textes éditables
 const SECTIONS: { title: string; fields: ContentField[] }[] = [
+  {
+    title: "Notre histoire",
+    fields: [
+      { key: "story.title", label: "Titre", type: "text" },
+      { key: "story.text1", label: "Texte 1", type: "textarea" },
+      { key: "story.text2", label: "Texte 2", type: "textarea" },
+    ],
+  },
+  {
+    title: "La matière",
+    fields: [
+      { key: "material.title", label: "Titre", type: "text" },
+      { key: "material.text1", label: "Texte 1", type: "textarea" },
+      { key: "material.text2", label: "Texte 2", type: "textarea" },
+    ],
+  },
   {
     title: "Bandeau promo",
     fields: [
@@ -112,6 +128,38 @@ export function ContentManager() {
       setImages((i) => ({ ...i, [key]: uploadData.url }));
       toast.success("Image mise à jour");
     } catch (e) {
+      toast.error("Erreur réseau");
+    } finally {
+      setUploadingKey(null);
+    }
+  };
+
+  const handleDelete = async (key: string, label: string) => {
+    if (!confirm(
+      lang === "fr"
+        ? `Supprimer l'image "${label}" ? Elle reviendra à l'image par défaut.`
+        : `Delete image "${label}"? It will revert to the default image.`
+    )) {
+      return;
+    }
+    setUploadingKey(key);
+    try {
+      const res = await fetch(`/api/admin/content/images?key=${encodeURIComponent(key)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Échec de la suppression");
+        return;
+      }
+      // Retire l'image de l'état local → retombe sur le fallback
+      setImages((i) => {
+        const next = { ...i };
+        delete next[key];
+        return next;
+      });
+      toast.success(lang === "fr" ? "Image supprimée" : "Image deleted");
+    } catch {
       toast.error("Erreur réseau");
     } finally {
       setUploadingKey(null);
@@ -241,39 +289,66 @@ export function ContentManager() {
 
       {/* Images éditables */}
       <div className="border border-border rounded-2xl p-5">
-        <h3 className="font-serif text-xl text-foreground mb-4">Images</h3>
+        <h3 className="font-serif text-xl text-foreground mb-1">Images</h3>
+        <p className="text-xs text-muted-foreground mb-4">
+          {lang === "fr"
+            ? "Modifiez ou supprimez les images des sections « Notre histoire », « La matière » et « Promo »."
+            : "Edit or delete images from the \"Story\", \"Material\" and \"Promo\" sections."}
+        </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {IMAGES.map((img) => (
-            <div key={img.key} className="border border-border rounded-xl p-3">
-              <p className="text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-2">
-                {img.label}
-              </p>
-              <div className="aspect-video bg-secondary rounded-lg overflow-hidden mb-2">
-                <img
-                  src={images[img.key] || img.fallback}
-                  alt={img.label}
-                  className="h-full w-full object-cover"
-                />
+          {IMAGES.map((img) => {
+            const isCustom = !!images[img.key];
+            return (
+              <div key={img.key} className="border border-border rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] tracking-luxe-sm uppercase text-muted-foreground">
+                    {img.label}
+                  </p>
+                  {isCustom && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[9px] tracking-luxe-sm uppercase bg-accent/10 text-accent">
+                      {lang === "fr" ? "Perso" : "Custom"}
+                    </span>
+                  )}
+                </div>
+                <div className="aspect-video bg-secondary rounded-lg overflow-hidden mb-2">
+                  <img
+                    src={images[img.key] || img.fallback}
+                    alt={img.label}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <label className="flex-1 inline-flex items-center gap-1.5 justify-center border border-border px-2 py-2 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full cursor-pointer hover:bg-foreground hover:text-background transition-colors">
+                    {uploadingKey === img.key ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="h-3.5 w-3.5" />
+                    )}
+                    {t.admin.uploadImage}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUpload(img.key, f);
+                      }}
+                    />
+                  </label>
+                  {isCustom && (
+                    <button
+                      onClick={() => handleDelete(img.key, img.label)}
+                      disabled={uploadingKey === img.key}
+                      title={lang === "fr" ? "Supprimer (revenir à l'image par défaut)" : "Delete (revert to default)"}
+                      className="inline-flex items-center justify-center h-9 w-9 border border-destructive/30 text-destructive rounded-full hover:bg-destructive hover:text-destructive-foreground transition-colors disabled:opacity-50 shrink-0"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
-              <label className="inline-flex items-center gap-2 w-full justify-center border border-border px-3 py-2 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full cursor-pointer hover:bg-foreground hover:text-background transition-colors">
-                {uploadingKey === img.key ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Upload className="h-3.5 w-3.5" />
-                )}
-                {t.admin.uploadImage}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleUpload(img.key, f);
-                  }}
-                />
-              </label>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
