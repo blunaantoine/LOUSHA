@@ -17,26 +17,18 @@ const WHATSAPP_NUMBER = "22896692972";
 export function ChatBot() {
   const { lang, setView, openProduct } = useStore();
   const t = useDict(lang);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => [
+    {
+      role: "bot",
+      text:
+        lang === "fr"
+          ? "Bonjour 👋 Je suis Lousha Bot. Comment puis-je vous aider ?"
+          : "Hello 👋 I'm Lousha Bot. How can I help you?",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Init message only on first mount
-    if (messages.length === 0) {
-      setMessages([
-        {
-          role: "bot",
-          text:
-            lang === "fr"
-              ? "Bonjour 👋 Je suis Lousha Bot. Comment puis-je vous aider ?"
-              : "Hello 👋 I'm Lousha Bot. How can I help you?",
-        },
-      ]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {

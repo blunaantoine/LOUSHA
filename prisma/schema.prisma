@@ -185,6 +185,24 @@ model SiteImage {
   updatedAt DateTime @updatedAt
 }
 
+/// Slides du bandeau promotionnel (page d'accueil).
+/// Gérables depuis l'admin sans toucher au code.
+model PromoSlide {
+  id        String  @id @default(cuid())
+  image     String
+  titleFr   String  @default("")
+  titleEn   String  @default("")
+  textFr    String  @default("")
+  textEn    String  @default("")
+  linkView  String  @default("shop") // shop, story, material, contact
+  linkLabelFr String @default("")
+  linkLabelEn String @default("")
+  order     Int     @default(0)
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 /// Textes éditables de la page d'accueil (promo, story, material, contact).
 /// L'admin peut les modifier en FR et EN sans toucher au code.
 model SiteContent {
