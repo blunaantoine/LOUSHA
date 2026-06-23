@@ -35,6 +35,7 @@ export async function POST(req: Request) {
         linkView: body.linkView || "shop",
         linkLabelFr: body.linkLabelFr || "",
         linkLabelEn: body.linkLabelEn || "",
+        bgColor: body.bgColor || "#8B5E3C",
         order: (maxOrder._max.order ?? -1) + 1,
         active: body.active ?? true,
       },

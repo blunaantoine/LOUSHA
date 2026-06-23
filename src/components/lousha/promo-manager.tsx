@@ -17,6 +17,7 @@ interface PromoSlide {
   linkView: string;
   linkLabelFr: string;
   linkLabelEn: string;
+  bgColor: string;
   order: number;
   active: boolean;
 }
@@ -199,6 +200,7 @@ function SlideEditor({ slide, onClose, onSaved }: {
     linkView: slide?.linkView || "shop",
     linkLabelFr: slide?.linkLabelFr || "",
     linkLabelEn: slide?.linkLabelEn || "",
+    bgColor: slide?.bgColor || "#8B5E3C",
     active: slide?.active ?? true,
   });
   const [saving, setSaving] = useState(false);
@@ -271,6 +273,47 @@ function SlideEditor({ slide, onClose, onSaved }: {
               ))}
             </select>
           </label>
+
+          {/* Couleur de fond */}
+          <div className="flex items-center gap-3">
+            <label className="block flex-1">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+                Couleur de fond
+              </span>
+              <input
+                type="text"
+                value={form.bgColor}
+                onChange={(e) => update("bgColor", e.target.value)}
+                placeholder="#8B5E3C"
+                className="w-full h-11 bg-background border border-border px-3 text-sm font-mono focus:outline-none focus:border-accent rounded-xl"
+              />
+            </label>
+            <label className="block shrink-0 pt-5">
+              <input
+                type="color"
+                value={form.bgColor}
+                onChange={(e) => update("bgColor", e.target.value)}
+                className="h-11 w-12 rounded-xl border border-border cursor-pointer"
+              />
+            </label>
+          </div>
+
+          {/* Présélections rapides */}
+          <div className="flex flex-wrap gap-2">
+            {["#8B5E3C", "#1a1a2e", "#2d5016", "#7a2048", "#1a3a4a", "#5c4033"].map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => update("bgColor", c)}
+                className="h-8 w-8 rounded-full border-2 transition-all hover:scale-110"
+                style={{
+                  backgroundColor: c,
+                  borderColor: form.bgColor === c ? "white" : "transparent",
+                  boxShadow: form.bgColor === c ? "0 0 0 2px rgba(0,0,0,0.3)" : undefined,
+                }}
+              />
+            ))}
+          </div>
         </div>
         <div className="sticky bottom-0 flex justify-end gap-3 px-6 py-4 border-t border-border bg-background">
           <button onClick={onClose} className="px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary">{t.admin.cancel}</button>

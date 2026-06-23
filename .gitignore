@@ -63,4 +63,4 @@ dev-daemon.sh
 public/uploads/
 db/*.db
 db/*.db-journal
-screenshots/
+screenshots/.env

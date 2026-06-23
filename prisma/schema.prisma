@@ -197,6 +197,7 @@ model PromoSlide {
   linkView  String  @default("shop") // shop, story, material, contact
   linkLabelFr String @default("")
   linkLabelEn String @default("")
+  bgColor   String  @default("bg-accent") // classe Tailwind ou couleur hex
   order     Int     @default(0)
   active    Boolean @default(true)
   createdAt DateTime @default(now())
