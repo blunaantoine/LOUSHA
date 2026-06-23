@@ -227,7 +227,11 @@ function SlideEditor({ slide, onClose, onSaved }: {
       const url = slide ? `/api/admin/promo/${slide.id}` : "/api/admin/promo";
       const method = slide ? "PATCH" : "POST";
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      if (!res.ok) { toast.error("Échec"); return; }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Échec");
+        return;
+      }
       toast.success(slide ? "Slide modifié" : "Slide créé");
       onSaved();
     } finally { setSaving(false); }
