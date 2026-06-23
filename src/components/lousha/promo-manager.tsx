@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Upload, Trash2, Loader2, Plus, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
+import { Upload, Trash2, Loader2, Plus, ArrowUp, ArrowDown, Eye, EyeOff, Sparkles } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -205,8 +205,32 @@ function SlideEditor({ slide, onClose, onSaved }: {
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const update = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleAIGenerate = async (imageUrl?: string) => {
+    const url = imageUrl || form.image;
+    if (!url) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/admin/ai-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: url, mode: "promo" }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || "IA indisponible"); return; }
+      const g = data.generated;
+      if (!form.titleFr && g.titleFr) update("titleFr", g.titleFr);
+      if (!form.titleEn && g.titleEn) update("titleEn", g.titleEn);
+      if (!form.textFr && g.textFr) update("textFr", g.textFr);
+      if (!form.textEn && g.textEn) update("textEn", g.textEn);
+      toast.success(lang === "fr" ? "✨ Contenu généré par IA" : "✨ AI content generated");
+    } catch {
+      toast.error("Erreur réseau");
+    } finally { setAiLoading(false); }
+  };
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -217,6 +241,7 @@ function SlideEditor({ slide, onClose, onSaved }: {
       if (!res.ok) { toast.error(data.error); return; }
       update("image", data.url);
       toast.success("Image téléversée");
+      handleAIGenerate(data.url).catch(() => {});
     } finally { setUploading(false); }
   };
 
@@ -258,6 +283,13 @@ function SlideEditor({ slide, onClose, onSaved }: {
                 {t.admin.uploadImage}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }} />
               </label>
+              {form.image && (
+                <button onClick={() => handleAIGenerate()} disabled={aiLoading}
+                  className="inline-flex items-center gap-2 border border-accent/40 text-accent px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60">
+                  {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  {lang === "fr" ? "Générer IA" : "AI Generate"}
+                </button>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

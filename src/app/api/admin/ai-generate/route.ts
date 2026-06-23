@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/guards";
 import fs from "fs";
 import path from "path";
-import { generateProductContent } from "@/lib/services/ai-service";
+import { generateProductContent, generatePromoContent } from "@/lib/services/ai-service";
 
 /**
  * POST /api/admin/ai-generate
- * Body: { imageUrl: "/api/uploads/xxx.png" }
- * Analyse l'image avec Google Gemini et génère le contenu du produit.
+ * Body: { imageUrl: "/api/uploads/xxx.png", mode?: "product"|"promo" }
+ * Analyse l'image avec IA et génère le contenu.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
-    const { imageUrl } = await req.json();
+    const { imageUrl, mode } = await req.json();
     if (!imageUrl) {
       return NextResponse.json({ error: "Image requise" }, { status: 400 });
     }
@@ -83,8 +83,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Appelle Gemini
-    const generated = await generateProductContent(base64Image, mimeType);
+    // Appelle l'IA selon le mode
+    const generated = mode === "promo"
+      ? await generatePromoContent(base64Image, mimeType)
+      : await generateProductContent(base64Image, mimeType);
 
     return NextResponse.json({ generated });
   } catch (error) {
