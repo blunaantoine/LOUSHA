@@ -1,29 +1,14 @@
-# ============================================================
-# Service systemd — Lousha Accessories
-# Port 3004 (3000-3003 occupés par vos apps bun)
-# ============================================================
-#
-# Installation :
-#   sudo cp deploy/lousha.service /etc/systemd/system/lousha.service
-#   sudo systemctl daemon-reload
-#   sudo systemctl enable lousha
-#   sudo systemctl start lousha
-#
-# Logs :
-#   sudo journalctl -u lousha -f
-# ============================================================
-
 [Unit]
 Description=Lousha Accessories — Next.js (port 3004)
 After=network.target
 
 [Service]
 Type=simple
-User=www-data
+User=root
 WorkingDirectory=/var/www/lousha
-EnvironmentFile=/var/www/lousha/.env.production
-Environment=NODE_ENV=production
-ExecStart=/usr/bin/node /var/www/lousha/.next/standalone/server.js
+EnvironmentFile=/var/www/lousha/.env
+Environment=PATH=/root/.bun/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/bin/sh -c 'exec bun run start'
 Restart=always
 RestartSec=5
 StandardOutput=journal

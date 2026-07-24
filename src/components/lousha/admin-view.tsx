@@ -15,7 +15,8 @@ import { useCategories } from "@/hooks/use-catalog";
 import { cn } from "@/lib/utils";
 import { ProductEditor } from "./product-editor";
 import { CarouselManager } from "./carousel-manager";
-import { ContentManager } from "./content-manager";
+import { MediaManager } from "./media-manager";
+import { PromoManager } from "./promo-manager";
 import { CollectionManager } from "./collection-manager";
 import { MessagesManager } from "./messages-manager";
 import { NewsletterManager } from "./newsletter-manager";
@@ -35,14 +36,14 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  FileText,
   LayoutGrid,
   Mail,
   Users as UsersIcon,
   Bell,
+  Tag,
 } from "lucide-react";
 
-type Tab = "dashboard" | "orders" | "products" | "carousel" | "collections" | "messages" | "customers" | "users";
+type Tab = "dashboard" | "orders" | "products" | "carousel" | "promo" | "collections" | "media" | "messages" | "customers" | "users";
 
 export function AdminView() {
   const { lang, currency, setView } = useStore();
@@ -79,7 +80,9 @@ export function AdminView() {
     { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
     { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
+    { key: "promo", label: lang === "fr" ? "Promo" : "Promo", icon: <Tag className="h-4 w-4" /> },
     { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-4 w-4" /> },
+    { key: "media", label: lang === "fr" ? "Médias" : "Media", icon: <ImageIcon className="h-4 w-4" /> },
     { key: "messages", label: t.admin.tabMessages, icon: <Mail className="h-4 w-4" /> },
     { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
     ...(isAdmin
@@ -136,6 +139,8 @@ export function AdminView() {
         {tab === "orders" && <OrdersTab enabled={authenticated} />}
         {tab === "products" && <ProductsTab enabled={authenticated} />}
         {tab === "carousel" && <CarouselManager />}
+        {tab === "promo" && <PromoManager />}
+        {tab === "media" && <MediaManager />}
         {tab === "collections" && <CollectionManager />}
         {tab === "messages" && (
           <SubTabs
@@ -196,6 +201,30 @@ function SubTabs({
 }
 
 /* ============ Dashboard ============ */
+function PaymentToggle() {
+  const { lang, paymentEnabled, setPaymentEnabled } = useStore();
+  return (
+    <div className="flex items-center justify-between border border-border rounded-2xl p-4 bg-background">
+      <div>
+        <p className="font-sans font-medium text-sm">
+          {lang === "fr" ? "Paiement en ligne" : "Online payment"}
+        </p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {paymentEnabled
+            ? lang === "fr" ? "Les boutons de paiement sont visibles." : "Payment buttons are visible."
+            : lang === "fr" ? "Les boutons de paiement sont masqués (maintenance)." : "Payment buttons are hidden (maintenance)."}
+        </p>
+      </div>
+      <button
+        onClick={() => setPaymentEnabled(!paymentEnabled)}
+        className={`relative h-7 w-14 rounded-full transition-colors ${paymentEnabled ? "bg-green-600" : "bg-border"}`}
+      >
+        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform shadow-sm ${paymentEnabled ? "translate-x-7" : "translate-x-0.5"}`} />
+      </button>
+    </div>
+  );
+}
+
 function DashboardTab({ enabled }: { enabled: boolean }) {
   const { lang, currency } = useStore();
   const t = useDict(lang);
@@ -218,6 +247,9 @@ function DashboardTab({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="space-y-8">
+      {/* Toggle Paiement */}
+      <PaymentToggle />
+
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard

@@ -114,8 +114,9 @@ export function ProductEditor({
       });
       const data = await res.json();
       if (!res.ok) {
-        // IA indisponible — message discret, pas d'erreur bloquante
-        toast(lang === "fr" ? "IA indisponible sur ce serveur. Remplissez manuellement." : "AI unavailable. Fill manually.");
+        const errMsg = data.error || (lang === "fr" ? "IA indisponible" : "AI unavailable");
+        console.error("[ai-generate] API error:", errMsg);
+        toast(errMsg);
         return;
       }
       const g = data.generated;
@@ -125,8 +126,9 @@ export function ProductEditor({
       if (!form.material && g.material) update("material", g.material);
       if (!form.craftingTime && g.craftingTime) update("craftingTime", g.craftingTime);
       toast.success(lang === "fr" ? "✨ Contenu généré par IA" : "✨ AI content generated");
-    } catch {
-      // Erreur réseau — silencieux
+    } catch (err) {
+      console.error("[ai-generate] Network/client error:", err);
+      toast(lang === "fr" ? "Erreur réseau — IA indisponible" : "Network error — AI unavailable");
     } finally {
       setAiLoading(false);
     }
@@ -263,8 +265,8 @@ export function ProductEditor({
             <Input
               label={`${t.admin.colPrice} (XOF)`}
               type="number"
-              value={String(form.priceCents)}
-              onChange={(v) => update("priceCents", Number(v))}
+              value={String(Math.round(form.priceCents / 100))}
+              onChange={(v) => update("priceCents", Math.round(Number(v) * 100))}
               required
             />
             <Input
@@ -612,8 +614,8 @@ function VariantManager({ productId }: { productId: string }) {
               </span>
               <input
                 type="number"
-                value={String(newVariant.priceCents)}
-                onChange={(e) => setNewVariant((v) => ({ ...v, priceCents: Number(e.target.value) }))}
+                value={String(Math.round(newVariant.priceCents / 100))}
+                onChange={(e) => setNewVariant((v) => ({ ...v, priceCents: Math.round(Number(e.target.value) * 100) }))}
                 className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
                 placeholder="7000000"
               />
