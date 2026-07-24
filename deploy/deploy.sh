@@ -5,7 +5,8 @@
 # ============================================================
 set -e
 
-DOMAIN="loushatg.duckdns.org"
+DOMAIN="lousha-accessoire.com"
+DOMAIN_LEGACY="loushatg.duckdns.org"
 APP_DIR="/var/www/lousha"
 PORT=3004
 REPO="https://github.com/blunaantoine/LOUSHA.git"
@@ -66,7 +67,10 @@ UPLOAD_DIR=$APP_DIR/public/uploads
 EOF
     echo "✓ .env.production créé"
 else
-    echo "✓ .env.production conservé"
+    # Met à jour NEXTAUTH_URL si le domaine a changé
+    sed -i "s|^NEXTAUTH_URL=.*|NEXTAUTH_URL=https://$DOMAIN|" $APP_DIR/.env.production
+    grep -q "UPLOAD_DIR" $APP_DIR/.env.production || echo "UPLOAD_DIR=$APP_DIR/public/uploads" >> $APP_DIR/.env.production
+    echo "✓ .env.production conservé (NEXTAUTH_URL mis à jour)"
 fi
 
 # Crée le dossier uploads (writable par www-data)
@@ -127,21 +131,36 @@ fi
 
 # --- 9. HTTPS ---
 echo "🔒 HTTPS..."
-read -p "DuckDNS pointe-t-il vers cette IP ($(curl -s ifconfig.me)) ? [o/N] " CONFIRM
+read -p "Les DNS de lousha-accessoire.com, www.lousha-accessoire.com et loushatg.duckdns.org pointent-ils vers cette IP ($(curl -s ifconfig.me)) ? [o/N] " CONFIRM
 if [[ "$CONFIRM" =~ ^[Oo] ]]; then
-    sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN || \
-    sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --register-unsafely-without-email
-    echo "✓ HTTPS activé"
+    sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN -d $DOMAIN_LEGACY --non-interactive --agree-tos -m admin@$DOMAIN || \
+    sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN -d $DOMAIN_LEGACY --non-interactive --agree-tos --register-unsafely-without-email
+    echo "✓ HTTPS activé pour $DOMAIN, www.$DOMAIN et $DOMAIN_LEGACY"
+    echo ""
+    echo "📝 Pour rediriger www et l'ancien domaine vers le domaine principal :"
+    echo "   Éditez /etc/nginx/sites-enabled/lousha"
+    echo "   Dans les blocs server de www et loushatg.duckdns.org (listen 443), ajoutez :"
+    echo "   return 301 https://$DOMAIN\$request_uri;"
+    echo "   Puis : sudo nginx -t && sudo systemctl reload nginx"
 else
-    echo "⏭️  SSL ignoré. Lancez plus tard: sudo certbot --nginx -d $DOMAIN"
+    echo "⏭️  SSL ignoré. Lancez plus tard:"
+    echo "   sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN -d $DOMAIN_LEGACY"
 fi
 
 echo ""
 echo "============================================"
 echo "✅ TERMINÉ"
-echo "🌐 https://$DOMAIN (ou http:// si SSL en attente)"
+echo "🌐 https://$DOMAIN (domaine principal)"
+echo "🔗 https://www.$DOMAIN → redirige vers $DOMAIN"
+echo "🔗 https://$DOMAIN_LEGACY → redirige vers $DOMAIN"
 echo "👤 admin@lousha-accessories.com / lousha-admin"
 echo "👥 manager@lousha-accessories.com / lousha-manager"
+echo ""
+echo "📋 SEO :"
+echo "   - Sitemap : https://$DOMAIN/sitemap.xml"
+echo "   - Robots : https://$DOMAIN/robots.txt"
+echo "   - Manifest : https://$DOMAIN/manifest.webmanifest"
+echo "   - Google Search Console : https://search.google.com/search-console"
 echo ""
 echo "Logs: sudo journalctl -u lousha -f"
 echo "Restart: sudo systemctl restart lousha"
