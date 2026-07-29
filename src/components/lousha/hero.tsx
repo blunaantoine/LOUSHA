@@ -114,7 +114,7 @@ export function HeroSlideshow() {
           >
             <img
               src={slide.image}
-              alt=""
+              alt={lang === "fr" ? `Lousha — ${slide.titleFr}` : `Lousha — ${slide.titleEn}`}
               className={cn(
                 "absolute inset-0 h-full w-full object-cover",
                 i === active && "animate-kenburns"

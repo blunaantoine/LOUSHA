@@ -22,65 +22,83 @@ const goodTimes = localFont({
   fallback: ["var(--font-sans)"],
 });
 
+const SITE_URL = "https://lousha-accessoire.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lousha-accessoire.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Lousha Accessories — Artisanat Raphia du Togo | Luxe Fait Main",
-    template: "%s | Lousha Accessories",
+    default: "Lousha — Raphia fait main au Togo | Sacs, Chapeaux & Décoration artisanale",
+    template: "%s | Lousha — Raphia fait main",
   },
   description:
-    "Lousha Accessories, marque Made in Togo. Sacs, chapeaux et objets de décoration en raphia 100% naturel, entièrement faits main. L'élégance artisanale africaine.",
+    "Lousha : sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, entièrement faits main au Togo. L'élégance de l'artisanat africain — raphia tressé par nos artisans.",
   keywords: [
-    "accessoires raphia",
-    "made in Togo",
-    "sacs artisanaux",
-    "chapeau raphia",
-    "décoration artisanale",
-    "luxe africain",
-    "fait main",
-    "Lousha Accessories",
-    "raphia Togo",
-    "artisanat africain",
-    "décoration raphia",
-    "sac en raphia",
+    // === Mots-clés principaux (haute priorité) ===
+    "raphia", "lousha", "raphia fait main", "lousha accessoires",
+    "sac raphia", "chapeau raphia", "panier raphia", "décoration raphia",
+    // === Variations orthographiques ===
+    "rafia", "rafia fait main", "sac rafia", "chapeau rafia",
+    // === Marque ===
+    "lousha-accessoire", "lousha-accessoire.com", "lousha accessories",
+    "Lousha Accessoires", "LOUSHA",
+    // === Produits ===
+    "sac en raphia", "sac artisanaux", "chapeau en raphia", "panier artisanal",
+    "accessoires raphia", "décoration artisanale", "objets décoration raphia",
+    "sac main raphia", "sac tressé raphia", "chapeau tressé",
+    // === Localisation & origine ===
+    "made in Togo", "artisanat togolais", "artisanat africain",
+    "fait main Togo", "raphia Togo", "rafia Togo",
+    "artisanat Afrique de l'Ouest", "décoration africaine",
+    // === Style & qualité ===
+    "luxe africain", "fait main", "artisanat éthique",
+    "raphia naturel", "tressage raphia", "raphia 100% naturel",
+    // === English keywords ===
+    "handmade raffia", "raffia bag", "raffia hat", "raffia basket",
+    "African craft", "Togo handmade", "raffia home decor",
+    "lousha raphia", "lousha raffia",
   ],
-  authors: [{ name: "Lousha Accessories" }],
-  creator: "Lousha Accessories",
-  publisher: "Lousha Accessories",
+  authors: [{ name: "Lousha Accessoires", url: SITE_URL }],
+  creator: "Lousha Accessoires",
+  publisher: "Lousha Accessoires",
+  category: "shopping",
+  classification: "E-commerce artisanal raphia",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
   alternates: {
-    canonical: "/",
+    canonical: SITE_URL,
     languages: {
-      fr: "/",
-      en: "/",
+      "fr-TG": SITE_URL,
+      "fr": SITE_URL,
+      "en": `${SITE_URL}?lang=en`,
+      "x-default": SITE_URL,
     },
   },
   openGraph: {
-    title: "Lousha Accessories — Artisanat Raphia du Togo",
+    title: "Lousha — Raphia fait main au Togo | Sacs, Chapeaux & Décoration",
     description:
-      "Sacs, chapeaux et objets de décoration en raphia 100% naturel, entièrement faits main au Togo.",
-    url: "https://lousha-accessoire.com",
-    siteName: "Lousha Accessories",
+      "Découvrez les créations Lousha : sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, tressés à la main par nos artisans au Togo.",
+    url: SITE_URL,
+    siteName: "Lousha — Raphia fait main au Togo",
     type: "website",
-    locale: "fr_FR",
+    locale: "fr_TG",
+    alternateLocale: ["en_US", "fr_FR"],
     images: [
       {
-        url: "/images/hero-bag-transparent.png",
+        url: "/images/hero/hero-1.png",
         width: 1200,
         height: 630,
-        alt: "Lousha Accessories — Artisanat Raphia du Togo",
+        alt: "Lousha — Créations en raphia fait main au Togo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lousha Accessories — Artisanat Raphia du Togo",
+    title: "Lousha — Raphia fait main au Togo",
     description:
-      "Sacs, chapeaux et objets de décoration en raphia 100% naturel, faits main au Togo.",
-    images: ["/images/hero-bag-transparent.png"],
+      "Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, faits main au Togo.",
+    images: ["/images/hero/hero-1.png"],
   },
   robots: {
     index: true,
@@ -100,55 +118,102 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Données structurées JSON-LD pour Google (Organization + WebSite)
+  // Données structurées JSON-LD pour Google (Organization + WebSite + Store + Product)
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
         "@id": "https://lousha-accessoire.com/#organization",
-        name: "Lousha Accessories",
+        name: "Lousha Accessoires",
+        alternateName: ["Lousha", "Lousha Accessories", "LOUSHA"],
         url: "https://lousha-accessoire.com",
+        logo: "https://lousha-accessoire.com/logo.svg",
         description:
-          "Marque Made in Togo. Sacs, chapeaux et objets de décoration en raphia 100% naturel, entièrement faits main.",
+          "Lousha Accessoires — Marque Made in Togo. Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, entièrement faits main par des artisans togolais.",
         address: {
           "@type": "PostalAddress",
           addressCountry: "TG",
           addressRegion: "Togo",
+          addressLocality: "Lomé",
         },
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: "+228-96-69-29-72",
+          contactType: "customer service",
+          availableLanguage: ["fr", "en"],
+        },
+        email: "bonjour@lousha-accessories.com",
         sameAs: [
-          "https://www.instagram.com/",
-          "https://www.facebook.com/",
+          "https://www.instagram.com/lousha_accessoires",
+          "https://www.facebook.com/loushaaccessoires",
+        ],
+        foundingLocation: {
+          "@type": "Place",
+          name: "Togo",
+        },
+        knowsAbout: [
+          "raphia",
+          "artisanat togolais",
+          "décoration artisanale",
+          "sacs en raphia",
+          "chapeaux en raphia",
+          "paniers en raphia",
         ],
       },
       {
         "@type": "WebSite",
         "@id": "https://lousha-accessoire.com/#website",
         url: "https://lousha-accessoire.com",
-        name: "Lousha Accessories",
+        name: "Lousha — Raphia fait main au Togo",
+        alternateName: "Lousha Accessoires",
         publisher: { "@id": "https://lousha-accessoire.com/#organization" },
         inLanguage: ["fr", "en"],
         potentialAction: {
           "@type": "SearchAction",
-          target:
-            "https://lousha-accessoire.com/?view=shop&q={search_term_string}",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate:
+              "https://lousha-accessoire.com/?view=shop&q={search_term_string}",
+          },
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "Store",
         "@id": "https://lousha-accessoire.com/#store",
-        name: "Lousha Accessories",
-        url: "https://lousha-accessoire.com",
+        name: "Lousha Accessoires — Boutique en ligne",
+        url: "https://lousha-accessoire.com/?view=shop",
         description:
-          "Boutique en ligne d'accessoires et décoration en raphia fait main au Togo.",
+          "Boutique en ligne de sacs, chapeaux, paniers et objets de décoration en raphia fait main au Togo. Raphia 100% naturel, tressé par nos artisans.",
         parentOrganization: {
           "@id": "https://lousha-accessoire.com/#organization",
         },
         address: {
           "@type": "PostalAddress",
           addressCountry: "TG",
+          addressLocality: "Lomé",
         },
+        priceRange: "₣₣",
+        openingHours: "Mo-Sa 09:00-19:00",
+        currenciesAccepted: "XOF",
+        paymentAccepted: "Cash, Mobile Money",
+      },
+      {
+        "@type": "Product",
+        "@id": "https://lousha-accessoire.com/#product-category-raphia",
+        name: "Créations en raphia Lousha",
+        description:
+          "Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, faits main au Togo par les artisans Lousha.",
+        brand: {
+          "@type": "Brand",
+          name: "Lousha",
+          alternateName: "Lousha Accessoires",
+        },
+        material: "Raphia naturel",
+        origin: "Togo",
+        category: "Décoration artisanale",
+        manufacturer: { "@id": "https://lousha-accessoire.com/#organization" },
       },
     ],
   };
@@ -156,6 +221,13 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        <link rel="canonical" href="https://lousha-accessoire.com" />
+        <link rel="alternate" hrefLang="fr" href="https://lousha-accessoire.com" />
+        <link rel="alternate" hrefLang="en" href="https://lousha-accessoire.com/?lang=en" />
+        <link rel="alternate" hrefLang="x-default" href="https://lousha-accessoire.com" />
+        <meta name="geo.region" content="TG" />
+        <meta name="geo.placename" content="Lomé, Togo" />
+        <meta name="theme-color" content="#311b00" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

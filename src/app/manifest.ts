@@ -7,10 +7,10 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Lousha Accessories — Artisanat Raphia du Togo",
+    name: "Lousha — Raphia fait main au Togo | Sacs, Chapeaux & Décoration",
     short_name: "Lousha",
     description:
-      "Sacs, chapeaux et objets de décoration en raphia 100% naturel, faits main au Togo.",
+      "Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, faits main au Togo par les artisans Lousha.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
