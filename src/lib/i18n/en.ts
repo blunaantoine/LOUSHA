@@ -80,7 +80,7 @@ nav: {
     },
     product: {
       addToCart: "Add to cart",
-      buyNow: "I love it",
+      buyNow: "Order now",
       material: "Material",
       origin: "Origin",
       craftingTime: "Crafting time",

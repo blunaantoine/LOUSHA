@@ -92,7 +92,7 @@ nav: {
     },
     product: {
       addToCart: "Ajouter au panier",
-      buyNow: "Je craque",
+      buyNow: "Commander",
       material: "Matière",
       origin: "Origine",
       craftingTime: "Temps de fabrication",
