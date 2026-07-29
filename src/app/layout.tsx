@@ -111,6 +111,10 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // Google Search Console verification — remplacer YOUR_VERIFICATION_CODE par le code fourni par Google
+  verification: {
+    google: "YOUR_VERIFICATION_CODE",
+  },
 };
 
 export default function RootLayout({
@@ -118,7 +122,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Données structurées JSON-LD pour Google (Organization + WebSite + Store + Product)
+  // Données structurées JSON-LD pour Google (Organization + WebSite + Store)
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -174,7 +178,7 @@ export default function RootLayout({
           target: {
             "@type": "EntryPoint",
             urlTemplate:
-              "https://lousha-accessoire.com/?view=shop&q={search_term_string}",
+              "https://lousha-accessoire.com/shop?q={search_term_string}",
           },
           "query-input": "required name=search_term_string",
         },
@@ -183,7 +187,7 @@ export default function RootLayout({
         "@type": "Store",
         "@id": "https://lousha-accessoire.com/#store",
         name: "Lousha Accessoires — Boutique en ligne",
-        url: "https://lousha-accessoire.com/?view=shop",
+        url: "https://lousha-accessoire.com/shop",
         description:
           "Boutique en ligne de sacs, chapeaux, paniers et objets de décoration en raphia fait main au Togo. Raphia 100% naturel, tressé par nos artisans.",
         parentOrganization: {
@@ -198,22 +202,6 @@ export default function RootLayout({
         openingHours: "Mo-Sa 09:00-19:00",
         currenciesAccepted: "XOF",
         paymentAccepted: "Cash, Mobile Money",
-      },
-      {
-        "@type": "Product",
-        "@id": "https://lousha-accessoire.com/#product-category-raphia",
-        name: "Créations en raphia Lousha",
-        description:
-          "Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, faits main au Togo par les artisans Lousha.",
-        brand: {
-          "@type": "Brand",
-          name: "Lousha",
-          alternateName: "Lousha Accessoires",
-        },
-        material: "Raphia naturel",
-        origin: "Togo",
-        category: "Décoration artisanale",
-        manufacturer: { "@id": "https://lousha-accessoire.com/#organization" },
       },
     ],
   };

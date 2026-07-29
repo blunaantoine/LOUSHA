@@ -7,9 +7,10 @@ import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
 import { InteractiveProductCard } from "@/components/ui/card-7";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { lang, currency, openProduct, addToCart, setCartOpen } = useStore();
+  const { lang, currency, addToCart, setCartOpen } = useStore();
   const t = useDict(lang);
 
   const name = lang === "fr" ? product.name : product.nameEn;
@@ -31,6 +32,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     addToCart({
       slug: product.slug,
       name: product.name,
@@ -46,8 +48,8 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group flex flex-col">
-      <button
-        onClick={() => openProduct(product.slug)}
+      <Link
+        href={`/product/${product.slug}`}
         className="block text-left w-full"
       >
         <InteractiveProductCard
@@ -55,18 +57,18 @@ export function ProductCard({ product }: { product: Product }) {
           title={name}
           badge={badgeLabel}
         />
-      </button>
+      </Link>
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <button
-            onClick={() => openProduct(product.slug)}
+          <Link
+            href={`/product/${product.slug}`}
             className="block text-left"
           >
             <h3 className="font-serif text-lg sm:text-xl text-foreground leading-snug hover:text-accent transition-colors">
               {name}
             </h3>
-          </button>
+          </Link>
           <p className="text-sm text-accent font-medium mt-1">
             {displayPrice}
           </p>

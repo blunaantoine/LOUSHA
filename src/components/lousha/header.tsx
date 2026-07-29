@@ -8,6 +8,8 @@ import { useDict } from "@/lib/i18n";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function Header() {
   const {
@@ -15,8 +17,6 @@ export function Header() {
     toggleLang,
     currency,
     cycleCurrency,
-    setView,
-    view,
     setCartOpen,
     cartCount,
     menuOpen,
@@ -26,6 +26,7 @@ export function Header() {
   const t = useDict(lang);
   const hydrated = useHydrated();
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -34,15 +35,21 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navItems: { key: "home" | "shop" | "story" | "material" | "contact"; label: string }[] = [
-    { key: "home", label: t.nav.home },
-    { key: "shop", label: t.nav.shop },
-    { key: "story", label: t.footer.links.story },
-    { key: "material", label: t.footer.links.material },
-    { key: "contact", label: t.nav.contact },
+  const navItems: { key: string; href: string; label: string }[] = [
+    { key: "home", href: "/", label: t.nav.home },
+    { key: "shop", href: "/shop", label: t.nav.shop },
+    { key: "story", href: "/story", label: t.footer.links.story },
+    { key: "material", href: "/material", label: t.footer.links.material },
+    { key: "contact", href: "/contact", label: t.nav.contact },
   ];
 
   const count = cartCount();
+
+  // Determine which nav item is active based on pathname
+  const isActive = (key: string, href: string) => {
+    if (key === "home") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <>
@@ -57,8 +64,8 @@ export function Header() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 sm:h-20 items-center justify-between gap-4">
             {/* === Gauche : Logo image (clic → accueil) === */}
-            <button
-              onClick={() => setView("home")}
+            <Link
+              href="/"
               className="flex items-center group shrink-0"
               aria-label="Lousha Accessories — Accueil"
             >
@@ -67,27 +74,27 @@ export function Header() {
                 alt="Lousha Accessories"
                 className="h-12 sm:h-16 w-auto object-contain"
               />
-            </button>
+            </Link>
 
             {/* === Centre : Nav desktop === */}
             <nav className="hidden lg:flex items-center gap-8">
               {navItems.map((item) => (
-                <button
+                <Link
                   key={item.key}
-                  onClick={() => setView(item.key)}
+                  href={item.href}
                   className={cn(
                     "relative text-[13px] tracking-luxe-sm uppercase font-sans transition-colors hover:text-accent",
-                    view === item.key ? "text-accent" : "text-foreground/80"
+                    isActive(item.key, item.href) ? "text-accent" : "text-foreground/80"
                   )}
                 >
                   {item.label}
                   <span
                     className={cn(
                       "absolute -bottom-1 left-0 h-px bg-accent transition-all duration-300",
-                      view === item.key ? "w-full" : "w-0"
+                      isActive(item.key, item.href) ? "w-full" : "w-0"
                     )}
                   />
-                </button>
+                </Link>
               ))}
             </nav>
 
@@ -187,16 +194,17 @@ export function Header() {
           </div>
           <nav className="flex flex-col px-6 py-6 gap-1">
             {navItems.map((item) => (
-              <button
+              <Link
                 key={item.key}
-                onClick={() => setView(item.key)}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
                 className={cn(
                   "text-left text-2xl font-serif py-3 border-b border-border/60 transition-colors hover:text-accent",
-                  view === item.key ? "text-accent" : "text-foreground"
+                  isActive(item.key, item.href) ? "text-accent" : "text-foreground"
                 )}
               >
                 {item.label}
-              </button>
+              </Link>
             ))}
           </nav>
 

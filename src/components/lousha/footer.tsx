@@ -5,9 +5,10 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { toast } from "sonner";
 import { ArrowRight, Instagram, Facebook } from "lucide-react";
+import Link from "next/link";
 
 export function Footer() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
   const [email, setEmail] = useState("");
 
@@ -85,14 +86,18 @@ export function Footer() {
             </p>
             <div className="mt-5 flex items-center gap-3">
               <a
-                href="#"
+                href="https://www.instagram.com/lousha_accessoires"
+                target="_blank"
+                rel="noreferrer"
                 aria-label="Instagram"
                 className="h-9 w-9 rounded-full border border-background/30 flex items-center justify-center hover:bg-background hover:text-foreground transition-colors"
               >
                 <Instagram className="h-4 w-4" />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/loushaaccessoires"
+                target="_blank"
+                rel="noreferrer"
                 aria-label="Facebook"
                 className="h-9 w-9 rounded-full border border-background/30 flex items-center justify-center hover:bg-background hover:text-foreground transition-colors"
               >
@@ -108,28 +113,28 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <button
-                  onClick={() => setView("home")}
+                <Link
+                  href="/"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.nav.home}
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setView("shop")}
+                <Link
+                  href="/shop"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.nav.shop}
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setView("contact")}
+                <Link
+                  href="/contact"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.nav.contact}
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -141,20 +146,20 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <button
-                  onClick={() => setView("story")}
+                <Link
+                  href="/story"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.footer.links.story}
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setView("material")}
+                <Link
+                  href="/material"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.footer.links.material}
-                </button>
+                </Link>
               </li>
               <li>
                 <span className="text-sm text-background/50 cursor-default">
@@ -171,28 +176,28 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <button
-                  onClick={() => setView("help")}
+                <Link
+                  href="/faq"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {lang === "fr" ? "Aide" : "Help"}
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setView("faq")}
+                <Link
+                  href="/faq"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.footer.links.faq}
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setView("contact")}
+                <Link
+                  href="/contact"
                   className="text-sm text-background/80 hover:text-background transition-colors"
                 >
                   {t.footer.links.contact}
-                </button>
+                </Link>
               </li>
             </ul>
           </div>

@@ -1,140 +1,136 @@
 import type { MetadataRoute } from "next";
-import { listProducts } from "@/lib/services/product-service";
-import { listCategories } from "@/lib/services/product-service";
+import { db } from "@/lib/db";
 
-/**
- * Sitemap dynamique — https://lousha-accessoire.com/sitemap.xml
- *
- * Génère le sitemap pour Google Search Console.
- * Inclut la page d'accueil + les vues principales (shop, story, material, contact)
- * + les pages produits + les catégories, en versions FR et EN.
- *
- * Les produits sont listés avec leur slug en paramètre pour que Google
- * puisse indexer chaque fiche produit individuellement.
- */
+const SITE_URL = "https://lousha-accessoire.com";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://lousha-accessoire.com";
-  const now = new Date();
-
-  // Pages principales (vues de la SPA) — versions FR et EN
-  const mainPages: MetadataRoute.Sitemap = [
+  // Pages statiques (toujours disponibles)
+  const staticPages: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
-      lastModified: now,
+      url: SITE_URL,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/?lang=en`,
-      lastModified: now,
+      url: `${SITE_URL}?lang=en`,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/?view=shop`,
-      lastModified: now,
+      url: `${SITE_URL}/shop`,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/?view=shop&lang=en`,
-      lastModified: now,
+      url: `${SITE_URL}/shop?lang=en`,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/?view=story`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/?view=story&lang=en`,
-      lastModified: now,
+      url: `${SITE_URL}/story`,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/?view=material`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/?view=material&lang=en`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/?view=contact`,
-      lastModified: now,
+      url: `${SITE_URL}/story?lang=en`,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/?view=contact&lang=en`,
-      lastModified: now,
+      url: `${SITE_URL}/material`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/material?lang=en`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/contact?lang=en`,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/?view=faq`,
-      lastModified: now,
+      url: `${SITE_URL}/faq`,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/?view=faq&lang=en`,
-      lastModified: now,
+      url: `${SITE_URL}/faq?lang=en`,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.4,
     },
   ];
 
-  // Produits — chaque fiche produit est indexable
-  let productEntries: MetadataRoute.Sitemap = [];
+  // Essayer de récupérer les données dynamiques (produits & catégories)
   try {
-    const products = await listProducts();
-    productEntries = products.flatMap((p) => [
+    const [products, categories] = await Promise.all([
+      db.product.findMany({
+        where: { inStock: true },
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
+      }),
+      db.category.findMany({
+        where: { active: true },
+        select: { slug: true, updatedAt: true },
+        orderBy: { order: "asc" },
+      }),
+    ]);
+
+    // Pages catégories
+    const categoryPages: MetadataRoute.Sitemap = categories.flatMap((cat) => [
       {
-        url: `${baseUrl}/?view=product&slug=${encodeURIComponent(p.slug)}`,
-        lastModified: p.updatedAt || p.createdAt,
+        url: `${SITE_URL}/shop?category=${cat.slug}`,
+        lastModified: cat.updatedAt,
         changeFrequency: "weekly" as const,
         priority: 0.8,
       },
       {
-        url: `${baseUrl}/?view=product&slug=${encodeURIComponent(p.slug)}&lang=en`,
-        lastModified: p.updatedAt || p.createdAt,
+        url: `${SITE_URL}/shop?category=${cat.slug}&lang=en`,
+        lastModified: cat.updatedAt,
         changeFrequency: "weekly" as const,
         priority: 0.7,
       },
     ]);
-  } catch (e) {
-    console.error("Sitemap: failed to fetch products:", e);
-  }
 
-  // Catégories
-  let categoryEntries: MetadataRoute.Sitemap = [];
-  try {
-    const categories = await listCategories();
-    categoryEntries = categories.flatMap((c) => [
+    // Pages produits — URLs propres /product/[slug]
+    const productPages: MetadataRoute.Sitemap = products.flatMap((p) => [
       {
-        url: `${baseUrl}/?view=shop&category=${encodeURIComponent(c.slug)}`,
-        lastModified: now,
+        url: `${SITE_URL}/product/${p.slug}`,
+        lastModified: p.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      },
+      {
+        url: `${SITE_URL}/product/${p.slug}?lang=en`,
+        lastModified: p.updatedAt,
         changeFrequency: "weekly" as const,
         priority: 0.7,
       },
-      {
-        url: `${baseUrl}/?view=shop&category=${encodeURIComponent(c.slug)}&lang=en`,
-        lastModified: now,
-        changeFrequency: "weekly" as const,
-        priority: 0.6,
-      },
     ]);
-  } catch (e) {
-    console.error("Sitemap: failed to fetch categories:", e);
-  }
 
-  return [...mainPages, ...productEntries, ...categoryEntries];
+    return [...staticPages, ...categoryPages, ...productPages];
+  } catch (error) {
+    // Si la DB n'est pas disponible (build local), retourner uniquement les pages statiques
+    console.warn("Sitemap: DB non disponible, retour des pages statiques uniquement");
+    return staticPages;
+  }
 }
