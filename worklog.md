@@ -117,3 +117,26 @@ Stage Summary:
 - Browser-verified end-to-end: hero slideshow, categories, engagements, product grid, quick-view modal, add-to-cart, cart drawer with free-shipping progress, full checkout form + success state, language toggle, shop filters/sort, WhatsApp widget, mobile menu, sticky footer.
 - All API routes return 200; Prisma queries execute cleanly; zero console errors; ESLint clean.
 - Generated images live in /public/images/{hero,categories,products,story}/.
+
+---
+Task ID: 1
+Agent: Main
+Task: Fix forgot password system, account icon, and admin login
+
+Work Log:
+- Investigated root cause: auth-related views (auth, account, forgot, reset, admin) still used old SPA pattern via setView() in Zustand store, but the main page no longer renders views based on view state
+- Created 5 new Next.js route pages: /auth/login, /auth/forgot-password, /auth/reset-password, /account, /admin
+- Updated 19 components to use router.push() instead of setView() across the entire codebase
+- Fixed email-service.ts reset link URL format (/?view=reset → /auth/reset-password)
+- Added Suspense boundary for reset-password page (useSearchParams requirement)
+- Updated robots.ts to block new auth routes
+- Created create-admin.ts script to create/reset admin user
+- Build successful with all new routes visible
+
+Stage Summary:
+- Root cause: SPA view switching (setView) was broken after migration to Next.js file-based routing
+- All 19 components updated from setView() to router.push()
+- 5 new route pages created
+- Admin user created in local DB with credentials: admin@lousha-accessories.com / lousha-admin
+- Need to push to GitHub and deploy to VPS
+- Need to run create-admin.ts on VPS to reset admin password
