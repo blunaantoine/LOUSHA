@@ -32,7 +32,13 @@ export async function listProducts(opts: ProductListOptions = {}) {
   return db.product.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { category: true },
+    include: {
+      category: true,
+      variants: {
+        where: { active: true },
+        orderBy: { order: "asc" },
+      },
+    },
   });
 }
 

@@ -6,6 +6,7 @@ import type { Product } from "@/hooks/use-catalog";
 import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
 import { InteractiveProductCard } from "@/components/ui/card-7";
+import { cn } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const { lang, currency, openProduct, addToCart, setCartOpen } = useStore();
@@ -18,6 +19,15 @@ export function ProductCard({ product }: { product: Product }) {
       : product.badge === "bestseller"
       ? t.products.bestseller
       : null;
+
+  const variants = product.variants || [];
+  const colorVariants = variants.filter((v) => v.color);
+  const hasMultiplePrices = variants.length > 0 && variants.some((v) => v.priceCents !== product.priceCents);
+
+  // Prix "à partir de" si les variantes ont des prix différents
+  const displayPrice = hasMultiplePrices
+    ? `${t.products.from} ${formatPrice(Math.min(product.priceCents, ...variants.map((v) => v.priceCents)), lang, currency)}`
+    : formatPrice(product.priceCents, lang, currency);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,8 +68,32 @@ export function ProductCard({ product }: { product: Product }) {
             </h3>
           </button>
           <p className="text-sm text-accent font-medium mt-1">
-            {formatPrice(product.priceCents, lang, currency)}
+            {displayPrice}
           </p>
+          {/* Indicateurs de couleurs disponibles */}
+          {colorVariants.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <span
+                className="h-3 w-3 rounded-full border border-border"
+                style={{ background: "linear-gradient(135deg, #F4F4F6, #5A5A5A)" }}
+                title={t.product.default}
+              />
+              {colorVariants.map((v) => (
+                <span
+                  key={v.id}
+                  className="h-3 w-3 rounded-full border border-border"
+                  style={{ backgroundColor: v.color! }}
+                  title={lang === "fr" ? v.label : v.labelEn || v.label}
+                />
+              ))}
+            </div>
+          )}
+          {/* Nombre de variantes sans couleur (taille, modèle...) */}
+          {variants.filter((v) => !v.color).length > 0 && (
+            <p className="text-[11px] text-muted-foreground mt-1 tracking-luxe-sm uppercase">
+              {variants.length} {lang === "fr" ? "options" : "options"}
+            </p>
+          )}
         </div>
         <button
           onClick={handleAdd}
