@@ -9,6 +9,7 @@ import { ArrowRight, LogOut, Package, LayoutDashboard, Pencil, Lock, Loader2, Ch
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "text-amber-600 bg-amber-50",
@@ -19,9 +20,10 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export function AccountView() {
-  const { lang, currency, setView } = useStore();
+  const { lang, currency } = useStore();
   const t = useDict(lang);
   const { user, logout, status } = useAuth();
+  const router = useRouter();
 
   // Redirige vers auth si non connecté (une fois le statut résolu)
   const authenticated = status === "authenticated" && !!user;
@@ -38,7 +40,7 @@ export function AccountView() {
   if (!authenticated) {
     // Effet de bord : bascule vers la vue auth
     if (typeof window !== "undefined") {
-      setTimeout(() => setView("auth"), 0);
+      setTimeout(() => router.push("/auth/login"), 0);
     }
     return null;
   }
@@ -117,7 +119,7 @@ export function AccountView() {
         {/* Lien tableau de bord admin (ADMIN ou MANAGER uniquement) */}
         {user!.role && (user!.role === "ADMIN" || user!.role === "MANAGER") && (
           <button
-            onClick={() => setView("admin")}
+            onClick={() => router.push("/admin")}
             className="group mb-10 w-full flex items-center justify-between gap-3 p-5 bg-accent text-accent-foreground rounded-2xl hover:bg-accent/90 transition-colors"
           >
             <div className="flex items-center gap-3">
@@ -159,7 +161,7 @@ export function AccountView() {
                 {t.account.noOrders}
               </p>
               <button
-                onClick={() => setView("shop")}
+                onClick={() => router.push("/shop")}
                 className="group inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
               >
                 {t.account.noOrdersCta}

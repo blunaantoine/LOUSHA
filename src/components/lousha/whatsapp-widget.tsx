@@ -5,12 +5,14 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const WHATSAPP_NUMBER = "22896692972";
 
 export function WhatsAppWidget() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -89,7 +91,7 @@ export function WhatsAppWidget() {
             {t.contact.whatsapp}
           </a>
           <button
-            onClick={() => setView("contact")}
+            onClick={() => router.push("/contact")}
             className="px-3 border border-border text-foreground hover:bg-secondary transition text-[12px] tracking-luxe-sm uppercase font-sans"
           >
             {t.nav.contact}

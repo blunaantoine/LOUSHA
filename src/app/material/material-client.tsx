@@ -5,10 +5,12 @@ import { MaterialSection } from "@/components/lousha/material-section";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function MaterialPageClient() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
 
   return (
     <AppShell>
@@ -37,7 +39,7 @@ export function MaterialPageClient() {
               : "By choosing Lousha, you support an ethical and sustainable craft, and you bring into your daily life a piece that has a story."}
           </p>
           <button
-            onClick={() => setView("shop")}
+            onClick={() => router.push("/shop")}
             className="group mt-9 inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
           >
             {t.story.cta}

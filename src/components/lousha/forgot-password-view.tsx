@@ -5,10 +5,12 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight, Mail, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function ForgotPasswordView() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -51,7 +53,7 @@ export function ForgotPasswordView() {
               </p>
             </div>
             <button
-              onClick={() => setView("auth")}
+              onClick={() => router.push("/auth/login")}
               className="inline-flex items-center gap-2 border border-border text-foreground px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -101,7 +103,7 @@ export function ForgotPasswordView() {
 
             <div className="mt-6 text-center">
               <button
-                onClick={() => setView("auth")}
+                onClick={() => router.push("/auth/login")}
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />

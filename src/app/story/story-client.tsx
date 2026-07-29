@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { ArrowRight } from "lucide-react";
 
 export function StoryPageClient() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
 
   return (
     <AppShell>

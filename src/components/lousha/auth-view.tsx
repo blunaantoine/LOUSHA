@@ -6,13 +6,15 @@ import { useDict } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight, User, Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 type Mode = "login" | "register";
 
 export function AuthView() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
   const { login, register, loading } = useAuth();
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,7 +38,7 @@ export function AuthView() {
         phone: form.phone || undefined,
       });
     }
-    if (ok) setView("account");
+    if (ok) router.push("/account");
   };
 
   const update = (k: keyof typeof form, v: string) =>
@@ -156,7 +158,7 @@ export function AuthView() {
         {mode === "login" && (
           <div className="mt-4 text-center">
             <button
-              onClick={() => setView("forgot")}
+              onClick={() => router.push("/auth/forgot-password")}
               className="text-sm text-muted-foreground hover:text-accent transition-colors"
             >
               {t.auth.forgotPassword}

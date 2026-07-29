@@ -4,10 +4,12 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { useSiteContent, getContent, getImage } from "@/hooks/use-site-content";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function StorySection() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const { data } = useSiteContent();
 
   const imgStory = getImage(data, "story-1", "/images/story/portrait-artisan.png");
@@ -55,7 +57,7 @@ export function StorySection() {
             </div>
 
             <button
-              onClick={() => setView("shop")}
+              onClick={() => router.push("/shop")}
               className="group mt-9 inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
             >
               {t.story.cta}

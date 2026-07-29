@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useStore } from "@/lib/store";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface PromoSlide {
   id: string;
@@ -33,7 +34,8 @@ const FALLBACK: PromoSlide[] = [
 ];
 
 export function PromoBanner() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
+  const router = useRouter();
   const [slides, setSlides] = useState<PromoSlide[]>([]);
   const [activeIdx, setActiveIdx] = useState(0);
 
@@ -120,7 +122,7 @@ export function PromoBanner() {
             </p>
             <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-3 justify-center lg:justify-end">
               <button
-                onClick={() => setView(s.linkView as "shop" | "story" | "material" | "contact")}
+                onClick={() => router.push(`/${s.linkView}`)}
                 className="group inline-flex items-center justify-center gap-2 bg-background text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors duration-300 w-full sm:w-auto rounded-full"
               >
                 {lang === "fr" ? (s.linkLabelFr || "Découvrir") : (s.linkLabelEn || "Discover")}

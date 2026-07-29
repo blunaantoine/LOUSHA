@@ -5,10 +5,12 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight, Lock, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function ResetPasswordView() {
-  const { lang, setView, resetToken, setResetToken } = useStore();
+  const { lang, resetToken, setResetToken } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,7 +59,7 @@ export function ResetPasswordView() {
       }
       toast.success(t.auth.resetSuccess);
       setResetToken(null);
-      setView("auth");
+      router.push("/auth/login");
     } catch {
       toast.error("Erreur réseau");
     } finally {
@@ -76,7 +78,7 @@ export function ResetPasswordView() {
           <button
             onClick={() => {
               setResetToken(null);
-              setView("auth");
+              router.push("/auth/login");
             }}
             className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
           >

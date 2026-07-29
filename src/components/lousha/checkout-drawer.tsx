@@ -6,6 +6,7 @@ import { useDict, formatPrice } from "@/lib/i18n";
 import { X, ArrowLeft, Check, Lock, ShieldCheck, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function CheckoutDrawer() {
   const {
@@ -17,10 +18,10 @@ export function CheckoutDrawer() {
     items,
     cartTotal,
     clearCart,
-    setView,
     paymentEnabled,
   } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
 
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -120,7 +121,7 @@ export function CheckoutDrawer() {
               <button
                 onClick={() => {
                   close();
-                  setView("home");
+                  router.push("/");
                 }}
                 className="inline-flex items-center justify-center bg-foreground text-background px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
               >
@@ -129,7 +130,7 @@ export function CheckoutDrawer() {
               <button
                 onClick={() => {
                   close();
-                  setView("shop");
+                  router.push("/shop");
                 }}
                 className="inline-flex items-center justify-center border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
               >

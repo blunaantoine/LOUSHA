@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { Send, Bot, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface Message {
   role: "bot" | "user";
@@ -15,8 +16,9 @@ interface Message {
 const WHATSAPP_NUMBER = "22896692972";
 
 export function ChatBot() {
-  const { lang, setView, openProduct } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>(() => [
     {
       role: "bot",
@@ -48,7 +50,7 @@ export function ChatBot() {
         text: fr
           ? "Nos prix varient de 25 000 à 70 000 XOF selon les produits. Vous pouvez voir tous les prix dans notre boutique !"
           : "Our prices range from 25,000 to 70,000 XOF. Check our shop for details!",
-        link: { label: fr ? "🛍️ Voir la boutique" : "🛍️ View shop", action: () => setView("shop") },
+        link: { label: fr ? "🛍️ Voir la boutique" : "🛍️ View shop", action: () => router.push("/shop") },
       };
     }
 
@@ -59,7 +61,7 @@ export function ChatBot() {
         text: fr
           ? "Nous proposons :\n• Paniers de décoration (Jardin, Abeille, Étagère, à Couvercle)\n• Sets de table (Soleil, Océan, Brume, Trio)\n\nTous faits main en raphia naturel au Togo !"
           : "We offer:\n• Decorative baskets (Garden, Bee, Shelf, Lidded)\n• Placemats (Sun, Ocean, Mist, Trio)\n\nAll handmade with natural raffia in Togo!",
-        link: { label: fr ? "🛍️ Voir tous les produits" : "🛍️ View all products", action: () => setView("shop") },
+        link: { label: fr ? "🛍️ Voir tous les produits" : "🛍️ View all products", action: () => router.push("/shop") },
       };
     }
 
@@ -70,7 +72,7 @@ export function ChatBot() {
         text: fr
           ? "Vous cherchez ce type de produit ? Découvrez notre collection complète dans la boutique !"
           : "Looking for this type of product? Discover our full collection in the shop!",
-        link: { label: fr ? "🛍️ Parcourir la boutique" : "🛍️ Browse shop", action: () => setView("shop") },
+        link: { label: fr ? "🛍️ Parcourir la boutique" : "🛍️ Browse shop", action: () => router.push("/shop") },
       };
     }
 
@@ -103,7 +105,7 @@ export function ChatBot() {
         text: fr
           ? "Le raphia est une fibre végétale 100% naturelle récoltée au Togo. Souple, résistante et lumineuse — parfaite pour la décoration !"
           : "Raffia is a 100% natural plant fiber harvested in Togo. Supple, resistant and luminous — perfect for decoration!",
-        link: { label: fr ? "📖 En savoir plus" : "📖 Learn more", action: () => setView("material") },
+        link: { label: fr ? "📖 En savoir plus" : "📖 Learn more", action: () => router.push("/material") },
       };
     }
 
@@ -114,7 +116,7 @@ export function ChatBot() {
         text: fr
           ? "Tous nos produits sont faits main au Togo par nos artisans, sans intermédiaire. Découvrez notre histoire !"
           : "All our products are handmade in Togo by our artisans, with no middlemen. Discover our story!",
-        link: { label: fr ? "📖 Notre histoire" : "📖 Our story", action: () => setView("story") },
+        link: { label: fr ? "📖 Notre histoire" : "📖 Our story", action: () => router.push("/story") },
       };
     }
 
@@ -125,7 +127,7 @@ export function ChatBot() {
         text: fr
           ? "Vous pouvez commander :\n1️⃣ Sur le site (Ajouter au panier → Commander)\n2️⃣ Via WhatsApp directement\n\nLes deux options sont disponibles sur chaque produit !"
           : "You can order:\n1️⃣ On the site (Add to cart → Checkout)\n2️⃣ Via WhatsApp directly\n\nBoth options are available on each product!",
-        link: { label: fr ? "🛍️ Voir la boutique" : "🛍️ View shop", action: () => setView("shop") },
+        link: { label: fr ? "🛍️ Voir la boutique" : "🛍️ View shop", action: () => router.push("/shop") },
       };
     }
 
@@ -156,7 +158,7 @@ export function ChatBot() {
         text: fr
           ? "📧 bonjour@lousha-accessories.com\n📱 WhatsApp : +228 96 69 29 72\n🕐 Lun-Sam : 9h-19h"
           : "📧 bonjour@lousha-accessories.com\n📱 WhatsApp: +228 96 69 29 72\n🕐 Mon-Sat: 9am-7pm",
-        link: { label: fr ? "📞 Page contact" : "📞 Contact page", action: () => setView("contact") },
+        link: { label: fr ? "📞 Page contact" : "📞 Contact page", action: () => router.push("/contact") },
       };
     }
 

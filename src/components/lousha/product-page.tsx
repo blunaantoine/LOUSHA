@@ -21,19 +21,20 @@ import {
 import { toast } from "sonner";
 import { ProductCard } from "./product-card";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function ProductPage() {
   const {
     lang,
     currency,
     productSlug,
-    setView,
     addToCart,
     setCartOpen,
     setCheckoutOpen,
     paymentEnabled,
   } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const { product, related, loading, error } = useProduct(productSlug);
   const [qty, setQty] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export function ProductPage() {
           {lang === "fr" ? "Produit introuvable" : "Product not found"}
         </p>
         <button
-          onClick={() => setView("shop")}
+          onClick={() => router.push("/shop")}
           className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -145,7 +146,7 @@ export function ProductPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb / retour */}
         <button
-          onClick={() => setView("shop")}
+          onClick={() => router.push("/shop")}
           className="inline-flex items-center gap-2 text-[11px] tracking-luxe-sm uppercase font-sans text-muted-foreground hover:text-accent transition-colors mb-8"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

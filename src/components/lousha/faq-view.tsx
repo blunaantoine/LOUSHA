@@ -5,12 +5,14 @@ import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { ChevronDown, HelpCircle, MessageCircle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const WHATSAPP_NUMBER = "22896692972";
 
 export function FAQView() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
   const [open, setOpen] = useState<number | null>(0);
 
   const faqs = lang === "fr" ? [
@@ -75,7 +77,7 @@ export function FAQView() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={() => setView("contact")}
+              onClick={() => router.push("/contact")}
               className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               {lang === "fr" ? "Nous contacter" : "Contact us"}

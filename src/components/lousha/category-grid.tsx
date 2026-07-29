@@ -5,9 +5,11 @@ import { useDict } from "@/lib/i18n";
 import { useCategories } from "@/hooks/use-catalog";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function CategoryGrid() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
+  const router = useRouter();
   const t = useDict(lang);
   const { categories, loading } = useCategories();
 
@@ -40,7 +42,7 @@ export function CategoryGrid() {
               return (
                 <button
                   key={cat.slug}
-                  onClick={() => setView("shop")}
+                  onClick={() => router.push("/shop")}
                   className={cn(
                     "group relative overflow-hidden bg-secondary text-left rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1",
                     idx % 4 === 0 && "lg:col-span-1"

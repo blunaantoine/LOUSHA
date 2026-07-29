@@ -18,12 +18,12 @@ export async function sendPasswordResetEmail(
 ): Promise<boolean> {
   if (!RESEND_API_KEY) {
     // Mode dev : on log le lien au lieu d'envoyer un email
-    const resetLink = `${APP_URL}/?view=reset&token=${token}`;
+    const resetLink = `${APP_URL}/auth/reset-password?token=${token}`;
     console.log("[email] (mode dev) Lien reset mot de passe:", resetLink);
     return true;
   }
 
-  const resetLink = `${APP_URL}/?view=reset&token=${token}`;
+  const resetLink = `${APP_URL}/auth/reset-password?token=${token}`;
 
   const html = `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px;">

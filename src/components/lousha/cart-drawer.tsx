@@ -6,6 +6,7 @@ import { useDict, formatPrice } from "@/lib/i18n";
 import { computeCartTotals } from "@/lib/services/cart-service";
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function CartDrawer() {
   const {
@@ -17,10 +18,10 @@ export function CartDrawer() {
     setQty,
     removeFromCart,
     cartTotal,
-    setView,
     setCheckoutOpen,
   } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
 
   // Lock body scroll
   useEffect(() => {
@@ -93,7 +94,7 @@ export function CartDrawer() {
             <button
               onClick={() => {
                 setCartOpen(false);
-                setView("shop");
+                router.push("/shop");
               }}
               className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
             >

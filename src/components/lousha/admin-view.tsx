@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 import {
   useAdminData,
   type AdminStats,
@@ -48,9 +49,10 @@ import {
 type Tab = "dashboard" | "orders" | "products" | "carousel" | "promo" | "collections" | "media" | "messages" | "customers" | "users";
 
 export function AdminView() {
-  const { lang, currency, setView } = useStore();
+  const { lang, currency } = useStore();
   const t = useDict(lang);
   const { user, status } = useAuth();
+  const router = useRouter();
   const roleLabel = user?.role === "ADMIN"
     ? (lang === "fr" ? "Administrateur" : "Administrator")
     : user?.role === "MANAGER"
@@ -73,7 +75,7 @@ export function AdminView() {
 
   // Redirige si non-admin
   if (!authenticated) {
-    if (typeof window !== "undefined") setTimeout(() => setView("home"), 0);
+    if (typeof window !== "undefined") setTimeout(() => router.push("/"), 0);
     return null;
   }
 
@@ -109,7 +111,7 @@ export function AdminView() {
             </p>
           </div>
           <button
-            onClick={() => setView("account")}
+            onClick={() => router.push("/account")}
             className="inline-flex items-center gap-2 border border-border text-foreground px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
           >
             <ArrowLeft className="h-3.5 w-3.5" />

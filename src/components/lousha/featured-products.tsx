@@ -5,9 +5,11 @@ import { useDict } from "@/lib/i18n";
 import { useProducts } from "@/hooks/use-catalog";
 import { ProductCard } from "./product-card";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function FeaturedProducts() {
-  const { lang, setView } = useStore();
+  const { lang } = useStore();
+  const router = useRouter();
   const t = useDict(lang);
   const { products, loading } = useProducts({ featured: true });
 
@@ -24,7 +26,7 @@ export function FeaturedProducts() {
             </h2>
           </div>
           <button
-            onClick={() => setView("shop")}
+            onClick={() => router.push("/shop")}
             className="group inline-flex items-center gap-2 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition-colors"
           >
             {t.products.viewAll}

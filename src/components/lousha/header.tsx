@@ -9,7 +9,7 @@ import { useHydrated } from "@/hooks/use-hydrated";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export function Header() {
   const {
@@ -256,13 +256,13 @@ export function Header() {
  * initiale si connecté (→ account).
  */
 function AccountButton() {
-  const { setView } = useStore();
+  const router = useRouter();
   const { status, user } = useAuth();
 
   if (status === "authenticated" && user) {
     return (
       <button
-        onClick={() => setView("account")}
+        onClick={() => router.push("/account")}
         className="flex h-9 w-9 rounded-full bg-accent/10 text-accent items-center justify-center font-sans font-semibold text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
         aria-label="Mon compte"
         title={user.name ?? "Mon compte"}
@@ -274,7 +274,7 @@ function AccountButton() {
 
   return (
     <button
-      onClick={() => setView("auth")}
+      onClick={() => router.push("/auth/login")}
       className="p-1.5 text-foreground/80 hover:text-accent transition"
       aria-label="Connexion"
     >
@@ -287,7 +287,8 @@ function AccountButton() {
  * Bouton compte mobile (texte au lieu d'icône, dans le drawer).
  */
 function MobileAccountButton() {
-  const { setView, setMenuOpen, lang } = useStore();
+  const router = useRouter();
+  const { setMenuOpen, lang } = useStore();
   const t = useDict(lang);
   const { status, user } = useAuth();
 
@@ -295,7 +296,7 @@ function MobileAccountButton() {
     return (
       <button
         onClick={() => {
-          setView("account");
+          router.push("/account");
           setMenuOpen(false);
         }}
         className="flex items-center gap-3 w-full text-left"
@@ -314,7 +315,7 @@ function MobileAccountButton() {
   return (
     <button
       onClick={() => {
-        setView("auth");
+        router.push("/auth/login");
         setMenuOpen(false);
       }}
       className="flex items-center gap-3 w-full text-left"

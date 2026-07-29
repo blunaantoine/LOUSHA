@@ -11,10 +11,12 @@ import { ContactSection } from "@/components/lousha/contact-section";
 import { useStore } from "@/lib/store";
 import { useDict } from "@/lib/i18n";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { setView, lang } = useStore();
+  const { lang } = useStore();
   const t = useDict(lang);
+  const router = useRouter();
 
   return (
     <AppShell>
@@ -47,7 +49,7 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={() => setView("contact")}
+              onClick={() => router.push("/contact")}
               className="group inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
             >
               {t.nav.contact}
