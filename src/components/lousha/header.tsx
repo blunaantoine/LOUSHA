@@ -254,10 +254,19 @@ export function Header() {
 /**
  * Bouton compte : icône utilisateur si déconnecté (→ auth),
  * initiale si connecté (→ account).
+ * Affiche un mini-spinner pendant le chargement de la session.
  */
 function AccountButton() {
   const router = useRouter();
   const { status, user } = useAuth();
+
+  if (status === "loading") {
+    return (
+      <span className="flex h-9 w-9 items-center justify-center">
+        <span className="h-4 w-4 border-2 border-border border-t-accent rounded-full animate-spin" />
+      </span>
+    );
+  }
 
   if (status === "authenticated" && user) {
     return (
@@ -291,6 +300,16 @@ function MobileAccountButton() {
   const { setMenuOpen, lang } = useStore();
   const t = useDict(lang);
   const { status, user } = useAuth();
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center gap-3">
+        <span className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+          <span className="h-4 w-4 border-2 border-border border-t-accent rounded-full animate-spin" />
+        </span>
+      </div>
+    );
+  }
 
   if (status === "authenticated" && user) {
     return (
