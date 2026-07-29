@@ -13,6 +13,7 @@ import {
 } from "@/hooks/use-admin-data";
 import { useCategories } from "@/hooks/use-catalog";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import { ProductEditor } from "./product-editor";
 import { CarouselManager } from "./carousel-manager";
 import { MediaManager } from "./media-manager";
@@ -41,6 +42,7 @@ import {
   Users as UsersIcon,
   Bell,
   Tag,
+  CreditCard,
 } from "lucide-react";
 
 type Tab = "dashboard" | "orders" | "products" | "carousel" | "promo" | "collections" | "media" | "messages" | "customers" | "users";
@@ -204,23 +206,27 @@ function SubTabs({
 function PaymentToggle() {
   const { lang, paymentEnabled, setPaymentEnabled } = useStore();
   return (
-    <div className="flex items-center justify-between border border-border rounded-2xl p-4 bg-background">
-      <div>
-        <p className="font-sans font-medium text-sm">
-          {lang === "fr" ? "Paiement en ligne" : "Online payment"}
-        </p>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {paymentEnabled
-            ? lang === "fr" ? "Les boutons de paiement sont visibles." : "Payment buttons are visible."
-            : lang === "fr" ? "Les boutons de paiement sont masqués (maintenance)." : "Payment buttons are hidden (maintenance)."}
-        </p>
+    <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-4 shadow-sm">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${paymentEnabled ? "bg-green-100 text-green-600" : "bg-muted text-muted-foreground"}`}>
+          <CreditCard className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="font-sans text-sm font-medium leading-tight">
+            {lang === "fr" ? "Paiement en ligne" : "Online payment"}
+          </p>
+          <p className={`text-xs mt-0.5 leading-snug ${paymentEnabled ? "text-green-600" : "text-muted-foreground"}`}>
+            {paymentEnabled
+              ? lang === "fr" ? "Activé — les boutons de paiement sont visibles" : "Enabled — payment buttons are visible"
+              : lang === "fr" ? "Désactivé — boutons masqués (maintenance)" : "Disabled — buttons hidden (maintenance)"}
+          </p>
+        </div>
       </div>
-      <button
-        onClick={() => setPaymentEnabled(!paymentEnabled)}
-        className={`relative h-7 w-14 rounded-full transition-colors ${paymentEnabled ? "bg-green-600" : "bg-border"}`}
-      >
-        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform shadow-sm ${paymentEnabled ? "translate-x-7" : "translate-x-0.5"}`} />
-      </button>
+      <Switch
+        checked={paymentEnabled}
+        onCheckedChange={setPaymentEnabled}
+        className={`h-6 w-11 shrink-0 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-muted-foreground/30 [&>span]:size-5 [&>span]:data-[state=checked]:translate-x-[22px]`}
+      />
     </div>
   );
 }

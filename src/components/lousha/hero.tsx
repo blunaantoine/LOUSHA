@@ -55,23 +55,33 @@ export function HeroSlideshow() {
   const { lang, setView } = useStore();
   const t = useDict(lang);
   const [active, setActive] = useState(0);
-  const [slides, setSlides] = useState<Slide[]>(FALLBACK_SLIDES);
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   // Charge les slides depuis la DB (gérés via admin)
   useEffect(() => {
-    let active = true;
+    let mounted = true;
     fetch("/api/hero", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { slides: [] }))
       .then((d) => {
-        if (active && d.slides && d.slides.length > 0) {
-          setSlides(d.slides);
+        if (mounted) {
+          if (d.slides && d.slides.length > 0) {
+            setSlides(d.slides);
+          } else {
+            // Aucun slide en DB → utiliser le fallback
+            setSlides(FALLBACK_SLIDES);
+          }
+          setLoaded(true);
         }
       })
       .catch(() => {
-        /* garde le fallback */
+        if (mounted) {
+          setSlides(FALLBACK_SLIDES);
+          setLoaded(true);
+        }
       });
     return () => {
-      active = false;
+      mounted = false;
     };
   }, []);
 
@@ -86,8 +96,14 @@ export function HeroSlideshow() {
     <section className="w-full px-3 sm:px-5 lg:px-8 pt-3 sm:pt-4">
       {/* === La grande carte flottante aux coins arrondis — hauteur = largeur / 2 === */}
       <div className="relative w-full overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[3rem] bg-secondary aspect-[2/1] min-h-[420px] shadow-[0_30px_80px_-40px_rgba(17,17,17,0.35)]">
+        {/* Placeholder pendant le chargement des slides */}
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-secondary">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-background/30 border-t-background" />
+          </div>
+        )}
         {/* Slides — visuel produit au centre de la carte */}
-        {slides.map((slide, i) => (
+        {loaded && slides.map((slide, i) => (
           <div
             key={slide.id}
             className={cn(
@@ -109,21 +125,22 @@ export function HeroSlideshow() {
         ))}
 
         {/* === Contenu interne avec padding généreux === */}
+        {loaded && slides[active] && (
         <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-10 lg:p-14">
           {/* Bloc haut-gauche : eyebrow + grand titre + bouton */}
           <div className="max-w-xl">
             <p
               key={`eyebrow-${active}-${lang}`}
-              className="animate-fade-up text-[10px] sm:text-xs tracking-luxe uppercase text-background/85 mb-4 sm:mb-5"
+              className="animate-fade-up text-shadow-luxe-sm text-[10px] sm:text-xs tracking-luxe uppercase text-background/85 mb-4 sm:mb-5"
             >
-              {slides[active] ? (lang === "fr" ? slides[active].eyebrowFr : slides[active].eyebrowEn) : t.hero.slides[active].eyebrow}
+              {lang === "fr" ? slides[active].eyebrowFr : slides[active].eyebrowEn}
             </p>
             <h1
               key={`title-${active}-${lang}`}
-              className="animate-fade-up font-serif text-[2.2rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl text-background text-balance"
+              className="animate-fade-up text-shadow-luxe font-serif text-[2.2rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl text-background text-balance"
               style={{ animationDelay: "0.08s" }}
             >
-              {slides[active] ? (lang === "fr" ? slides[active].titleFr : slides[active].titleEn) : t.hero.slides[active].title}
+              {lang === "fr" ? slides[active].titleFr : slides[active].titleEn}
             </h1>
 
             <div
@@ -153,14 +170,14 @@ export function HeroSlideshow() {
           >
             <p
               key={`text-${active}-${lang}`}
-              className="text-sm sm:text-base lg:text-lg text-background/90 max-w-md font-light leading-relaxed"
+              className="text-shadow-luxe-sm text-sm sm:text-base lg:text-lg text-background/90 max-w-md font-light leading-relaxed"
             >
-              {slides[active] ? (lang === "fr" ? slides[active].textFr : slides[active].textEn) : t.hero.slides[active].text}
+              {lang === "fr" ? slides[active].textFr : slides[active].textEn}
             </p>
 
             {/* Petites descriptions / indicateurs */}
             <div className="flex items-center gap-4">
-              <span className="text-[10px] sm:text-[11px] tracking-luxe-sm uppercase text-background/70 font-sans">
+              <span className="text-shadow-luxe-sm text-[10px] sm:text-[11px] tracking-luxe-sm uppercase text-background/70 font-sans">
                 {String(active + 1).padStart(2, "0")}
                 <span className="text-background/40">
                   {" "}
@@ -189,6 +206,7 @@ export function HeroSlideshow() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </section>
   );
