@@ -1,0 +1,708 @@
+     1→     1→"use client";
+     2→     2→
+     3→     3→import { useEffect, useState, useCallback } from "react";
+     4→     4→import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+     5→     5→import { toast } from "sonner";
+     6→     6→import { X, Upload, Loader2, Plus, Trash2, Sparkles } from "lucide-react";
+     7→     7→import type { AdminProduct } from "@/hooks/use-admin-data";
+     8→     8→import type { Category } from "@/hooks/use-catalog";
+     9→     9→import { useStore } from "@/lib/store";
+    10→    10→import { useDict, formatPrice } from "@/lib/i18n";
+    11→    11→import { cn } from "@/lib/utils";
+    12→    12→
+    13→    13→interface ProductEditorProps {
+    14→    14→  open: boolean;
+    15→    15→  onClose: () => void;
+    16→    16→  onSaved: () => void;
+    17→    17→  product: AdminProduct | null; // null = création
+    18→    18→  categories: Category[];
+    19→    19→}
+    20→    20→
+    21→    21→const EMPTY = {
+    22→    22→  slug: "",
+    23→    23→  name: "",
+    24→    24→  nameEn: "",
+    25→    25→  description: "",
+    26→    26→  descriptionEn: "",
+    27→    27→  priceCents: 0,
+    28→    28→  categorySlug: "",
+    29→    29→  image: "",
+    30→    30→  material: "Raphia 100% naturel",
+    31→    31→  origin: "Togo",
+    32→    32→  craftingTime: "1 jour",
+    33→    33→  badge: "none",
+    34→    34→  featured: false,
+    35→    35→  inStock: true,
+    36→    36→  stock: 0,
+    37→    37→};
+    38→    38→
+    39→    39→export function ProductEditor({
+    40→    40→  open,
+    41→    41→  onClose,
+    42→    42→  onSaved,
+    43→    43→  product,
+    44→    44→  categories,
+    45→    45→}: ProductEditorProps) {
+    46→    46→  const { lang } = useStore();
+    47→    47→  const t = useDict(lang);
+    48→    48→  const [form, setForm] = useState(EMPTY);
+    49→    49→  const [saving, setSaving] = useState(false);
+    50→    50→  const [uploading, setUploading] = useState(false);
+    51→    51→
+    52→    52→  useEffect(() => {
+    53→    53→    if (product) {
+    54→    54→      setForm({
+    55→    55→        slug: product.slug || "",
+    56→    56→        name: product.name,
+    57→    57→        nameEn: product.nameEn,
+    58→    58→        description: "",
+    59→    59→        descriptionEn: "",
+    60→    60→        priceCents: product.priceCents,
+    61→    61→        categorySlug: product.category?.slug || categories[0]?.slug || "",
+    62→    62→        image: product.image,
+    63→    63→        material: "Raphia 100% naturel",
+    64→    64→        origin: "Togo",
+    65→    65→        craftingTime: "1 jour",
+    66→    66→        badge: product.badge,
+    67→    67→        featured: false,
+    68→    68→        inStock: product.inStock,
+    69→    69→        stock: product.stock,
+    70→    70→      });
+    71→    71→    } else {
+    72→    72→      setForm({ ...EMPTY, categorySlug: categories[0]?.slug || "" });
+    73→    73→    }
+    74→    74→  }, [product, categories, open]);
+    75→    75→
+    76→    76→  const update = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+    77→    77→
+    78→    78→  const handleUpload = async (file: File) => {
+    79→    79→    setUploading(true);
+    80→    80→    try {
+    81→    81→      const fd = new FormData();
+    82→    82→      fd.append("file", file);
+    83→    83→      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+    84→    84→      const data = await res.json();
+    85→    85→      if (!res.ok) {
+    86→    86→        toast.error(data.error || "Upload échoué");
+    87→    87→        return;
+    88→    88→      }
+    89→    89→      update("image", data.url);
+    90→    90→      toast.success(lang === "fr" ? "Image téléversée" : "Image uploaded");
+    91→    91→
+    92→    92→      // Auto-génération IA après upload (silencieux si indisponible)
+    93→    93→      handleAIGenerate(data.url).catch(() => {});
+    94→    94→    } catch {
+    95→    95→      toast.error("Upload impossible");
+    96→    96→    } finally {
+    97→    97→      setUploading(false);
+    98→    98→    }
+    99→    99→  };
+   100→   100→
+   101→   101→  const [aiLoading, setAiLoading] = useState(false);
+   102→   102→
+   103→   103→  const handleAIGenerate = async (imageUrl?: string) => {
+   104→   104→    const url = imageUrl || form.image;
+   105→   105→    if (!url) {
+   106→   106→      return;
+   107→   107→    }
+   108→   108→    setAiLoading(true);
+   109→   109→    try {
+   110→   110→      const res = await fetch("/api/admin/ai-generate", {
+   111→   111→        method: "POST",
+   112→   112→        headers: { "Content-Type": "application/json" },
+   113→   113→        body: JSON.stringify({ imageUrl: url }),
+   114→   114→      });
+   115→   115→      const data = await res.json();
+   116→   116→      if (!res.ok) {
+   117→   117→        const errMsg = data.error || (lang === "fr" ? "IA indisponible" : "AI unavailable");
+   118→   118→        console.error("[ai-generate] API error:", errMsg);
+   119→   119→        toast(errMsg);
+   120→   120→        return;
+   121→   121→      }
+   122→   122→      const g = data.generated;
+   123→   123→      if (!form.name && g.name) update("name", g.name);
+   124→   124→      if (!form.nameEn && g.nameEn) update("nameEn", g.nameEn);
+   125→   125→      if (!form.slug && g.slug) update("slug", g.slug);
+   126→   126→      if (!form.material && g.material) update("material", g.material);
+   127→   127→      if (!form.craftingTime && g.craftingTime) update("craftingTime", g.craftingTime);
+   128→   128→      toast.success(lang === "fr" ? "✨ Contenu généré par IA" : "✨ AI content generated");
+   129→   129→    } catch (err) {
+   130→   130→      console.error("[ai-generate] Network/client error:", err);
+   131→   131→      toast(lang === "fr" ? "Erreur réseau — IA indisponible" : "Network error — AI unavailable");
+   132→   132→    } finally {
+   133→   133→      setAiLoading(false);
+   134→   134→    }
+   135→   135→  };
+   136→   136→
+   137→   137→  const handleSave = async () => {
+   138→   138→    if (!form.name || !form.slug || !form.priceCents || !form.categorySlug || !form.image) {
+   139→   139→      toast.error("Remplis les champs requis (slug, nom, prix, catégorie, image).");
+   140→   140→      return;
+   141→   141→    }
+   142→   142→    setSaving(true);
+   143→   143→    try {
+   144→   144→      const url = product
+   145→   145→        ? `/api/admin/products/${product.id}`
+   146→   146→        : "/api/admin/products";
+   147→   147→      const method = product ? "PATCH" : "POST";
+   148→   148→      const res = await fetch(url, {
+   149→   149→        method,
+   150→   150→        headers: { "Content-Type": "application/json" },
+   151→   151→        body: JSON.stringify(form),
+   152→   152→      });
+   153→   153→      const data = await res.json();
+   154→   154→      if (!res.ok) {
+   155→   155→        toast.error(data.error || "Échec");
+   156→   156→        return;
+   157→   157→      }
+   158→   158→      toast.success(product ? "Produit modifié" : "Produit créé");
+   159→   159→      onSaved();
+   160→   160→      onClose();
+   161→   161→    } catch {
+   162→   162→      toast.error("Erreur réseau");
+   163→   163→    } finally {
+   164→   164→      setSaving(false);
+   165→   165→    }
+   166→   166→  };
+   167→   167→
+   168→   168→  const handleDelete = async () => {
+   169→   169→    if (!product) return;
+   170→   170→    if (!confirm("Supprimer ce produit ?")) return;
+   171→   171→    setSaving(true);
+   172→   172→    try {
+   173→   173→      const res = await fetch(`/api/admin/products/${product.id}`, {
+   174→   174→        method: "DELETE",
+   175→   175→      });
+   176→   176→      if (!res.ok) {
+   177→   177→        toast.error("Suppression échouée");
+   178→   178→        return;
+   179→   179→      }
+   180→   180→      toast.success("Produit supprimé");
+   181→   181→      onSaved();
+   182→   182→      onClose();
+   183→   183→    } finally {
+   184→   184→      setSaving(false);
+   185→   185→    }
+   186→   186→  };
+   187→   187→
+   188→   188→  return (
+   189→   189→    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+   190→   190→      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-background gap-0 rounded-3xl max-h-[92vh] overflow-y-auto scroll-elegant">
+   191→   191→        <DialogTitle className="sr-only">
+   192→   192→          {product ? "Modifier le produit" : "Nouveau produit"}
+   193→   193→        </DialogTitle>
+   194→   194→        <div className="sticky top-0 z-10 flex items-center justify-between px-6 h-16 border-b border-border bg-background">
+   195→   195→          <h2 className="font-serif text-xl">
+   196→   196→            {product ? t.admin.editProduct : t.admin.newProduct}
+   197→   197→          </h2>
+   198→   198→          <button onClick={onClose} aria-label="Close" className="p-2 hover:opacity-60">
+   199→   199→            <X className="h-5 w-5" />
+   200→   200→          </button>
+   201→   201→        </div>
+   202→   202→
+   203→   203→        <div className="p-6 space-y-5">
+   204→   204→          {/* Image */}
+   205→   205→          <div>
+   206→   206→            <Label>{t.admin.productImage}</Label>
+   207→   207→            <div className="flex items-center gap-4 mt-1.5">
+   208→   208→              <div className="h-20 w-20 rounded-xl overflow-hidden bg-secondary shrink-0">
+   209→   209→                {form.image ? (
+   210→   210→                  <img src={form.image} alt="" className="h-full w-full object-cover" />
+   211→   211→                ) : null}
+   212→   212→              </div>
+   213→   213→              <label className="inline-flex items-center gap-2 border border-border px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full cursor-pointer hover:bg-foreground hover:text-background transition-colors">
+   214→   214→                {uploading ? (
+   215→   215→                  <Loader2 className="h-4 w-4 animate-spin" />
+   216→   216→                ) : (
+   217→   217→                  <Upload className="h-4 w-4" />
+   218→   218→                )}
+   219→   219→                {t.admin.uploadImage}
+   220→   220→                <input
+   221→   221→                  type="file"
+   222→   222→                  accept="image/*"
+   223→   223→                  className="hidden"
+   224→   224→                  onChange={(e) => {
+   225→   225→                    const f = e.target.files?.[0];
+   226→   226→                    if (f) handleUpload(f);
+   227→   227→                  }}
+   228→   228→                />
+   229→   229→              </label>
+   230→   230→              {/* Bouton génération IA */}
+   231→   231→              {form.image && (
+   232→   232→                <button
+   233→   233→                  onClick={() => handleAIGenerate()}
+   234→   234→                  disabled={aiLoading}
+   235→   235→                  className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent/90 transition-colors disabled:opacity-60"
+   236→   236→                  title={lang === "fr" ? "Générer le contenu avec l'IA" : "Generate content with AI"}
+   237→   237→                >
+   238→   238→                  {aiLoading ? (
+   239→   239→                    <Loader2 className="h-4 w-4 animate-spin" />
+   240→   240→                  ) : (
+   241→   241→                    <Sparkles className="h-4 w-4" />
+   242→   242→                  )}
+   243→   243→                  {lang === "fr" ? "Générer IA" : "AI Generate"}
+   244→   244→                </button>
+   245→   245→              )}
+   246→   246→            </div>
+   247→   247→            {aiLoading && (
+   248→   248→              <p className="text-xs text-accent mt-2 animate-pulse">
+   249→   249→                {lang === "fr" ? "✨ L'IA analyse l'image..." : "✨ AI analyzing image..."}
+   250→   250→              </p>
+   251→   251→            )}
+   252→   252→          </div>
+   253→   253→
+   254→   254→          <div className="grid grid-cols-2 gap-4">
+   255→   255→            <Input label={`${t.admin.colProduct} (FR)`} value={form.name} onChange={(v) => update("name", v)} required />
+   256→   256→            <Input label={`${t.admin.colProduct} (EN)`} value={form.nameEn} onChange={(v) => update("nameEn", v)} required />
+   257→   257→            <Input label="Slug" value={form.slug} onChange={(v) => update("slug", v.toLowerCase().replace(/\s+/g, "-"))} required />
+   258→   258→            <Select
+   259→   259→              label={t.admin.colCategory}
+   260→   260→              value={form.categorySlug}
+   261→   261→              onChange={(v) => update("categorySlug", v)}
+   262→   262→              options={categories.map((c) => ({ value: c.slug, label: lang === "fr" ? c.name : c.nameEn }))}
+   263→   263→              required
+   264→   264→            />
+   265→   265→            <Input
+   266→   266→              label={`${t.admin.colPrice} (XOF)`}
+   267→   267→              type="number"
+   268→   268→              value={String(Math.round(form.priceCents / 100))}
+   269→   269→              onChange={(v) => update("priceCents", Math.round(Number(v) * 100))}
+   270→   270→              required
+   271→   271→            />
+   272→   272→            <Input
+   273→   273→              label={t.admin.colStock}
+   274→   274→              type="number"
+   275→   275→              value={String(form.stock)}
+   276→   276→              onChange={(v) => update("stock", Number(v))}
+   277→   277→            />
+   278→   278→            <Select
+   279→   279→              label="Badge"
+   280→   280→              value={form.badge}
+   281→   281→              onChange={(v) => update("badge", v)}
+   282→   282→              options={[
+   283→   283→                { value: "none", label: "Aucun" },
+   284→   284→                { value: "new", label: t.products.new },
+   285→   285→                { value: "bestseller", label: t.products.bestseller },
+   286→   286→              ]}
+   287→   287→            />
+   288→   288→            <div className="flex items-end gap-4 pb-2">
+   289→   289→              <Toggle label="Featured" checked={form.featured} onChange={(v) => update("featured", v)} />
+   290→   290→              <Toggle label={t.admin.inStock} checked={form.inStock} onChange={(v) => update("inStock", v)} />
+   291→   291→            </div>
+   292→   292→          </div>
+   293→   293→
+   294→   294→          <div className="grid grid-cols-2 gap-4">
+   295→   295→            <Input label={t.product.material} value={form.material} onChange={(v) => update("material", v)} />
+   296→   296→            <Input label={t.product.origin} value={form.origin} onChange={(v) => update("origin", v)} />
+   297→   297→          </div>
+   298→   298→
+   299→   299→          {form.priceCents > 0 && (
+   300→   300→            <p className="text-sm text-muted-foreground">
+   301→   301→              Aperçu prix : {formatPrice(form.priceCents, lang, "XOF")}
+   302→   302→            </p>
+   303→   303→          )}
+   304→   304→        </div>
+   305→   305→
+   306→   306→        {/* === Section Variantes (édition uniquement) === */}
+   307→   307→        {product && (
+   308→   308→          <VariantManager productId={product.id} />
+   309→   309→        )}
+   310→   310→
+   311→   311→        <div className="sticky bottom-0 flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-background">
+   312→   312→          {product ? (
+   313→   313→            <button
+   314→   314→              onClick={handleDelete}
+   315→   315→              disabled={saving}
+   316→   316→              className="text-destructive text-[11px] tracking-luxe-sm uppercase font-sans hover:underline"
+   317→   317→            >
+   318→   318→              {t.admin.delete}
+   319→   319→            </button>
+   320→   320→          ) : (
+   321→   321→            <span />
+   322→   322→          )}
+   323→   323→          <div className="flex gap-3">
+   324→   324→            <button
+   325→   325→              onClick={onClose}
+   326→   326→              className="px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary transition-colors"
+   327→   327→            >
+   328→   328→              {t.admin.cancel}
+   329→   329→            </button>
+   330→   330→            <button
+   331→   331→              onClick={handleSave}
+   332→   332→              disabled={saving || uploading}
+   333→   333→              className="inline-flex items-center gap-2 px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60"
+   334→   334→            >
+   335→   335→              {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+   336→   336→              {t.admin.save}
+   337→   337→            </button>
+   338→   338→          </div>
+   339→   339→        </div>
+   340→   340→      </DialogContent>
+   341→   341→    </Dialog>
+   342→   342→  );
+   343→   343→}
+   344→   344→
+   345→   345→function Label({ children }: { children: React.ReactNode }) {
+   346→   346→  return (
+   347→   347→    <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground">
+   348→   348→      {children}
+   349→   349→    </span>
+   350→   350→  );
+   351→   351→}
+   352→   352→
+   353→   353→function Input({
+   354→   354→  label,
+   355→   355→  value,
+   356→   356→  onChange,
+   357→   357→  type = "text",
+   358→   358→  required,
+   359→   359→}: {
+   360→   360→  label: string;
+   361→   361→  value: string;
+   362→   362→  onChange: (v: string) => void;
+   363→   363→  type?: string;
+   364→   364→  required?: boolean;
+   365→   365→}) {
+   366→   366→  return (
+   367→   367→    <label className="block">
+   368→   368→      <Label>
+   369→   369→        {label}
+   370→   370→        {required && <span className="text-accent"> *</span>}
+   371→   371→      </Label>
+   372→   372→      <input
+   373→   373→        type={type}
+   374→   374→        required={required}
+   375→   375→        value={value}
+   376→   376→        onChange={(e) => onChange(e.target.value)}
+   377→   377→        className="mt-1.5 w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
+   378→   378→      />
+   379→   379→    </label>
+   380→   380→  );
+   381→   381→}
+   382→   382→
+   383→   383→function Select({
+   384→   384→  label,
+   385→   385→  value,
+   386→   386→  onChange,
+   387→   387→  options,
+   388→   388→  required,
+   389→   389→}: {
+   390→   390→  label: string;
+   391→   391→  value: string;
+   392→   392→  onChange: (v: string) => void;
+   393→   393→  options: { value: string; label: string }[];
+   394→   394→  required?: boolean;
+   395→   395→}) {
+   396→   396→  return (
+   397→   397→    <label className="block">
+   398→   398→      <Label>
+   399→   399→        {label}
+   400→   400→        {required && <span className="text-accent"> *</span>}
+   401→   401→      </Label>
+   402→   402→      <select
+   403→   403→        value={value}
+   404→   404→        onChange={(e) => onChange(e.target.value)}
+   405→   405→        className="mt-1.5 w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
+   406→   406→      >
+   407→   407→        {options.map((o) => (
+   408→   408→          <option key={o.value} value={o.value}>
+   409→   409→            {o.label}
+   410→   410→          </option>
+   411→   411→        ))}
+   412→   412→      </select>
+   413→   413→    </label>
+   414→   414→  );
+   415→   415→}
+   416→   416→
+   417→   417→function Toggle({
+   418→   418→  label,
+   419→   419→  checked,
+   420→   420→  onChange,
+   421→   421→}: {
+   422→   422→  label: string;
+   423→   423→  checked: boolean;
+   424→   424→  onChange: (v: boolean) => void;
+   425→   425→}) {
+   426→   426→  return (
+   427→   427→    <label className="flex items-center gap-2 cursor-pointer">
+   428→   428→      <button
+   429→   429→        type="button"
+   430→   430→        onClick={() => onChange(!checked)}
+   431→   431→        className={cn(
+   432→   432→          "relative h-6 w-11 rounded-full transition-colors",
+   433→   433→          checked ? "bg-accent" : "bg-border"
+   434→   434→        )}
+   435→   435→      >
+   436→   436→        <span
+   437→   437→          className={cn(
+   438→   438→            "absolute top-0.5 h-5 w-5 rounded-full bg-background transition-transform",
+   439→   439→            checked ? "translate-x-5" : "translate-x-0.5"
+   440→   440→          )}
+   441→   441→        />
+   442→   442→      </button>
+   443→   443→      <span className="text-[11px] tracking-luxe-sm uppercase text-muted-foreground">
+   444→   444→        {label}
+   445→   445→      </span>
+   446→   446→    </label>
+   447→   447→  );
+   448→   448→}
+   449→   449→
+   450→   450→/* ============ Gestionnaire de Variantes ============ */
+   451→   451→
+   452→   452→interface Variant {
+   453→   453→  id: string;
+   454→   454→  label: string;
+   455→   455→  labelEn: string;
+   456→   456→  value: string;
+   457→   457→  color: string | null;
+   458→   458→  priceCents: number;
+   459→   459→  stock: number;
+   460→   460→  image: string | null;
+   461→   461→  order: number;
+   462→   462→}
+   463→   463→
+   464→   464→function VariantManager({ productId }: { productId: string }) {
+   465→   465→  const { lang, currency } = useStore();
+   466→   466→  const t = useDict(lang);
+   467→   467→  const [variants, setVariants] = useState<Variant[]>([]);
+   468→   468→  const [loading, setLoading] = useState(true);
+   469→   469→  const [showForm, setShowForm] = useState(false);
+   470→   470→  const [newVariant, setNewVariant] = useState({
+   471→   471→    label: "",
+   472→   472→    labelEn: "",
+   473→   473→    value: "",
+   474→   474→    color: "",
+   475→   475→    priceCents: 0,
+   476→   476→    stock: 0,
+   477→   477→    image: "",
+   478→   478→  });
+   479→   479→  const [saving, setSaving] = useState(false);
+   480→   480→
+   481→   481→  const load = useCallback(() => {
+   482→   482→    setLoading(true);
+   483→   483→    fetch(`/api/admin/products/${productId}/variants`, { cache: "no-store" })
+   484→   484→      .then((r) => (r.ok ? r.json() : { variants: [] }))
+   485→   485→      .then((d) => setVariants(d.variants || []))
+   486→   486→      .finally(() => setLoading(false));
+   487→   487→  }, [productId]);
+   488→   488→
+   489→   489→  useEffect(() => {
+   490→   490→    load();
+   491→   491→  }, [load]);
+   492→   492→
+   493→   493→  const handleCreate = async () => {
+   494→   494→    if (!newVariant.label || !newVariant.value) {
+   495→   495→      toast.error(lang === "fr" ? "Libellé et valeur requis" : "Label and value required");
+   496→   496→      return;
+   497→   497→    }
+   498→   498→    setSaving(true);
+   499→   499→    try {
+   500→   500→      const res = await fetch(`/api/admin/products/${productId}/variants`, {
+   501→   501→        method: "POST",
+   502→   502→        headers: { "Content-Type": "application/json" },
+   503→   503→        body: JSON.stringify(newVariant),
+   504→   504→      });
+   505→   505→      if (!res.ok) {
+   506→   506→        toast.error("Échec");
+   507→   507→        return;
+   508→   508→      }
+   509→   509→      toast.success(lang === "fr" ? "Variante créée" : "Variant created");
+   510→   510→      setNewVariant({ label: "", labelEn: "", value: "", color: "", priceCents: 0, stock: 0, image: "" });
+   511→   511→      setShowForm(false);
+   512→   512→      load();
+   513→   513→    } finally {
+   514→   514→      setSaving(false);
+   515→   515→    }
+   516→   516→  };
+   517→   517→
+   518→   518→  const handleDelete = async (id: string) => {
+   519→   519→    if (!confirm(lang === "fr" ? "Supprimer cette variante ?" : "Delete this variant?")) return;
+   520→   520→    await fetch(`/api/admin/variants/${id}`, { method: "DELETE" });
+   521→   521→    toast.success(lang === "fr" ? "Variante supprimée" : "Variant deleted");
+   522→   522→    load();
+   523→   523→  };
+   524→   524→
+   525→   525→  return (
+   526→   526→    <div className="border-t border-border px-6 py-5 bg-secondary/20">
+   527→   527→      <div className="flex items-center justify-between mb-4">
+   528→   528→        <h3 className="font-serif text-lg">{t.product.variants}</h3>
+   529→   529→        <button
+   530→   530→          onClick={() => setShowForm((s) => !s)}
+   531→   531→          className="inline-flex items-center gap-1.5 text-[11px] tracking-luxe-sm uppercase font-sans text-accent hover:underline"
+   532→   532→        >
+   533→   533→          <Plus className="h-3.5 w-3.5" />
+   534→   534→          {lang === "fr" ? "Ajouter" : "Add"}
+   535→   535→        </button>
+   536→   536→      </div>
+   537→   537→
+   538→   538→      {/* Liste des variantes */}
+   539→   539→      {loading ? (
+   540→   540→        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+   541→   541→      ) : variants.length === 0 && !showForm ? (
+   542→   542→        <p className="text-sm text-muted-foreground">
+   543→   543→          {lang === "fr"
+   544→   544→            ? "Aucune variante. Le produit sera vendu dans sa version standard."
+   545→   545→            : "No variants. Product will be sold in its standard version."}
+   546→   546→        </p>
+   547→   547→      ) : (
+   548→   548→        <div className="space-y-2">
+   549→   549→          {variants.map((v) => (
+   550→   550→            <div
+   551→   551→              key={v.id}
+   552→   552→              className="flex items-center gap-3 p-3 bg-background border border-border rounded-xl"
+   553→   553→            >
+   554→   554→              {v.image && (
+   555→   555→                <img src={v.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
+   556→   556→              )}
+   557→   557→              <div className="flex-1 min-w-0">
+   558→   558→                <p className="text-sm font-sans font-medium truncate">{v.label}</p>
+   559→   559→                <p className="text-xs text-muted-foreground">
+   560→   560→                  {formatPrice(v.priceCents, lang, currency)} · {lang === "fr" ? "Stock" : "Stock"}: {v.stock}
+   561→   561→                </p>
+   562→   562→              </div>
+   563→   563→              <button
+   564→   564→                onClick={() => handleDelete(v.id)}
+   565→   565→                className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+   566→   566→              >
+   567→   567→                <Trash2 className="h-3.5 w-3.5" />
+   568→   568→              </button>
+   569→   569→            </div>
+   570→   570→          ))}
+   571→   571→        </div>
+   572→   572→      )}
+   573→   573→
+   574→   574→      {/* Formulaire nouvelle variante */}
+   575→   575→      {showForm && (
+   576→   576→        <div className="mt-3 p-4 bg-background border border-border rounded-xl space-y-3">
+   577→   577→          <div className="grid grid-cols-2 gap-3">
+   578→   578→            <label className="block">
+   579→   579→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   580→   580→                {lang === "fr" ? "Libellé (FR)" : "Label (FR)"} *
+   581→   581→              </span>
+   582→   582→              <input
+   583→   583→                value={newVariant.label}
+   584→   584→                onChange={(e) => setNewVariant((v) => ({ ...v, label: e.target.value }))}
+   585→   585→                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+   586→   586→                placeholder="Grand"
+   587→   587→              />
+   588→   588→            </label>
+   589→   589→            <label className="block">
+   590→   590→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   591→   591→                {lang === "fr" ? "Libellé (EN)" : "Label (EN)"}
+   592→   592→              </span>
+   593→   593→              <input
+   594→   594→                value={newVariant.labelEn}
+   595→   595→                onChange={(e) => setNewVariant((v) => ({ ...v, labelEn: e.target.value }))}
+   596→   596→                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+   597→   597→                placeholder="Large"
+   598→   598→              />
+   599→   599→            </label>
+   600→   600→            <label className="block">
+   601→   601→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   602→   602→                {lang === "fr" ? "Valeur (slug)" : "Value (slug)"} *
+   603→   603→              </span>
+   604→   604→              <input
+   605→   605→                value={newVariant.value}
+   606→   606→                onChange={(e) => setNewVariant((v) => ({ ...v, value: e.target.value.toLowerCase().replace(/\s+/g, "-") }))}
+   607→   607→                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+   608→   608→                placeholder="grand"
+   609→   609→              />
+   610→   610→            </label>
+   611→   611→            <label className="block">
+   612→   612→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   613→   613→                {lang === "fr" ? "Prix (XOF)" : "Price (XOF)"}
+   614→   614→              </span>
+   615→   615→              <input
+   616→   616→                type="number"
+   617→   617→                value={String(Math.round(newVariant.priceCents / 100))}
+   618→   618→                onChange={(e) => setNewVariant((v) => ({ ...v, priceCents: Math.round(Number(e.target.value) * 100) }))}
+   619→   619→                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+   620→   620→                placeholder="7000000"
+   621→   621→              />
+   622→   622→            </label>
+   623→   623→            <label className="block">
+   624→   624→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   625→   625→                {lang === "fr" ? "Stock" : "Stock"}
+   626→   626→              </span>
+   627→   627→              <input
+   628→   628→                type="number"
+   629→   629→                value={String(newVariant.stock)}
+   630→   630→                onChange={(e) => setNewVariant((v) => ({ ...v, stock: Number(e.target.value) }))}
+   631→   631→                className="w-full h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+   632→   632→                placeholder="5"
+   633→   633→              />
+   634→   634→            </label>
+   635→   635→          </div>
+   636→   636→
+   637→   637→          {/* Couleur + Image */}
+   638→   638→          <div className="grid grid-cols-2 gap-3">
+   639→   639→            <label className="block">
+   640→   640→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   641→   641→                {lang === "fr" ? "Couleur (hex)" : "Color (hex)"}
+   642→   642→              </span>
+   643→   643→              <div className="flex items-center gap-2">
+   644→   644→                <input
+   645→   645→                  type="color"
+   646→   646→                  value={newVariant.color || "#000000"}
+   647→   647→                  onChange={(e) => setNewVariant((v) => ({ ...v, color: e.target.value }))}
+   648→   648→                  className="h-10 w-12 rounded-lg border border-border cursor-pointer"
+   649→   649→                />
+   650→   650→                <input
+   651→   651→                  value={newVariant.color}
+   652→   652→                  onChange={(e) => setNewVariant((v) => ({ ...v, color: e.target.value }))}
+   653→   653→                  className="flex-1 h-10 bg-background border border-border px-3 text-sm rounded-lg focus:outline-none focus:border-accent"
+   654→   654→                  placeholder="#FF0000 (vide = pas une couleur)"
+   655→   655→                />
+   656→   656→              </div>
+   657→   657→            </label>
+   658→   658→            <label className="block">
+   659→   659→              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+   660→   660→                {lang === "fr" ? "Image variante" : "Variant image"}
+   661→   661→              </span>
+   662→   662→              <div className="flex items-center gap-2">
+   663→   663→                {newVariant.image && (
+   664→   664→                  <img src={newVariant.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
+   665→   665→                )}
+   666→   666→                <label className="inline-flex items-center gap-1.5 px-3 py-2 text-[10px] tracking-luxe-sm uppercase font-sans border border-border rounded-lg cursor-pointer hover:bg-secondary">
+   667→   667→                  <Upload className="h-3 w-3" />
+   668→   668→                  {lang === "fr" ? "Téléverser" : "Upload"}
+   669→   669→                  <input
+   670→   670→                    type="file"
+   671→   671→                    accept="image/*"
+   672→   672→                    className="hidden"
+   673→   673→                    onChange={async (e) => {
+   674→   674→                      const f = e.target.files?.[0];
+   675→   675→                      if (!f) return;
+   676→   676→                      const fd = new FormData();
+   677→   677→                      fd.append("file", f);
+   678→   678→                      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+   679→   679→                      const data = await res.json();
+   680→   680→                      if (res.ok) setNewVariant((v) => ({ ...v, image: data.url }));
+   681→   681→                    }}
+   682→   682→                  />
+   683→   683→                </label>
+   684→   684→              </div>
+   685→   685→            </label>
+   686→   686→          </div>
+   687→   687→          <div className="flex gap-2">
+   688→   688→            <button
+   689→   689→              onClick={() => setShowForm(false)}
+   690→   690→              className="px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary"
+   691→   691→            >
+   692→   692→              {t.admin.cancel}
+   693→   693→            </button>
+   694→   694→            <button
+   695→   695→              onClick={handleCreate}
+   696→   696→              disabled={saving}
+   697→   697→              className="inline-flex items-center gap-1.5 px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
+   698→   698→            >
+   699→   699→              {saving && <Loader2 className="h-3 w-3 animate-spin" />}
+   700→   700→              {t.admin.save}
+   701→   701→            </button>
+   702→   702→          </div>
+   703→   703→        </div>
+   704→   704→      )}
+   705→   705→    </div>
+   706→   706→  );
+   707→   707→}
+   708→   708→

@@ -1,0 +1,1011 @@
+     1→"use client";
+     2→
+     3→import { useState, useEffect } from "react";
+     4→import { useStore } from "@/lib/store";
+     5→import { useDict, formatPrice } from "@/lib/i18n";
+     6→import { useAuth } from "@/hooks/use-auth";
+     7→import {
+     8→  useAdminData,
+     9→  type AdminStats,
+    10→  type AdminOrder,
+    11→  type AdminProduct,
+    12→  type AdminCustomer,
+    13→} from "@/hooks/use-admin-data";
+    14→import { useCategories } from "@/hooks/use-catalog";
+    15→import { cn } from "@/lib/utils";
+    16→import { Switch } from "@/components/ui/switch";
+    17→import { ProductEditor } from "./product-editor";
+    18→import { CarouselManager } from "./carousel-manager";
+    19→import { MediaManager } from "./media-manager";
+    20→import { PromoManager } from "./promo-manager";
+    21→import { CollectionManager } from "./collection-manager";
+    22→import { MessagesManager } from "./messages-manager";
+    23→import { NewsletterManager } from "./newsletter-manager";
+    24→import { NotificationsManager } from "./notifications-manager";
+    25→import {
+    26→  TrendingUp,
+    27→  Calendar,
+    28→  Package,
+    29→  Users,
+    30→  AlertTriangle,
+    31→  ShoppingCart,
+    32→  Boxes,
+    33→  ArrowLeft,
+    34→  Image as ImageIcon,
+    35→  Plus,
+    36→  UserCog,
+    37→  Trash2,
+    38→  Eye,
+    39→  EyeOff,
+    40→  LayoutGrid,
+    41→  Mail,
+    42→  Users as UsersIcon,
+    43→  Bell,
+    44→  Tag,
+    45→  CreditCard,
+    46→} from "lucide-react";
+    47→
+    48→type Tab = "dashboard" | "orders" | "products" | "carousel" | "promo" | "collections" | "media" | "messages" | "customers" | "users";
+    49→
+    50→export function AdminView() {
+    51→  const { lang, currency, setView } = useStore();
+    52→  const t = useDict(lang);
+    53→  const { user, status } = useAuth();
+    54→  const roleLabel = user?.role === "ADMIN"
+    55→    ? (lang === "fr" ? "Administrateur" : "Administrator")
+    56→    : user?.role === "MANAGER"
+    57→    ? (lang === "fr" ? "Gestionnaire" : "Manager")
+    58→    : (lang === "fr" ? "Client" : "Customer");
+    59→  const [tab, setTab] = useState<Tab>("dashboard");
+    60→
+    61→  // Accès admin : ADMIN (complet) ou MANAGER (sans gestion utilisateurs)
+    62→  const isAdmin = status === "authenticated" && user?.role === "ADMIN";
+    63→  const isManager = status === "authenticated" && user?.role === "MANAGER";
+    64→  const authenticated = isAdmin || isManager;
+    65→
+    66→  if (status === "loading") {
+    67→    return (
+    68→      <section className="min-h-[60vh] flex items-center justify-center">
+    69→        <span className="h-6 w-6 border-2 border-border border-t-accent rounded-full animate-spin" />
+    70→      </section>
+    71→    );
+    72→  }
+    73→
+    74→  // Redirige si non-admin
+    75→  if (!authenticated) {
+    76→    if (typeof window !== "undefined") setTimeout(() => setView("home"), 0);
+    77→    return null;
+    78→  }
+    79→
+    80→  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    81→    { key: "dashboard", label: t.admin.tabDashboard, icon: <TrendingUp className="h-4 w-4" /> },
+    82→    { key: "orders", label: t.admin.tabOrders, icon: <ShoppingCart className="h-4 w-4" /> },
+    83→    { key: "products", label: t.admin.tabProducts, icon: <Boxes className="h-4 w-4" /> },
+    84→    { key: "carousel", label: t.admin.tabCarousel, icon: <ImageIcon className="h-4 w-4" /> },
+    85→    { key: "promo", label: lang === "fr" ? "Promo" : "Promo", icon: <Tag className="h-4 w-4" /> },
+    86→    { key: "collections", label: t.admin.tabCollections, icon: <LayoutGrid className="h-4 w-4" /> },
+    87→    { key: "media", label: lang === "fr" ? "Médias" : "Media", icon: <ImageIcon className="h-4 w-4" /> },
+    88→    { key: "messages", label: t.admin.tabMessages, icon: <Mail className="h-4 w-4" /> },
+    89→    { key: "customers", label: t.admin.tabCustomers, icon: <Users className="h-4 w-4" /> },
+    90→    ...(isAdmin
+    91→      ? [{ key: "users" as Tab, label: t.admin.tabUsers, icon: <UserCog className="h-4 w-4" /> }]
+    92→      : []),
+    93→  ];
+    94→
+    95→  return (
+    96→    <section className="py-12 sm:py-16 bg-background min-h-[60vh]">
+    97→      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    98→        {/* Header */}
+    99→        <div className="flex items-center justify-between mb-8">
+   100→          <div>
+   101→            <p className="text-[11px] tracking-luxe uppercase text-accent mb-2">
+   102→              {t.admin.eyebrow}
+   103→            </p>
+   104→            <h1 className="font-serif text-4xl sm:text-5xl text-foreground">
+   105→              {t.admin.title}
+   106→            </h1>
+   107→            <p className="text-sm text-muted-foreground mt-2">
+   108→              {user?.name} · <span className="text-accent font-medium">{roleLabel}</span>
+   109→            </p>
+   110→          </div>
+   111→          <button
+   112→            onClick={() => setView("account")}
+   113→            className="inline-flex items-center gap-2 border border-border text-foreground px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
+   114→          >
+   115→            <ArrowLeft className="h-3.5 w-3.5" />
+   116→            {t.admin.backToAccount}
+   117→          </button>
+   118→        </div>
+   119→
+   120→        {/* Onglets */}
+   121→        <div className="flex gap-1 border-b border-border mb-8 overflow-x-auto scroll-elegant">
+   122→          {tabs.map((tb) => (
+   123→            <button
+   124→              key={tb.key}
+   125→              onClick={() => setTab(tb.key)}
+   126→              className={cn(
+   127→                "inline-flex items-center gap-2 px-5 py-3 text-[12px] tracking-luxe-sm uppercase font-sans transition-colors border-b-2 -mb-px whitespace-nowrap",
+   128→                tab === tb.key
+   129→                  ? "border-accent text-accent"
+   130→                  : "border-transparent text-muted-foreground hover:text-foreground"
+   131→              )}
+   132→            >
+   133→              {tb.icon}
+   134→              {tb.label}
+   135→            </button>
+   136→          ))}
+   137→        </div>
+   138→
+   139→        {/* Contenu */}
+   140→        {tab === "dashboard" && <DashboardTab enabled={authenticated} />}
+   141→        {tab === "orders" && <OrdersTab enabled={authenticated} />}
+   142→        {tab === "products" && <ProductsTab enabled={authenticated} />}
+   143→        {tab === "carousel" && <CarouselManager />}
+   144→        {tab === "promo" && <PromoManager />}
+   145→        {tab === "media" && <MediaManager />}
+   146→        {tab === "collections" && <CollectionManager />}
+   147→        {tab === "messages" && (
+   148→          <SubTabs
+   149→            tabs={[
+   150→              { key: "messages", label: t.admin.tabMessages, icon: <Mail className="h-3.5 w-3.5" /> },
+   151→              { key: "newsletter", label: t.admin.tabNewsletter, icon: <UsersIcon className="h-3.5 w-3.5" /> },
+   152→              { key: "notifications", label: t.admin.tabNotifications, icon: <Bell className="h-3.5 w-3.5" /> },
+   153→            ]}
+   154→            panels={[
+   155→              { key: "messages", content: <MessagesManager /> },
+   156→              { key: "newsletter", content: <NewsletterManager /> },
+   157→              { key: "notifications", content: <NotificationsManager /> },
+   158→            ]}
+   159→          />
+   160→        )}
+   161→        {tab === "customers" && <CustomersTab enabled={authenticated} />}
+   162→        {tab === "users" && isAdmin && <UsersTab enabled={isAdmin} />}
+   163→      </div>
+   164→    </section>
+   165→  );
+   166→}
+   167→
+   168→/* ============ Sous-onglets (regroupement) ============ */
+   169→function SubTabs({
+   170→  tabs,
+   171→  panels,
+   172→}: {
+   173→  tabs: { key: string; label: string; icon: React.ReactNode }[];
+   174→  panels: { key: string; content: React.ReactNode }[];
+   175→}) {
+   176→  const [active, setActive] = useState(tabs[0]?.key);
+   177→  const panel = panels.find((p) => p.key === active);
+   178→
+   179→  return (
+   180→    <div>
+   181→      {/* Sous-onglets */}
+   182→      <div className="flex gap-1 mb-6 border-b border-border">
+   183→        {tabs.map((tb) => (
+   184→          <button
+   185→            key={tb.key}
+   186→            onClick={() => setActive(tb.key)}
+   187→            className={cn(
+   188→              "inline-flex items-center gap-1.5 px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans transition-colors border-b-2 -mb-px whitespace-nowrap",
+   189→              active === tb.key
+   190→                ? "border-accent text-accent"
+   191→                : "border-transparent text-muted-foreground hover:text-foreground"
+   192→            )}
+   193→          >
+   194→            {tb.icon}
+   195→            {tb.label}
+   196→          </button>
+   197→        ))}
+   198→      </div>
+   199→      {/* Contenu */}
+   200→      {panel?.content}
+   201→    </div>
+   202→  );
+   203→}
+   204→
+   205→/* ============ Dashboard ============ */
+   206→function PaymentToggle() {
+   207→  const { lang, paymentEnabled, setPaymentEnabled } = useStore();
+   208→  return (
+   209→    <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-4 shadow-sm">
+   210→      <div className="flex items-center gap-3 min-w-0">
+   211→        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${paymentEnabled ? "bg-green-100 text-green-600" : "bg-muted text-muted-foreground"}`}>
+   212→          <CreditCard className="h-4 w-4" />
+   213→        </div>
+   214→        <div className="min-w-0">
+   215→          <p className="font-sans text-sm font-medium leading-tight">
+   216→            {lang === "fr" ? "Paiement en ligne" : "Online payment"}
+   217→          </p>
+   218→          <p className={`text-xs mt-0.5 leading-snug ${paymentEnabled ? "text-green-600" : "text-muted-foreground"}`}>
+   219→            {paymentEnabled
+   220→              ? lang === "fr" ? "Activé — les boutons de paiement sont visibles" : "Enabled — payment buttons are visible"
+   221→              : lang === "fr" ? "Désactivé — boutons masqués (maintenance)" : "Disabled — buttons hidden (maintenance)"}
+   222→          </p>
+   223→        </div>
+   224→      </div>
+   225→      <Switch
+   226→        checked={paymentEnabled}
+   227→        onCheckedChange={setPaymentEnabled}
+   228→        className={`h-6 w-11 shrink-0 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-muted-foreground/30 [&>span]:size-5 [&>span]:data-[state=checked]:translate-x-[22px]`}
+   229→      />
+   230→    </div>
+   231→  );
+   232→}
+   233→
+   234→function DashboardTab({ enabled }: { enabled: boolean }) {
+   235→  const { lang, currency } = useStore();
+   236→  const t = useDict(lang);
+   237→  const { data, loading } = useAdminData<{ stats: AdminStats }>("stats", enabled);
+   238→  const [localStats, setLocalStats] = useState<AdminStats | null>(null);
+   239→
+   240→  // Recharge les stats quand le dashboard monte
+   241→  useEffect(() => {
+   242→    fetch("/api/admin/stats", { cache: "no-store" })
+   243→      .then((r) => (r.ok ? r.json() : null))
+   244→      .then((d) => { if (d?.stats) setLocalStats(d.stats); })
+   245→      .catch(() => {});
+   246→  }, []);
+   247→
+   248→  const s = localStats ?? data?.stats;
+   249→
+   250→  if (loading || !s) {
+   251→    return <SkeletonGrid count={4} />;
+   252→  }
+   253→
+   254→  return (
+   255→    <div className="space-y-8">
+   256→      {/* Toggle Paiement */}
+   257→      <PaymentToggle />
+   258→
+   259→      {/* KPIs */}
+   260→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   261→        <KpiCard
+   262→          icon={<Calendar className="h-5 w-5" />}
+   263→          label={t.admin.revenueToday}
+   264→          value={formatPrice(s.revenueToday, lang, currency)}
+   265→          accent
+   266→        />
+   267→        <KpiCard
+   268→          icon={<TrendingUp className="h-5 w-5" />}
+   269→          label={t.admin.revenueMonth}
+   270→          value={formatPrice(s.revenueMonth, lang, currency)}
+   271→          accent
+   272→        />
+   273→        <KpiCard
+   274→          icon={<ShoppingCart className="h-5 w-5" />}
+   275→          label={t.admin.pendingOrders}
+   276→          value={String(s.pendingOrders)}
+   277→          sub={`${s.totalOrders} ${t.admin.totalOrdersLabel}`}
+   278→        />
+   279→        <KpiCard
+   280→          icon={<Users className="h-5 w-5" />}
+   281→          label={t.admin.totalCustomers}
+   282→          value={String(s.totalCustomers)}
+   283→        />
+   284→      </div>
+   285→
+   286→      {/* Stock bas / rupture */}
+   287→      <div className="grid lg:grid-cols-2 gap-6">
+   288→        <div className="border border-border rounded-2xl p-6">
+   289→          <div className="flex items-center gap-2 mb-4">
+   290→            <AlertTriangle className="h-5 w-5 text-amber-600" />
+   291→            <h3 className="font-serif text-xl">{t.admin.lowStock}</h3>
+   292→          </div>
+   293→          {s.lowStockProducts.length === 0 ? (
+   294→            <p className="text-sm text-muted-foreground font-light">
+   295→              {t.admin.noLowStock}
+   296→            </p>
+   297→          ) : (
+   298→            <ul className="space-y-3 max-h-72 overflow-y-auto scroll-elegant">
+   299→              {s.lowStockProducts.map((p) => (
+   300→                <li key={p.id} className="flex items-center gap-3">
+   301→                  <img
+   302→                    src={p.image}
+   303→                    alt=""
+   304→                    className="h-12 w-12 rounded-lg object-cover bg-secondary"
+   305→                  />
+   306→                  <div className="flex-1 min-w-0">
+   307→                    <p className="font-sans text-sm font-medium truncate">
+   308→                      {lang === "fr" ? p.name : p.nameEn}
+   309→                    </p>
+   310→                    <p className="text-xs text-muted-foreground">
+   311→                      {t.admin.stockLabel}: {p.stock}
+   312→                    </p>
+   313→                  </div>
+   314→                  <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] tracking-luxe-sm uppercase font-sans">
+   315→                    {t.admin.lowBadge}
+   316→                  </span>
+   317→                </li>
+   318→              ))}
+   319→            </ul>
+   320→          )}
+   321→          {s.outOfStockCount > 0 && (
+   322→            <p className="mt-4 pt-4 border-t border-border text-sm text-destructive">
+   323→              {s.outOfStockCount} {t.admin.outOfStockLabel}
+   324→            </p>
+   325→          )}
+   326→        </div>
+   327→
+   328→        {/* Aperçu commandes */}
+   329→        <div className="border border-border rounded-2xl p-6">
+   330→          <div className="flex items-center gap-2 mb-4">
+   331→            <Package className="h-5 w-5 text-accent" />
+   332→            <h3 className="font-serif text-xl">{t.admin.recentActivity}</h3>
+   333→          </div>
+   334→          <OrdersTab enabled={enabled} compact />
+   335→        </div>
+   336→      </div>
+   337→    </div>
+   338→  );
+   339→}
+   340→
+   341→function KpiCard({
+   342→  icon,
+   343→  label,
+   344→  value,
+   345→  sub,
+   346→  accent,
+   347→}: {
+   348→  icon: React.ReactNode;
+   349→  label: string;
+   350→  value: string;
+   351→  sub?: string;
+   352→  accent?: boolean;
+   353→}) {
+   354→  return (
+   355→    <div
+   356→      className={cn(
+   357→        "rounded-2xl p-5 border",
+   358→        accent ? "bg-accent text-accent-foreground border-accent" : "bg-background border-border"
+   359→      )}
+   360→    >
+   361→      <div className="flex items-center justify-between mb-3">
+   362→        <span
+   363→          className={cn(
+   364→            "h-9 w-9 rounded-full flex items-center justify-center",
+   365→            accent ? "bg-accent-foreground/15" : "bg-accent/10 text-accent"
+   366→          )}
+   367→        >
+   368→          {icon}
+   369→        </span>
+   370→      </div>
+   371→      <p
+   372→        className={cn(
+   373→          "text-[11px] tracking-luxe-sm uppercase font-sans",
+   374→          accent ? "text-accent-foreground/75" : "text-muted-foreground"
+   375→        )}
+   376→      >
+   377→        {label}
+   378→      </p>
+   379→      <p className="font-serif text-2xl sm:text-3xl mt-1">{value}</p>
+   380→      {sub && (
+   381→        <p
+   382→          className={cn(
+   383→            "text-xs font-sans mt-1",
+   384→            accent ? "text-accent-foreground/75" : "text-muted-foreground"
+   385→          )}
+   386→        >
+   387→          {sub}
+   388→        </p>
+   389→      )}
+   390→    </div>
+   391→  );
+   392→}
+   393→
+   394→/* ============ Commandes ============ */
+   395→const ORDER_STATUS_STYLES: Record<string, string> = {
+   396→  PENDING: "text-amber-600 bg-amber-50",
+   397→  CONFIRMED: "text-blue-600 bg-blue-50",
+   398→  PAID: "text-accent bg-accent/10",
+   399→  SHIPPED: "text-blue-600 bg-blue-50",
+   400→  DELIVERED: "text-green-700 bg-green-50",
+   401→  CANCELLED: "text-destructive bg-destructive/10",
+   402→};
+   403→
+   404→function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }) {
+   405→  const { lang, currency } = useStore();
+   406→  const t = useDict(lang);
+   407→  const { data, loading } = useAdminData<{ orders: AdminOrder[] }>("orders", enabled);
+   408→  const [localOrders, setLocalOrders] = useState<AdminOrder[] | null>(null);
+   409→
+   410→  if (loading || !data) return compact ? <p className="text-sm text-muted-foreground">{t.common.loading}</p> : <SkeletonGrid count={3} />;
+   411→  const orders = localOrders ?? (compact ? data.orders.slice(0, 5) : data.orders);
+   412→
+   413→  if (orders.length === 0) {
+   414→    return (
+   415→      <EmptyState
+   416→        icon={<ShoppingCart className="h-6 w-6" />}
+   417→        title={t.admin.noOrders}
+   418→      />
+   419→    );
+   420→  }
+   421→
+   422→  const statusLabel = (s: string) => {
+   423→    const map: Record<string, string> = {
+   424→      PENDING: t.account.statusPending,
+   425→      CONFIRMED: lang === "fr" ? "Confirmée" : "Confirmed",
+   426→      PAID: t.account.statusPaid,
+   427→      SHIPPED: t.account.statusShipped,
+   428→      DELIVERED: t.account.statusDelivered,
+   429→      CANCELLED: t.account.statusCancelled,
+   430→    };
+   431→    return map[s] || s;
+   432→  };
+   433→
+   434→  const handleStatusChange = async (orderId: string, newStatus: string) => {
+   435→    await fetch(`/api/admin/orders/${orderId}`, {
+   436→      method: "PATCH",
+   437→      headers: { "Content-Type": "application/json" },
+   438→      body: JSON.stringify({ status: newStatus }),
+   439→    });
+   440→    // Met à jour localement
+   441→    setLocalOrders((prev) => {
+   442→      const base = prev ?? data.orders;
+   443→      return base.map((o) => o.id === orderId ? { ...o, status: newStatus } : o);
+   444→    });
+   445→  };
+   446→
+   447→  return (
+   448→    <div className="space-y-3">
+   449→      {orders.map((o) => {
+   450→        const date = new Date(o.createdAt).toLocaleDateString(
+   451→          lang === "fr" ? "fr-FR" : "en-US",
+   452→          { day: "2-digit", month: "short", year: "numeric" }
+   453→        );
+   454→        const itemCount = o.items.reduce((n, i) => n + i.qty, 0);
+   455→        const isWhatsApp = o.payment?.provider === "WHATSAPP";
+   456→        return (
+   457→          <div
+   458→            key={o.id}
+   459→            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl hover:border-accent/40 transition-colors"
+   460→          >
+   461→            <div className="flex items-center gap-3 min-w-0">
+   462→              <span className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground shrink-0">
+   463→                <Package className="h-4 w-4" />
+   464→              </span>
+   465→              <div className="min-w-0">
+   466→                <p className="font-sans font-medium text-sm truncate flex items-center gap-2">
+   467→                  #{o.id.slice(-6).toUpperCase()} · {o.fullName}
+   468→                  {isWhatsApp && (
+   469→                    <span className="px-1.5 py-0.5 rounded-full bg-[#25D366]/10 text-[#25D366] text-[8px] tracking-luxe-sm uppercase">WhatsApp</span>
+   470→                  )}
+   471→                </p>
+   472→                <p className="text-xs text-muted-foreground">
+   473→                  {date} · {itemCount} {t.account.items}
+   474→                </p>
+   475→              </div>
+   476→            </div>
+   477→            <div className="flex items-center gap-3">
+   478→              {compact ? (
+   479→                <span
+   480→                  className={cn(
+   481→                    "px-2.5 py-1 rounded-full text-[10px] tracking-luxe-sm uppercase font-sans",
+   482→                    ORDER_STATUS_STYLES[o.status] || ""
+   483→                  )}
+   484→                >
+   485→                  {statusLabel(o.status)}
+   486→                </span>
+   487→              ) : (
+   488→                <select
+   489→                  value={o.status}
+   490→                  onChange={(e) => handleStatusChange(o.id, e.target.value)}
+   491→                  className={cn(
+   492→                    "h-8 px-2 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full border-0 cursor-pointer",
+   493→                    ORDER_STATUS_STYLES[o.status] || "bg-secondary"
+   494→                  )}
+   495→                >
+   496→                  <option value="PENDING">{statusLabel("PENDING")}</option>
+   497→                  <option value="CONFIRMED">{statusLabel("CONFIRMED")}</option>
+   498→                  <option value="PAID">{statusLabel("PAID")}</option>
+   499→                  <option value="SHIPPED">{statusLabel("SHIPPED")}</option>
+   500→                  <option value="DELIVERED">{statusLabel("DELIVERED")}</option>
+   501→                  <option value="CANCELLED">{statusLabel("CANCELLED")}</option>
+   502→                </select>
+   503→              )}
+   504→              <span className="font-serif text-base whitespace-nowrap">
+   505→                {formatPrice(o.totalCents, lang, currency)}
+   506→              </span>
+   507→            </div>
+   508→          </div>
+   509→        );
+   510→      })}
+   511→    </div>
+   512→  );
+   513→}
+   514→
+   515→/* ============ Produits ============ */
+   516→function ProductsTab({ enabled }: { enabled: boolean }) {
+   517→  const { lang, currency } = useStore();
+   518→  const t = useDict(lang);
+   519→  const { categories } = useCategories();
+   520→  const { data, loading } = useAdminData<{ products: AdminProduct[] }>("products", enabled);
+   521→  const [editing, setEditing] = useState<AdminProduct | null>(null);
+   522→  const [editorOpen, setEditorOpen] = useState(false);
+   523→  const [localProducts, setLocalProducts] = useState<AdminProduct[] | null>(null);
+   524→
+   525→  const products = localProducts ?? data?.products ?? [];
+   526→
+   527→  const openNew = () => {
+   528→    setEditing(null);
+   529→    setEditorOpen(true);
+   530→  };
+   531→  const openEdit = (p: AdminProduct) => {
+   532→    setEditing(p);
+   533→    setEditorOpen(true);
+   534→  };
+   535→  const handleSaved = async () => {
+   536→    // Recharge les produits depuis l'API après création/modif/suppression
+   537→    try {
+   538→      const res = await fetch("/api/admin/products", { cache: "no-store" });
+   539→      const d = await res.json();
+   540→      setLocalProducts(d.products || []);
+   541→    } catch {
+   542→      /* ignore */
+   543→    }
+   544→  };
+   545→
+   546→  if (loading && !data) return <SkeletonGrid count={4} />;
+   547→
+   548→  return (
+   549→    <div>
+   550→      {/* Barre d'actions */}
+   551→      <div className="flex items-center justify-between mb-4">
+   552→        <p className="text-sm text-muted-foreground">
+   553→          {products.length} {products.length > 1 ? "produits" : "produit"}
+   554→        </p>
+   555→        <button
+   556→          onClick={openNew}
+   557→          className="inline-flex items-center gap-2 bg-foreground text-background px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
+   558→        >
+   559→          <Plus className="h-4 w-4" />
+   560→          {t.admin.newProduct}
+   561→        </button>
+   562→      </div>
+   563→
+   564→      <div className="overflow-x-auto scroll-elegant">
+   565→        <table className="w-full text-sm">
+   566→          <thead>
+   567→            <tr className="text-left border-b border-border text-[10px] tracking-luxe-sm uppercase text-muted-foreground">
+   568→              <th className="py-3 pr-4 font-medium">{t.admin.colProduct}</th>
+   569→              <th className="py-3 px-4 font-medium hidden sm:table-cell">{t.admin.colCategory}</th>
+   570→              <th className="py-3 px-4 font-medium">{t.admin.colPrice}</th>
+   571→              <th className="py-3 px-4 font-medium">{t.admin.colStock}</th>
+   572→              <th className="py-3 pl-4 font-medium">{t.admin.colStatus}</th>
+   573→            </tr>
+   574→          </thead>
+   575→          <tbody>
+   576→            {products.map((p) => (
+   577→              <tr
+   578→                key={p.id}
+   579→                onClick={() => openEdit(p)}
+   580→                className="border-b border-border/60 hover:bg-secondary/30 transition-colors cursor-pointer"
+   581→              >
+   582→                <td className="py-3 pr-4">
+   583→                  <div className="flex items-center gap-3">
+   584→                    <img
+   585→                      src={p.image}
+   586→                      alt=""
+   587→                      className="h-10 w-10 rounded-lg object-cover bg-secondary shrink-0"
+   588→                    />
+   589→                    <span className="font-sans font-medium truncate">
+   590→                      {lang === "fr" ? p.name : p.nameEn}
+   591→                    </span>
+   592→                  </div>
+   593→                </td>
+   594→              <td className="py-3 px-4 hidden sm:table-cell text-muted-foreground">
+   595→                {p.category ? (lang === "fr" ? p.category.name : p.category.nameEn) : "—"}
+   596→              </td>
+   597→              <td className="py-3 px-4 font-sans">
+   598→                {formatPrice(p.priceCents, lang, currency)}
+   599→              </td>
+   600→              <td className="py-3 px-4">
+   601→                <span
+   602→                  className={cn(
+   603→                    "font-sans font-medium",
+   604→                    p.stock === 0
+   605→                      ? "text-destructive"
+   606→                      : p.stock <= 3
+   607→                      ? "text-amber-600"
+   608→                      : "text-foreground"
+   609→                  )}
+   610→                >
+   611→                  {p.stock}
+   612→                </span>
+   613→              </td>
+   614→              <td className="py-3 pl-4">
+   615→                {p.inStock ? (
+   616→                  <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[10px] tracking-luxe-sm uppercase font-sans">
+   617→                    {t.admin.inStock}
+   618→                  </span>
+   619→                ) : (
+   620→                  <span className="px-2.5 py-1 rounded-full bg-destructive/10 text-destructive text-[10px] tracking-luxe-sm uppercase font-sans">
+   621→                    {t.admin.outOfStock}
+   622→                  </span>
+   623→                )}
+   624→              </td>
+   625→            </tr>
+   626→          ))}
+   627→        </tbody>
+   628→      </table>
+   629→      </div>
+   630→
+   631→      {/* Éditeur produit */}
+   632→      <ProductEditor
+   633→        open={editorOpen}
+   634→        onClose={() => setEditorOpen(false)}
+   635→        onSaved={handleSaved}
+   636→        product={editing}
+   637→        categories={categories}
+   638→      />
+   639→    </div>
+   640→  );
+   641→}
+   642→
+   643→/* ============ Clients ============ */
+   644→function CustomersTab({ enabled }: { enabled: boolean }) {
+   645→  const { lang, currency } = useStore();
+   646→  const t = useDict(lang);
+   647→  const { data, loading } = useAdminData<{ customers: AdminCustomer[] }>("customers", enabled);
+   648→
+   649→  if (loading || !data) return <SkeletonGrid count={4} />;
+   650→  const customers = data.customers;
+   651→
+   652→  if (customers.length === 0) {
+   653→    return (
+   654→      <EmptyState icon={<Users className="h-6 w-6" />} title={t.admin.noCustomers} />
+   655→    );
+   656→  }
+   657→
+   658→  return (
+   659→    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   660→      {customers.map((c) => {
+   661→        const date = new Date(c.createdAt).toLocaleDateString(
+   662→          lang === "fr" ? "fr-FR" : "en-US",
+   663→          { day: "2-digit", month: "short", year: "numeric" }
+   664→        );
+   665→        return (
+   666→          <div
+   667→            key={c.id}
+   668→            className="border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors"
+   669→          >
+   670→            <div className="flex items-center gap-3 mb-4">
+   671→              <span className="h-11 w-11 rounded-full bg-accent/10 text-accent flex items-center justify-center font-serif text-lg shrink-0">
+   672→                {c.name.charAt(0).toUpperCase()}
+   673→              </span>
+   674→              <div className="min-w-0">
+   675→                <p className="font-sans font-medium truncate">{c.name}</p>
+   676→                <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+   677→              </div>
+   678→            </div>
+   679→            <div className="space-y-1.5 text-sm">
+   680→              <div className="flex justify-between">
+   681→                <span className="text-muted-foreground">{t.admin.customerSince}</span>
+   682→                <span className="font-sans">{date}</span>
+   683→              </div>
+   684→              <div className="flex justify-between">
+   685→                <span className="text-muted-foreground">{t.admin.customerOrders}</span>
+   686→                <span className="font-sans font-medium">{c.orderCount}</span>
+   687→              </div>
+   688→              <div className="flex justify-between">
+   689→                <span className="text-muted-foreground">{t.admin.customerSpent}</span>
+   690→                <span className="font-serif">{formatPrice(c.totalSpent, lang, currency)}</span>
+   691→              </div>
+   692→            </div>
+   693→          </div>
+   694→        );
+   695→      })}
+   696→    </div>
+   697→  );
+   698→}
+   699→
+   700→/* ============ Helpers UI ============ */
+   701→function SkeletonGrid({ count }: { count: number }) {
+   702→  return (
+   703→    <div
+   704→      className={cn(
+   705→        "grid gap-4",
+   706→        count >= 4 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"
+   707→      )}
+   708→    >
+   709→      {Array.from({ length: count }).map((_, i) => (
+   710→        <div key={i} className="h-28 bg-secondary animate-pulse rounded-2xl" />
+   711→      ))}
+   712→    </div>
+   713→  );
+   714→}
+   715→
+   716→function EmptyState({ icon, title }: { icon: React.ReactNode; title: string }) {
+   717→  return (
+   718→    <div className="text-center py-16 border border-dashed border-border rounded-2xl">
+   719→      <span className="inline-flex h-14 w-14 rounded-full bg-secondary text-muted-foreground items-center justify-center mb-4">
+   720→        {icon}
+   721→      </span>
+   722→      <p className="font-serif text-xl text-muted-foreground">{title}</p>
+   723→    </div>
+   724→  );
+   725→}
+   726→
+   727→/* ============ Utilisateurs (ADMIN uniquement) ============ */
+   728→
+   729→interface AdminUser {
+   730→  id: string;
+   731→  name: string;
+   732→  email: string;
+   733→  phone: string | null;
+   734→  role: string;
+   735→  blocked: boolean;
+   736→  createdAt: string;
+   737→  orderCount: number;
+   738→}
+   739→
+   740→const ROLE_STYLES: Record<string, string> = {
+   741→  ADMIN: "bg-accent text-accent-foreground",
+   742→  MANAGER: "bg-blue-50 text-blue-700",
+   743→  CUSTOMER: "bg-secondary text-foreground",
+   744→};
+   745→
+   746→function UsersTab({ enabled }: { enabled: boolean }) {
+   747→  const { lang } = useStore();
+   748→  const t = useDict(lang);
+   749→  const { data, loading } = useAdminData<{ users: AdminUser[] }>("users", enabled);
+   750→  const [localUsers, setLocalUsers] = useState<AdminUser[] | null>(null);
+   751→  const [editorOpen, setEditorOpen] = useState(false);
+   752→
+   753→  const users = localUsers ?? data?.users ?? [];
+   754→
+   755→  const reload = async () => {
+   756→    try {
+   757→      const res = await fetch("/api/admin/users", { cache: "no-store" });
+   758→      const d = await res.json();
+   759→      setLocalUsers(d.users || []);
+   760→    } catch {
+   761→      /* ignore */
+   762→    }
+   763→  };
+   764→
+   765→  const changeRole = async (id: string, role: string) => {
+   766→    await fetch(`/api/admin/users/${id}`, {
+   767→      method: "PATCH",
+   768→      headers: { "Content-Type": "application/json" },
+   769→      body: JSON.stringify({ role }),
+   770→    });
+   771→    reload();
+   772→  };
+   773→
+   774→  const toggleBlock = async (u: AdminUser) => {
+   775→    await fetch(`/api/admin/users/${u.id}`, {
+   776→      method: "PATCH",
+   777→      headers: { "Content-Type": "application/json" },
+   778→      body: JSON.stringify({ blocked: !u.blocked }),
+   779→    });
+   780→    reload();
+   781→  };
+   782→
+   783→  const remove = async (u: AdminUser) => {
+   784→    if (!confirm(`Supprimer ${u.name} ?`)) return;
+   785→    await fetch(`/api/admin/users/${u.id}`, { method: "DELETE" });
+   786→    reload();
+   787→  };
+   788→
+   789→  if (loading && !data) return <SkeletonGrid count={4} />;
+   790→
+   791→  return (
+   792→    <div>
+   793→      <div className="flex items-center justify-between mb-4">
+   794→        <p className="text-sm text-muted-foreground">
+   795→          {users.length} {users.length > 1 ? "utilisateurs" : "utilisateur"}
+   796→        </p>
+   797→        <button
+   798→          onClick={() => {
+   799→            setEditorOpen(true);
+   800→          }}
+   801→          className="inline-flex items-center gap-2 bg-foreground text-background px-4 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
+   802→        >
+   803→          <Plus className="h-4 w-4" />
+   804→          {t.admin.newUser}
+   805→        </button>
+   806→      </div>
+   807→
+   808→      {users.length === 0 ? (
+   809→        <EmptyState icon={<Users className="h-6 w-6" />} title={t.admin.noUsers} />
+   810→      ) : (
+   811→        <div className="space-y-3">
+   812→          {users.map((u) => (
+   813→            <div
+   814→              key={u.id}
+   815→              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl"
+   816→            >
+   817→              <div className="flex items-center gap-3 min-w-0">
+   818→                <span
+   819→                  className={cn(
+   820→                    "h-11 w-11 rounded-full flex items-center justify-center font-serif text-lg shrink-0",
+   821→                    u.blocked ? "bg-destructive/10 text-destructive" : "bg-accent/10 text-accent"
+   822→                  )}
+   823→                >
+   824→                  {u.name.charAt(0).toUpperCase()}
+   825→                </span>
+   826→                <div className="min-w-0">
+   827→                  <p className="font-sans font-medium truncate flex items-center gap-2">
+   828→                    {u.name}
+   829→                    {u.blocked && (
+   830→                      <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[9px] tracking-luxe-sm uppercase">
+   831→                        {t.admin.blocked}
+   832→                      </span>
+   833→                    )}
+   834→                  </p>
+   835→                  <p className="text-xs text-muted-foreground truncate">
+   836→                    {u.email} · {u.orderCount} {t.admin.customerOrders}
+   837→                  </p>
+   838→                </div>
+   839→              </div>
+   840→              <div className="flex items-center gap-2">
+   841→                {/* Sélecteur de rôle */}
+   842→                <select
+   843→                  value={u.role}
+   844→                  onChange={(e) => changeRole(u.id, e.target.value)}
+   845→                  className={cn(
+   846→                    "h-9 px-3 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full border-0 cursor-pointer",
+   847→                    ROLE_STYLES[u.role] || "bg-secondary"
+   848→                  )}
+   849→                >
+   850→                  <option value="ADMIN">{t.auth.adminBadge}</option>
+   851→                  <option value="MANAGER">{t.admin.roleManager}</option>
+   852→                  <option value="CUSTOMER">{t.auth.customerBadge}</option>
+   853→                </select>
+   854→                {/* Bloquer/Débloquer */}
+   855→                <button
+   856→                  onClick={() => toggleBlock(u)}
+   857→                  title={u.blocked ? t.admin.unblock : t.admin.block}
+   858→                  className="h-9 w-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+   859→                >
+   860→                  {u.blocked ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+   861→                </button>
+   862→                {/* Supprimer */}
+   863→                <button
+   864→                  onClick={() => remove(u)}
+   865→                  title={t.admin.delete}
+   866→                  className="h-9 w-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+   867→                >
+   868→                  <Trash2 className="h-4 w-4" />
+   869→                </button>
+   870→              </div>
+   871→            </div>
+   872→          ))}
+   873→        </div>
+   874→      )}
+   875→
+   876→      {editorOpen && (
+   877→        <UserEditor
+   878→          onClose={() => {
+   879→            setEditorOpen(false);
+   880→          }}
+   881→          onSaved={() => {
+   882→            setEditorOpen(false);
+   883→            reload();
+   884→          }}
+   885→        />
+   886→      )}
+   887→    </div>
+   888→  );
+   889→}
+   890→
+   891→function UserEditor({
+   892→  onClose,
+   893→  onSaved,
+   894→}: {
+   895→  onClose: () => void;
+   896→  onSaved: () => void;
+   897→}) {
+   898→  const { lang } = useStore();
+   899→  const t = useDict(lang);
+   900→  const [form, setForm] = useState({
+   901→    name: "",
+   902→    email: "",
+   903→    password: "",
+   904→    phone: "",
+   905→    role: "CUSTOMER",
+   906→  });
+   907→  const [saving, setSaving] = useState(false);
+   908→
+   909→  const update = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+   910→
+   911→  const handleSave = async () => {
+   912→    if (!form.name || !form.email || !form.password || !form.role) {
+   913→      return;
+   914→    }
+   915→    setSaving(true);
+   916→    try {
+   917→      const res = await fetch("/api/admin/users", {
+   918→        method: "POST",
+   919→        headers: { "Content-Type": "application/json" },
+   920→        body: JSON.stringify(form),
+   921→      });
+   922→      if (!res.ok) {
+   923→        return;
+   924→      }
+   925→      onSaved();
+   926→    } finally {
+   927→      setSaving(false);
+   928→    }
+   929→  };
+   930→
+   931→  return (
+   932→    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+   933→      <div className="absolute inset-0 bg-foreground/50 backdrop-blur-sm" onClick={onClose} />
+   934→      <div className="relative bg-background rounded-3xl shadow-2xl max-w-md w-full">
+   935→        <div className="flex items-center justify-between px-6 h-16 border-b border-border">
+   936→          <h2 className="font-serif text-xl">{t.admin.newUser}</h2>
+   937→          <button onClick={onClose} className="p-2 hover:opacity-60" aria-label="Close">
+   938→            ✕
+   939→          </button>
+   940→        </div>
+   941→        <div className="p-6 space-y-4">
+   942→          <label className="block">
+   943→            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+   944→              {t.auth.name} *
+   945→            </span>
+   946→            <input
+   947→              value={form.name}
+   948→              onChange={(e) => update("name", e.target.value)}
+   949→              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+   950→            />
+   951→          </label>
+   952→          <label className="block">
+   953→            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+   954→              {t.auth.email} *
+   955→            </span>
+   956→            <input
+   957→              type="email"
+   958→              value={form.email}
+   959→              onChange={(e) => update("email", e.target.value)}
+   960→              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+   961→            />
+   962→          </label>
+   963→          <label className="block">
+   964→            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+   965→              {t.auth.password} * (6+)
+   966→            </span>
+   967→            <input
+   968→              type="password"
+   969→              value={form.password}
+   970→              onChange={(e) => update("password", e.target.value)}
+   971→              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+   972→            />
+   973→          </label>
+   974→          <label className="block">
+   975→            <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
+   976→              {t.admin.role} *
+   977→            </span>
+   978→            <select
+   979→              value={form.role}
+   980→              onChange={(e) => update("role", e.target.value)}
+   981→              className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent rounded-xl"
+   982→            >
+   983→              <option value="CUSTOMER">{t.auth.customerBadge}</option>
+   984→              <option value="MANAGER">{t.admin.roleManager}</option>
+   985→              <option value="ADMIN">{t.auth.adminBadge}</option>
+   986→            </select>
+   987→          </label>
+   988→          <p className="text-xs text-muted-foreground">
+   989→            {t.admin.roleHelp}
+   990→          </p>
+   991→        </div>
+   992→        <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
+   993→          <button
+   994→            onClick={onClose}
+   995→            className="px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans border border-border rounded-full hover:bg-secondary"
+   996→          >
+   997→            {t.admin.cancel}
+   998→          </button>
+   999→          <button
+  1000→            onClick={handleSave}
+  1001→            disabled={saving}
+  1002→            className="px-5 py-2.5 text-[11px] tracking-luxe-sm uppercase font-sans bg-foreground text-background rounded-full hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
+  1003→          >
+  1004→            {saving ? "..." : t.admin.save}
+  1005→          </button>
+  1006→        </div>
+  1007→      </div>
+  1008→    </div>
+  1009→  );
+  1010→}
+  1011→
