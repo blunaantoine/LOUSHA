@@ -8,6 +8,9 @@ import { validateCredentials } from "@/lib/services/auth-service";
  * Le CredentialsProvider délègue la vérification au auth-service (scrypt).
  * Le callback JWT enrichit le token avec le rôle (RBAC) et l'id utilisateur.
  * Le callback session expose ces champs côté client.
+ *
+ * IMPORTANT : Le callback JWT gère l'événement "update" pour mettre à jour
+ * le token quand l'utilisateur modifie son profil (ex: changement d'email).
  */
 export const authOptions: NextAuthOptions = {
   // Indispensable derrière un reverse proxy (Nginx) :
@@ -60,7 +63,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             email: user.email,
             role: user.role,
-          } as { id: string; name: string; email: string; role: string };
+            phone: user.phone,
+          } as { id: string; name: string; email: string; role: string; phone?: string | null };
         } catch (err) {
           console.error("[auth] authorize error:", err);
           return null;
@@ -69,17 +73,30 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
+        // À la connexion : enrichir le token avec id, rôle et téléphone
         token.id = (user as { id: string }).id;
         token.role = (user as { role: string }).role;
+        token.phone = (user as { phone?: string }).phone;
       }
+
+      // Quand le client appelle update() : mettre à jour le token
+      // avec les nouvelles données du profil (ex: changement d'email)
+      if (trigger === "update" && session) {
+        if (session.name) token.name = session.name;
+        if (session.email) token.email = session.email;
+        if (session.role) token.role = session.role;
+        if (session.phone !== undefined) token.phone = session.phone;
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id?: string }).id = token.id as string;
         (session.user as { role?: string }).role = token.role as string;
+        (session.user as { phone?: string }).phone = token.phone as string;
       }
       return session;
     },

@@ -8,6 +8,7 @@ import { useMyOrders } from "@/hooks/use-orders";
 import { ArrowRight, LogOut, Package, LayoutDashboard, Pencil, Lock, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "text-amber-600 bg-amber-50",
@@ -220,6 +221,7 @@ function ProfileEditor() {
   const { lang } = useStore();
   const t = useDict(lang);
   const { user, status } = useAuth();
+  const { update: updateSession } = useSession();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [saving, setSaving] = useState(false);
@@ -227,7 +229,7 @@ function ProfileEditor() {
   if (status !== "authenticated" || !user) return null;
 
   const handleOpen = () => {
-    setForm({ name: user.name || "", email: user.email || "", phone: "" });
+    setForm({ name: user.name || "", email: user.email || "", phone: user.phone || "" });
     setOpen(true);
   };
 
@@ -244,10 +246,17 @@ function ProfileEditor() {
         toast.error(data.error || "Échec");
         return;
       }
+
+      // Mettre à jour la session NextAuth avec les nouvelles données
+      // Ceci met à jour le JWT token côté client (email, nom, etc.)
+      await updateSession({
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+      });
+
       toast.success(lang === "fr" ? "Profil mis à jour" : "Profile updated");
       setOpen(false);
-      // Recharge la page pour mettre à jour la session
-      setTimeout(() => window.location.reload(), 500);
     } finally {
       setSaving(false);
     }
