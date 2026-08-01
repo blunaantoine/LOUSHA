@@ -115,6 +115,7 @@ export function AuthView() {
                 required
                 value={form.password}
                 onChange={(e) => update("password", e.target.value)}
+                autoComplete="new-password"
                 className="w-full h-12 bg-background border border-border pl-10 pr-11 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
               />
               <button
