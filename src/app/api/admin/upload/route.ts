@@ -1,0 +1,57 @@
+import { NextRequest, NextResponse } from "next/server";
+import { requireStaff } from "@/lib/guards";
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
+
+/**
+ * POST /api/admin/upload — upload d'une image (ADMIN ou MANAGER).
+ */
+export async function POST(req: NextRequest) {
+  if (!(await requireStaff())) {
+    return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+  }
+
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file");
+
+    if (!file || !(file instanceof File)) {
+      return NextResponse.json({ error: "Aucun fichier reçu" }, { status: 400 });
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json({ error: `Type non supporté: ${file.type}` }, { status: 400 });
+    }
+
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json({ error: "Fichier trop volumineux (max 10 MB)" }, { status: 400 });
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext) ? ext : "jpg";
+    const filename = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${safeExt}`;
+
+    const baseDir =
+      process.env.UPLOAD_DIR ||
+      path.join(process.cwd(), "public", "uploads");
+
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const filepath = path.join(baseDir, filename);
+    fs.writeFileSync(filepath, buffer);
+
+    const url = `/api/uploads/${filename}`;
+
+    return NextResponse.json({ url, filename, size: file.size });
+  } catch (error) {
+    console.error("POST /api/admin/upload error:", error);
+    return NextResponse.json({ error: "Échec de l'upload" }, { status: 500 });
+  }
+}
