@@ -41,26 +41,18 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 local-*
-.claude
-.z-ai-config
 *.log
 dev.log
 dev.out.log
 test
-prompt
 
 server.log
-# Skills directory
-/skills/
 
-# Lousha — fichiers runtime/sandbox à ne pas committer
+# Lousha — fichiers générés à l'exécution
 nohup.out
 dev-err.log
 daemon.log
-start-dev.sh
-dev-daemon.sh
 /dev-*.log
 public/uploads/
 db/*.db
 db/*.db-journal
-screenshots/.env

@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     "lousha raphia", "lousha raffia",
   ],
   authors: [{ name: "Lousha Accessoires", url: SITE_URL }],
-  creator: "Lousha Accessoires",
+  creator: "Visible Studio",
   publisher: "Lousha Accessoires",
   category: "shopping",
   classification: "E-commerce artisanal raphia",
@@ -132,7 +132,7 @@ export default function RootLayout({
         name: "Lousha Accessoires",
         alternateName: ["Lousha", "Lousha Accessories", "LOUSHA"],
         url: "https://lousha-accessoire.com",
-        logo: "https://lousha-accessoire.com/logo.svg",
+        logo: "https://lousha-accessoire.com/images/lousha-logo.png",
         description:
           "Lousha Accessoires — Marque Made in Togo. Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, entièrement faits main par des artisans togolais.",
         address: {

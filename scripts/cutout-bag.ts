@@ -10,8 +10,8 @@ import fs from "fs";
  * 3. Bord progressif pour un détourage lisse (anti-halo).
  */
 async function main() {
-  const input = "/home/z/my-project/public/images/hero-bag.png";
-  const output = "/home/z/my-project/public/images/hero-bag-transparent.png";
+  const input = "public/images/hero-bag.png";
+  const output = "public/images/hero-bag-transparent.png";
 
   if (!fs.existsSync(input)) {
     console.error("Input not found:", input);

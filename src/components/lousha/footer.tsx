@@ -213,6 +213,10 @@ export function Footer() {
           <p className="text-xs text-background/50 tracking-luxe-sm uppercase">
             Made in Togo · Raphia fait main
           </p>
+          <p className="text-xs text-background/50">
+            {lang === "fr" ? "Conçu et développé par" : "Designed & developed by"}{" "}
+            <span className="text-background/80">Visible Studio</span>
+          </p>
         </div>
       </div>
     </footer>
