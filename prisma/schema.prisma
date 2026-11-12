@@ -90,6 +90,7 @@ model User {
   password         String    // hashé (scrypt) côté API
   role             String    @default("CUSTOMER") // "ADMIN" | "MANAGER" | "CUSTOMER"
   blocked          Boolean   @default(false) // compte bloqué par l'admin
+  authProvider     String    @default("credentials") // "credentials" (mot de passe) | "google"
   resetToken       String?   // token de réinitialisation mot de passe
   resetTokenExpiry DateTime? // expiration du token
   createdAt        DateTime  @default(now())

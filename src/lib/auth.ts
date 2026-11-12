@@ -1,6 +1,12 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { validateCredentials, findUserById } from "@/lib/services/auth-service";
+import GoogleProvider from "next-auth/providers/google";
+import {
+  validateCredentials,
+  findUserById,
+  findUserByEmail,
+  findOrCreateGoogleUser,
+} from "@/lib/services/auth-service";
 import { clientIp } from "@/lib/security";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -14,7 +20,19 @@ import { rateLimit } from "@/lib/rate-limit";
  * IMPORTANT : le callback JWT relit l'utilisateur en base à chaque lecture de
  * session. Le rôle et le statut « bloqué » ne viennent donc jamais du client.
  */
+// La connexion Google n'est proposée que si les deux clés sont configurées
+// (GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET dans le fichier .env du serveur).
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+export const googleAuthEnabled = !!GOOGLE_CLIENT_ID && !!GOOGLE_CLIENT_SECRET;
+
 export const authOptions: NextAuthOptions = {
+  // Pages du site (et non les pages par défaut de NextAuth), y compris pour
+  // afficher une erreur de connexion Google.
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/login",
+  },
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 jours
@@ -78,9 +96,54 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    ...(googleAuthEnabled
+      ? [
+          GoogleProvider({
+            clientId: GOOGLE_CLIENT_ID as string,
+            clientSecret: GOOGLE_CLIENT_SECRET as string,
+          }),
+        ]
+      : []),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ account, profile }) {
+      // Connexion par mot de passe : déjà vérifiée dans authorize().
+      if (account?.provider !== "google") return true;
+
+      const p = profile as
+        | { email?: string; email_verified?: boolean; name?: string }
+        | undefined;
+      // Seules les adresses vérifiées par Google sont acceptées.
+      if (!p?.email || p.email_verified !== true) {
+        return "/auth/login?error=google";
+      }
+      try {
+        const result = await findOrCreateGoogleUser({ email: p.email, name: p.name });
+        if (result.status === "password-account") {
+          return "/auth/login?error=google-password-account";
+        }
+        if (result.status === "blocked") return "/auth/login?error=google";
+        return true;
+      } catch (err) {
+        console.error("[auth] google signIn error:", err);
+        return "/auth/login?error=google";
+      }
+    },
+    async jwt({ token, user, account }) {
+      if (user && account?.provider === "google") {
+        // Connexion Google : l'identité du jeton est celle du compte en base
+        // (retrouvé par l'adresse vérifiée), jamais l'identifiant Google.
+        const dbUser = user.email ? await findUserByEmail(user.email) : null;
+        if (!dbUser || dbUser.blocked || dbUser.authProvider !== "google") return {};
+        return {
+          sub: dbUser.id,
+          id: dbUser.id,
+          name: dbUser.name,
+          email: dbUser.email,
+          role: dbUser.role,
+          phone: dbUser.phone ?? undefined,
+        };
+      }
       if (user) {
         // À la connexion : enrichir le token avec id, rôle et téléphone
         token.id = (user as { id: string }).id;

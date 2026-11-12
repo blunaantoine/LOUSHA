@@ -85,6 +85,60 @@ export async function validateCredentials(email: string, password: string) {
   return ok ? user : null;
 }
 
+/* ============ Connexion avec Google ============ */
+
+export type GoogleSignInResult =
+  | { status: "ok"; userId: string }
+  | { status: "password-account" }
+  | { status: "blocked" };
+
+/**
+ * Trouve ou crée le compte associé à une adresse Google vérifiée.
+ *
+ * - Adresse inconnue : un compte client est créé, rattaché à Google. Son mot
+ *   de passe est aléatoire et inutilisable (la connexion se fait par Google).
+ * - Compte déjà créé par Google : connexion autorisée.
+ * - Compte créé avec un mot de passe : la connexion Google est refusée. Les
+ *   inscriptions par mot de passe ne vérifient pas l'adresse email ; rattacher
+ *   automatiquement Google à un tel compte permettrait à quelqu'un qui aurait
+ *   inscrit l'adresse d'une autre personne d'accéder ensuite à son compte.
+ */
+export async function findOrCreateGoogleUser({
+  email,
+  name,
+}: {
+  email: string;
+  name?: string | null;
+}): Promise<GoogleSignInResult> {
+  const lower = email.toLowerCase();
+  const db = getDb();
+
+  let user = await db.user.findUnique({ where: { email: lower } });
+  if (!user) {
+    const password = await hashPassword(crypto.randomBytes(32).toString("hex"));
+    const cleanName = (name ?? "").trim().slice(0, 100) || lower.split("@")[0];
+    try {
+      user = await db.user.create({
+        data: {
+          name: cleanName,
+          email: lower,
+          password,
+          role: "CUSTOMER",
+          authProvider: "google",
+        },
+      });
+    } catch {
+      // Deux connexions simultanées : le compte vient d'être créé par l'autre.
+      user = await db.user.findUnique({ where: { email: lower } });
+      if (!user) throw new Error("Création du compte Google impossible");
+    }
+  }
+
+  if (user.blocked) return { status: "blocked" };
+  if (user.authProvider !== "google") return { status: "password-account" };
+  return { status: "ok", userId: user.id };
+}
+
 /* ============ Mot de passe oublié ============ */
 
 /** Crée un token de reset et le sauvegarde en DB (expire dans 1h). */

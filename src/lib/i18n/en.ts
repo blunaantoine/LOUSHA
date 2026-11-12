@@ -234,6 +234,11 @@ nav: {
       resetBtn: "Reset",
       resetSuccess: "Password updated! You can sign in now.",
       resetInvalid: "Invalid or expired link.",
+      googleBtn: "Continue with Google",
+      orDivider: "or",
+      googleError: "Google sign-in failed. Try again or use your password.",
+      googlePasswordAccount: "This account uses a password. Sign in with your email and password.",
+      signInError: "Sign-in failed. Please try again.",
     },
     account: {
       title: "My account",

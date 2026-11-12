@@ -246,6 +246,11 @@ nav: {
       resetBtn: "Réinitialiser",
       resetSuccess: "Mot de passe modifié ! Vous pouvez vous connecter.",
       resetInvalid: "Lien invalide ou expiré.",
+      googleBtn: "Continuer avec Google",
+      orDivider: "ou",
+      googleError: "Connexion avec Google impossible. Réessayez ou utilisez votre mot de passe.",
+      googlePasswordAccount: "Ce compte utilise un mot de passe. Connectez-vous avec votre e-mail et votre mot de passe.",
+      signInError: "Connexion impossible. Réessayez.",
     },
     account: {
       title: "Mon compte",

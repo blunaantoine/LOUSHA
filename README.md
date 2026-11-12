@@ -31,7 +31,7 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 - Widget WhatsApp et assistant de discussion
 
 **Espace client**
-- Création de compte, connexion, mot de passe oublié / réinitialisation
+- Création de compte, connexion (mot de passe ou Google), mot de passe oublié / réinitialisation
 - Historique des commandes, modification du profil
 - Notifications
 
@@ -80,6 +80,11 @@ EMAIL_FROM="Lousha <contact@lousha-accessoire.com>"
 
 # Dossier des images envoyées depuis l'administration (optionnel)
 UPLOAD_DIR=""
+
+# Connexion avec Google (optionnel) — identifiants OAuth créés dans Google Cloud.
+# URI de redirection à autoriser : https://lousha-accessoire.com/api/auth/callback/google
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 
 # Génération assistée des descriptions produits (au moins une clé, optionnel)
 MISTRAL_API_KEY=""
