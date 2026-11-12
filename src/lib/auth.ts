@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { validateCredentials } from "@/lib/services/auth-service";
+import { validateCredentials, findUserById } from "@/lib/services/auth-service";
+import { rateLimit, clientIp } from "@/lib/security";
 
 /**
  * Configuration NextAuth — stratégie JWT + cookies HttpOnly.
@@ -9,8 +10,8 @@ import { validateCredentials } from "@/lib/services/auth-service";
  * Le callback JWT enrichit le token avec le rôle (RBAC) et l'id utilisateur.
  * Le callback session expose ces champs côté client.
  *
- * IMPORTANT : Le callback JWT gère l'événement "update" pour mettre à jour
- * le token quand l'utilisateur modifie son profil (ex: changement d'email).
+ * IMPORTANT : le callback JWT relit l'utilisateur en base à chaque lecture de
+ * session. Le rôle et le statut « bloqué » ne viennent donc jamais du client.
  */
 export const authOptions: NextAuthOptions = {
   // Indispensable derrière un reverse proxy (Nginx) :
@@ -44,10 +45,20 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Mot de passe", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            console.log("[auth] missing credentials");
+            return null;
+          }
+          // Anti force brute : 10 tentatives / 15 min par IP,
+          // et 10 tentatives / 15 min par adresse email visée.
+          const ip = clientIp(req?.headers);
+          const emailKey = String(credentials.email).toLowerCase().slice(0, 254);
+          const window = 15 * 60 * 1000;
+          const ipOk = rateLimit(`login:ip:${ip}`, 10, window);
+          const emailOk = rateLimit(`login:email:${emailKey}`, 10, window);
+          if (!ipOk || !emailOk) {
+            console.warn("[auth] trop de tentatives de connexion depuis", ip);
             return null;
           }
           const user = await validateCredentials(
@@ -55,7 +66,6 @@ export const authOptions: NextAuthOptions = {
             credentials.password
           );
           if (!user) {
-            console.log("[auth] invalid credentials for", credentials.email);
             return null;
           }
           return {
@@ -73,26 +83,33 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user }) {
       if (user) {
         // À la connexion : enrichir le token avec id, rôle et téléphone
         token.id = (user as { id: string }).id;
         token.role = (user as { role: string }).role;
         token.phone = (user as { phone?: string }).phone;
+        return token;
       }
 
-      // Quand le client appelle update() : mettre à jour le token
-      // avec les nouvelles données du profil (ex: changement d'email)
-      if (trigger === "update" && session) {
-        if (session.name) token.name = session.name;
-        if (session.email) token.email = session.email;
-        if (session.role) token.role = session.role;
-        if (session.phone !== undefined) token.phone = session.phone;
-      }
-
+      // À chaque lecture de session (et quand le client appelle update()) :
+      // les données sont relues en base. Rien de ce que le navigateur envoie
+      // n'est recopié dans le jeton — en particulier jamais le rôle.
+      // Un compte supprimé ou bloqué perd sa session immédiatement.
+      if (!token.id) return {};
+      const dbUser = await findUserById(token.id as string);
+      if (!dbUser || dbUser.blocked) return {};
+      token.name = dbUser.name;
+      token.email = dbUser.email;
+      token.role = dbUser.role;
+      token.phone = dbUser.phone ?? undefined;
       return token;
     },
     async session({ session, token }) {
+      if (!token.id) {
+        // Jeton invalidé (compte supprimé ou bloqué) : aucune identité exposée.
+        return { expires: session.expires } as typeof session;
+      }
       if (session.user) {
         (session.user as { id?: string }).id = token.id as string;
         (session.user as { role?: string }).role = token.role as string;

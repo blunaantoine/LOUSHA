@@ -72,7 +72,12 @@ export async function getAdminStats(): Promise<AdminStats> {
 export async function listAllOrdersAdmin() {
   return db.order.findMany({
     orderBy: { createdAt: "desc" },
-    include: { items: true, payment: true, user: true },
+    include: {
+      items: true,
+      payment: true,
+      // Jamais le hash du mot de passe ni le token de réinitialisation
+      user: { select: { id: true, name: true, email: true, phone: true } },
+    },
   });
 }
 

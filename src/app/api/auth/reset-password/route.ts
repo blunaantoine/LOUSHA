@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resetPassword, verifyResetToken } from "@/lib/services/auth-service";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/security";
 
 /**
  * POST /api/auth/reset-password
@@ -8,8 +9,11 @@ import { resetPassword, verifyResetToken } from "@/lib/services/auth-service";
  */
 export async function POST(req: NextRequest) {
   try {
+    if (!rateLimit(`reset:${clientIp(req.headers)}`, 10, 60 * 60 * 1000)) {
+      return NextResponse.json({ error: TOO_MANY }, { status: 429 });
+    }
     const { token, password } = await req.json();
-    if (!token || !password) {
+    if (!token || !password || typeof token !== "string" || typeof password !== "string" || password.length > 200) {
       return NextResponse.json(
         { error: "Token et mot de passe requis." },
         { status: 400 }
@@ -56,7 +60,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
-    if (!token) {
+    if (!token || !rateLimit(`reset-check:${clientIp(req.headers)}`, 30, 60 * 60 * 1000)) {
       return NextResponse.json({ valid: false });
     }
     const user = await verifyResetToken(token);

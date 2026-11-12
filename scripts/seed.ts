@@ -1,8 +1,27 @@
 import { db } from "../src/lib/db";
 import { hashPassword } from "../src/lib/services/auth-service";
+import crypto from "crypto";
+
+/** Mot de passe fourni par variable d'environnement, sinon généré aléatoirement. */
+function initialPassword(envName: string): string {
+  const fromEnv = process.env[envName];
+  if (fromEnv && fromEnv.length >= 12) return fromEnv;
+  return crypto.randomBytes(15).toString("base64url");
+}
 
 async function main() {
   console.log("🌱 Seeding Lousha Accessories database...");
+
+  // Garde-fou : ce script EFFACE toutes les données (commandes, clients, produits).
+  // Sur une base déjà remplie, il faut le demander explicitement avec --force.
+  const [userCount, orderCount] = await Promise.all([db.user.count(), db.order.count()]);
+  if ((userCount > 0 || orderCount > 0) && !process.argv.includes("--force")) {
+    console.log(
+      `⏭️  Base déjà initialisée (${userCount} utilisateur(s), ${orderCount} commande(s)) — seed ignoré.\n` +
+        "   Pour tout effacer et réinitialiser : ajoutez --force."
+    );
+    return;
+  }
 
   // Clean (ordre important pour les relations)
   await db.payment.deleteMany();
@@ -15,7 +34,8 @@ async function main() {
   await db.category.deleteMany();
 
   // --- Utilisateur admin par défaut (mot de passe hashé via scrypt) ---
-  const adminPassword = await hashPassword("lousha-admin");
+  const adminPlain = initialPassword("ADMIN_PASSWORD");
+  const adminPassword = await hashPassword(adminPlain);
   await db.user.create({
     data: {
       name: "Admin Lousha",
@@ -24,10 +44,12 @@ async function main() {
       role: "ADMIN",
     },
   });
-  console.log("✓ Admin user created (admin@lousha-accessories.com / lousha-admin)");
+  console.log(`✓ Admin créé : admin@lousha-accessories.com / ${adminPlain}`);
+  console.log("  ⚠️  Notez ce mot de passe maintenant : il ne sera plus affiché.");
 
   // --- Gestionnaire (MANAGER) de test ---
-  const managerPassword = await hashPassword("lousha-manager");
+  const managerPlain = initialPassword("MANAGER_PASSWORD");
+  const managerPassword = await hashPassword(managerPlain);
   await db.user.create({
     data: {
       name: "Manager Lousha",
@@ -36,7 +58,7 @@ async function main() {
       role: "MANAGER",
     },
   });
-  console.log("✓ Manager user created (manager@lousha-accessories.com / lousha-manager)");
+  console.log(`✓ Manager créé : manager@lousha-accessories.com / ${managerPlain}`);
 
   // --- Coupon de bienvenue ---
   await db.coupon.create({

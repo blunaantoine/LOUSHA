@@ -91,9 +91,12 @@ Initialiser la base de données et créer le compte administrateur :
 
 ```bash
 bun run db:push
-bun run scripts/seed.ts
-bun run scripts/create-admin.ts
+ADMIN_PASSWORD="un-mot-de-passe-long-et-unique" bun run scripts/seed.ts
 ```
+
+Le mot de passe administrateur est lu dans `ADMIN_PASSWORD` (12 caractères minimum). S'il est absent, un mot de passe aléatoire est généré et affiché une seule fois. `scripts/create-admin.ts` permet de recréer ou réinitialiser le compte administrateur de la même façon.
+
+> ⚠️ `scripts/seed.ts` efface toutes les données. Sur une base déjà remplie, il ne fait rien sauf avec l'option `--force`.
 
 ## Développement
 

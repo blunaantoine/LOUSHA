@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/guards";
 import { replyToMessage, getMessage } from "@/lib/services/message-service";
+import { escapeHtml } from "@/lib/security";
 
 /**
  * POST /api/admin/messages/[id]/reply
@@ -19,7 +20,7 @@ export async function POST(
     const { id } = await params;
     const { reply } = await req.json();
 
-    if (!reply || !reply.trim()) {
+    if (!reply || typeof reply !== "string" || !reply.trim() || reply.length > 10000) {
       return NextResponse.json({ error: "Réponse vide" }, { status: 400 });
     }
 
@@ -41,12 +42,12 @@ export async function POST(
             <p style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #5A5A5A; margin-top: 4px;">Accessories</p>
           </div>
           <h2 style="color: #111;">Réponse à votre message</h2>
-          <p style="color: #5A5A5A; line-height: 1.6;">Bonjour ${message.name},</p>
+          <p style="color: #5A5A5A; line-height: 1.6;">Bonjour ${escapeHtml(message.name)},</p>
           <p style="color: #5A5A5A; line-height: 1.6;">Vous nous avez écrit :</p>
           <blockquote style="border-left: 3px solid #311B00; padding-left: 16px; margin: 16px 0; color: #5A5A5A; font-style: italic;">
-            ${message.message}
+            ${escapeHtml(message.message).replace(/\n/g, "<br>")}
           </blockquote>
-          <p style="color: #111; line-height: 1.6;">${reply.replace(/\n/g, "<br>")}</p>
+          <p style="color: #111; line-height: 1.6;">${escapeHtml(String(reply)).replace(/\n/g, "<br>")}</p>
           <hr style="border: none; border-top: 1px solid #E5E5E8; margin: 30px 0;" />
           <p style="color: #5A5A5A; font-size: 12px; text-align: center;">
             Lousha Accessories — Made in Togo · Raphia fait main

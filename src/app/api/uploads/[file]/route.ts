@@ -21,6 +21,11 @@ export async function GET(
       return new NextResponse("Not found", { status: 404 });
     }
 
+    // Seules les images sont servies
+    if (!/^[A-Za-z0-9._-]+\.(jpe?g|png|webp|gif)$/i.test(file)) {
+      return new NextResponse("Not found", { status: 404 });
+    }
+
     const baseDir =
       process.env.UPLOAD_DIR ||
       path.join(process.cwd(), "public", "uploads");
@@ -56,6 +61,8 @@ export async function GET(
       headers: {
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Security-Policy": "default-src 'none'; sandbox",
       },
     });
   } catch (error) {

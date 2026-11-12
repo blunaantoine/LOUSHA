@@ -1,15 +1,22 @@
 /**
  * Script to create or reset the admin user.
- * Usage: bun run scripts/create-admin.ts
+ * Usage: ADMIN_PASSWORD="un-mot-de-passe-long" bun run scripts/create-admin.ts
+ *
+ * Without ADMIN_PASSWORD (12 characters minimum), a random password is
+ * generated and printed once.
  *
  * If the admin user already exists, it resets the password.
  * If not, it creates a new admin user.
  */
 import { db } from "../src/lib/db";
 import { hashPassword } from "../src/lib/services/auth-service";
+import crypto from "crypto";
 
-const ADMIN_EMAIL = "admin@lousha-accessories.com";
-const ADMIN_PASSWORD = "lousha-admin";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@lousha-accessories.com";
+const ADMIN_PASSWORD =
+  process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.length >= 12
+    ? process.env.ADMIN_PASSWORD
+    : crypto.randomBytes(15).toString("base64url");
 const ADMIN_NAME = "Admin Lousha";
 
 async function main() {

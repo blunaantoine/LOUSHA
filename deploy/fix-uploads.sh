@@ -9,7 +9,7 @@ mkdir -p .next/standalone/public/uploads 2>/dev/null || true
 
 echo "🔒 Permissions..."
 sudo chown -R www-data:www-data public/uploads .next/standalone/public 2>/dev/null || true
-sudo chmod -R 777 public/uploads .next/standalone/public/uploads 2>/dev/null || true
+sudo chmod -R 775 public/uploads .next/standalone/public/uploads 2>/dev/null || true
 
 echo "⚙️  UPLOAD_DIR dans .env.production..."
 if ! grep -q "UPLOAD_DIR" .env.production 2>/dev/null; then

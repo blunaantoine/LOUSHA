@@ -5,6 +5,7 @@
  * Configurez RESEND_API_KEY et EMAIL_FROM dans .env.production.
  */
 import crypto from "crypto";
+import { escapeHtml } from "../security";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM =
@@ -33,7 +34,7 @@ export async function sendPasswordResetEmail(
         <p style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #5A5A5A; margin-top: 4px;">Accessories</p>
       </div>
       <h2 style="color: #111111;">Réinitialisation de votre mot de passe</h2>
-      <p style="color: #5A5A5A; line-height: 1.6;">Bonjour ${name},</p>
+      <p style="color: #5A5A5A; line-height: 1.6;">Bonjour ${escapeHtml(name)},</p>
       <p style="color: #5A5A5A; line-height: 1.6;">
         Vous avez demandé à réinitialiser votre mot de passe Lousha Accessories.
         Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.

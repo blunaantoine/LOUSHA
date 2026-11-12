@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { isValidEmail, isText } from "@/lib/security";
 
 /** PATCH /api/auth/update-profile — met à jour nom, email, téléphone */
 export async function PATCH(req: NextRequest) {
@@ -18,6 +19,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { name, email, phone } = await req.json();
+
+    if (
+      (name && !isText(name, 100)) ||
+      (email && !isValidEmail(email)) ||
+      (phone !== undefined && phone !== null && phone !== "" && !isText(phone, 30))
+    ) {
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+    }
 
     // Si l'email change, vérifier qu'il n'est pas déjà utilisé par un autre utilisateur
     if (email && email.toLowerCase() !== session.user.email?.toLowerCase()) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductWithRelated } from "@/lib/services/product-service";
 import { ProductPageClient } from "./product-client";
+import { safeJsonLd } from "@/lib/security";
 
 const SITE_URL = "https://lousha-accessoire.com";
 
@@ -175,11 +176,11 @@ export default async function ProductPageRoute({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(productJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }}
       />
       <ProductPageClient product={product} related={related} />
     </>

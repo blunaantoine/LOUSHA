@@ -82,6 +82,5 @@ fi
 echo ""
 echo "============================================"
 echo "✅ DB CORRIGÉE"
-echo "👤 admin@lousha-accessories.com / lousha-admin"
-echo "👥 manager@lousha-accessories.com / lousha-manager"
+echo "👤 Identifiants admin/manager : affichés une seule fois par le seed ci-dessus."
 echo "============================================"

@@ -16,8 +16,12 @@ export async function POST(req: NextRequest) {
     }
 
     const { imageUrl, mode } = await req.json();
-    if (!imageUrl) {
+    if (!imageUrl || typeof imageUrl !== "string") {
       return NextResponse.json({ error: "Image requise" }, { status: 400 });
+    }
+    // Seules les images du site sont acceptées (pas d'URL externe ni interne arbitraire)
+    if (!/^\/(api\/uploads|uploads|images)\/[A-Za-z0-9._\/-]+$/.test(imageUrl) || imageUrl.includes("..")) {
+      return NextResponse.json({ error: "URL invalide" }, { status: 400 });
     }
 
     const fileName = imageUrl.split("/").pop();
@@ -64,7 +68,7 @@ export async function POST(req: NextRequest) {
       // Fallback : télécharge l'image via l'API interne
       console.log("[ai-generate] File not found on disk, trying HTTP fallback for:", fileName);
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3004";
-      const fullUrl = imageUrl.startsWith("http") ? imageUrl : `${baseUrl}${imageUrl}`;
+      const fullUrl = `${baseUrl}${imageUrl}`;
       try {
         const imgRes = await fetch(fullUrl, { signal: AbortSignal.timeout(5000) });
         if (!imgRes.ok) {

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
+import { safeJsonLd } from "@/lib/security";
 
 const oswald = Oswald({
   variable: "--font-sans",
@@ -218,7 +219,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#311b00" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
         />
       </head>
       <body

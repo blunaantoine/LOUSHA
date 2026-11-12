@@ -103,6 +103,9 @@ sudo chown -R www-data:www-data $APP_DIR
 sudo chmod -R 755 $APP_DIR
 # Le dossier uploads doit être writable par www-data
 sudo chmod -R 775 $APP_DIR/public/uploads
+# Secrets et base de données : illisibles pour les autres comptes du serveur
+sudo chmod 600 $APP_DIR/.env $APP_DIR/.env.production 2>/dev/null || true
+[ -d "$APP_DIR/db" ] && sudo chmod -R o-rwx $APP_DIR/db
 
 # --- 7. Service systemd ---
 echo "⚙️  Service systemd..."
@@ -153,8 +156,7 @@ echo "✅ TERMINÉ"
 echo "🌐 https://$DOMAIN (domaine principal)"
 echo "🔗 https://www.$DOMAIN → redirige vers $DOMAIN"
 echo "🔗 https://$DOMAIN_LEGACY → redirige vers $DOMAIN"
-echo "👤 admin@lousha-accessories.com / lousha-admin"
-echo "👥 manager@lousha-accessories.com / lousha-manager"
+echo "👤 Identifiants admin/manager : affichés une seule fois par le seed ci-dessus."
 echo ""
 echo "📋 SEO :"
 echo "   - Sitemap : https://$DOMAIN/sitemap.xml"

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { verifyPassword, hashPassword } from "@/lib/services/auth-service";
+import { rateLimit, clientIp, TOO_MANY } from "@/lib/security";
 
 /** POST /api/auth/change-password — change le mot de passe */
 export async function POST(req: NextRequest) {
@@ -12,9 +13,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
+    if (!rateLimit(`change-password:${clientIp(req.headers)}`, 10, 15 * 60 * 1000)) {
+      return NextResponse.json({ error: TOO_MANY }, { status: 429 });
+    }
     const { currentPassword, newPassword } = await req.json();
 
-    if (!currentPassword || !newPassword) {
+    if (!currentPassword || !newPassword || typeof currentPassword !== "string" || typeof newPassword !== "string" || newPassword.length > 200) {
       return NextResponse.json({ error: "Champs requis manquants" }, { status: 400 });
     }
 

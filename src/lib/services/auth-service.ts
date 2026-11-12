@@ -46,6 +46,13 @@ export async function findUserByEmail(email: string) {
   return getDb().user.findUnique({ where: { email: email.toLowerCase() } });
 }
 
+export async function findUserById(id: string) {
+  return getDb().user.findUnique({
+    where: { id },
+    select: { id: true, name: true, email: true, phone: true, role: true, blocked: true },
+  });
+}
+
 export async function createUser({
   name,
   email,

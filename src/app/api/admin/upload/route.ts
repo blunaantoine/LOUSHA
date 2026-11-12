@@ -4,6 +4,16 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 
+function detectImageExt(buf: Buffer): "jpg" | "png" | "webp" | "gif" | null {
+  if (buf.length < 12) return null;
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "jpg";
+  if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "png";
+  const head = buf.subarray(0, 6).toString("latin1");
+  if (head === "GIF87a" || head === "GIF89a") return "gif";
+  if (buf.subarray(0, 4).toString("latin1") === "RIFF" && buf.subarray(8, 12).toString("latin1") === "WEBP") return "webp";
+  return null;
+}
+
 /**
  * POST /api/admin/upload — upload d'une image (ADMIN ou MANAGER).
  */
@@ -30,8 +40,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Fichier trop volumineux (max 10 MB)" }, { status: 400 });
     }
 
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext) ? ext : "jpg";
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Le type est déterminé par le contenu réel du fichier (signature),
+    // pas par le nom ni par le type annoncé par le navigateur.
+    const safeExt = detectImageExt(buffer);
+    if (!safeExt) {
+      return NextResponse.json({ error: "Le fichier n'est pas une image valide" }, { status: 400 });
+    }
     const filename = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${safeExt}`;
 
     const baseDir =
@@ -42,8 +59,6 @@ export async function POST(req: NextRequest) {
       fs.mkdirSync(baseDir, { recursive: true });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
     const filepath = path.join(baseDir, filename);
     fs.writeFileSync(filepath, buffer);
 
