@@ -103,7 +103,7 @@ export function ProductPageClient({ product, related }: ProductPageClientProps) 
             priceCents: currentPrice,
             qty,
           }],
-          fullName: product.name,
+          fullName: "Client WhatsApp",
           email: "",
           source: "product_page",
         }),

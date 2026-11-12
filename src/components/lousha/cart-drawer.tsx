@@ -37,7 +37,10 @@ export function CartDrawer() {
 
   // Calculs métier délégués au service panier (réutilisables côté API).
   const totals = computeCartTotals(items);
-  const { subtotal, total } = totals;
+  // Pas de frais de port ajoutés ici : la livraison se règle avec la cliente
+  // (WhatsApp). Le total affiché est le même que dans la commande.
+  const { subtotal } = totals;
+  const total = subtotal;
 
   return (
     <div

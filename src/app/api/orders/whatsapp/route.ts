@@ -36,16 +36,13 @@ export async function POST(req: NextRequest) {
     // Récupère l'utilisateur connecté (optionnel)
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id ?? null;
-    const userEmail = session?.user?.email ?? email;
-    const userName = session?.user?.name ?? fullName;
+    // Un visiteur non connecté peut commander par WhatsApp sans donner d'email :
+    // la commande est enregistrée, le contact se fait ensuite dans WhatsApp.
+    const userEmail: string = session?.user?.email ?? (typeof email === "string" ? email.trim() : "");
+    const userName: string =
+      session?.user?.name ?? (isText(fullName, 150) ? fullName.trim() : "Client WhatsApp");
 
-    if (!userEmail || !userName) {
-      return NextResponse.json(
-        { error: "Nom et email requis" },
-        { status: 400 }
-      );
-    }
-    if (!isValidEmail(userEmail) || !isText(userName, 150)) {
+    if ((userEmail !== "" && !isValidEmail(userEmail)) || !isText(userName, 150)) {
       return NextResponse.json({ error: "Données invalides" }, { status: 400 });
     }
     if (phone !== undefined && phone !== null && phone !== "" && !isText(phone, 30)) {

@@ -3,6 +3,7 @@ import { requireStaff } from "@/lib/guards";
 import { bulkUpsertSiteImages, deleteSiteImage, getAllSiteImages } from "@/lib/services/content-service";
 import fs from "fs";
 import path from "path";
+import { getUploadDir } from "@/lib/uploads";
 
 /**
  * GET /api/admin/content/images — toutes les images (admin).
@@ -62,9 +63,7 @@ export async function DELETE(req: NextRequest) {
       if (deletedUrl.startsWith("/uploads/") || deletedUrl.startsWith("/api/uploads/")) {
         const filename = deletedUrl.split("/").pop();
         if (filename && !filename.includes("..") && !filename.includes("/")) {
-          const baseDir =
-            process.env.UPLOAD_DIR ||
-            path.join(process.cwd(), "public", "uploads");
+          const baseDir = getUploadDir();
           const filepath = path.join(baseDir, filename);
           if (fs.existsSync(filepath)) {
             fs.unlinkSync(filepath);

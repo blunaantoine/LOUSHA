@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/guards";
 import fs from "fs";
 import path from "path";
+import { getUploadDir } from "@/lib/uploads";
 import crypto from "crypto";
 
 function detectImageExt(buf: Buffer): "jpg" | "png" | "webp" | "gif" | null {
@@ -51,9 +52,7 @@ export async function POST(req: NextRequest) {
     }
     const filename = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${safeExt}`;
 
-    const baseDir =
-      process.env.UPLOAD_DIR ||
-      path.join(process.cwd(), "public", "uploads");
+    const baseDir = getUploadDir();
 
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true });

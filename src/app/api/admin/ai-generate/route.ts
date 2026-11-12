@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/guards";
 import fs from "fs";
 import path from "path";
+import { getUploadDir } from "@/lib/uploads";
 import { generateProductContent, generatePromoContent } from "@/lib/services/ai-service";
 
 /**
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Cherche le fichier dans les mêmes dossiers que l'API upload
-    const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads");
+    const uploadDir = getUploadDir();
     const searchPaths = [
       path.join(uploadDir, fileName),                                                        // UPLOAD_DIR
       path.join(process.cwd(), "public", "uploads", fileName),                               // dev

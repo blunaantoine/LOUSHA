@@ -126,7 +126,7 @@ export function ProductPage() {
             priceCents: currentPrice,
             qty,
           }],
-          fullName: product.name,
+          fullName: "Client WhatsApp",
           email: "",
           source: "product_page",
         }),

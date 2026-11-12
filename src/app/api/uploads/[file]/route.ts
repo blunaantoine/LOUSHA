@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getUploadDir, getProjectRoot } from "@/lib/uploads";
 
 /**
  * GET /api/uploads/[file] — sert une image uploadée.
@@ -26,15 +27,13 @@ export async function GET(
       return new NextResponse("Not found", { status: 404 });
     }
 
-    const baseDir =
-      process.env.UPLOAD_DIR ||
-      path.join(process.cwd(), "public", "uploads");
+    const baseDir = getUploadDir();
 
     // Cherche le fichier dans UPLOAD_DIR
     let filepath = path.join(baseDir, file);
     if (!fs.existsSync(filepath)) {
-      // Fallback : cherche dans public/uploads du projet
-      filepath = path.join(process.cwd(), "public", "uploads", file);
+      // Fallback : cherche dans public/uploads à la racine du projet
+      filepath = path.join(getProjectRoot(), "public", "uploads", file);
     }
     if (!fs.existsSync(filepath)) {
       // Fallback : cherche dans .next/standalone/public/uploads

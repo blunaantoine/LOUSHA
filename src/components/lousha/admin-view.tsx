@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
@@ -207,6 +208,34 @@ function SubTabs({
 /* ============ Dashboard ============ */
 function PaymentToggle() {
   const { lang, paymentEnabled, setPaymentEnabled } = useStore();
+  const [saving, setSaving] = useState(false);
+
+  // Enregistre le réglage sur le serveur : il s'applique à tous les visiteurs.
+  const toggle = async (enabled: boolean) => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentEnabled: enabled }),
+      });
+      if (!res.ok) {
+        toast.error(lang === "fr" ? "Réglage non enregistré" : "Setting not saved");
+        return;
+      }
+      setPaymentEnabled(enabled);
+      toast.success(
+        enabled
+          ? lang === "fr" ? "Paiement en ligne activé" : "Online payment enabled"
+          : lang === "fr" ? "Paiement en ligne désactivé" : "Online payment disabled"
+      );
+    } catch {
+      toast.error(lang === "fr" ? "Erreur réseau" : "Network error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-4 shadow-sm">
       <div className="flex items-center gap-3 min-w-0">
@@ -226,7 +255,8 @@ function PaymentToggle() {
       </div>
       <Switch
         checked={paymentEnabled}
-        onCheckedChange={setPaymentEnabled}
+        onCheckedChange={toggle}
+        disabled={saving}
         className={`h-6 w-11 shrink-0 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-muted-foreground/30 [&>span]:size-5 [&>span]:data-[state=checked]:translate-x-[22px]`}
       />
     </div>

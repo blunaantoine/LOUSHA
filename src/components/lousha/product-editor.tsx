@@ -285,7 +285,7 @@ export function ProductEditor({
                 { value: "bestseller", label: t.products.bestseller },
               ]}
             />
-            <div className="flex items-end gap-4 pb-2">
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-2 pb-2 whitespace-nowrap">
               <Toggle label="Featured" checked={form.featured} onChange={(v) => update("featured", v)} />
               <Toggle label={t.admin.inStock} checked={form.inStock} onChange={(v) => update("inStock", v)} />
             </div>

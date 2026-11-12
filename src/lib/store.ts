@@ -148,7 +148,8 @@ export const useStore = create<StoreState>()(
       searchOpen: false,
       setSearchOpen: (open) => set({ searchOpen: open }),
 
-      paymentEnabled: true,
+      // Réglage global : la vraie valeur vient du serveur (/api/settings).
+      paymentEnabled: false,
       setPaymentEnabled: (enabled) => set({ paymentEnabled: enabled }),
 
       items: [],
@@ -179,7 +180,12 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: "lousha-store",
-      partialize: (s) => ({ lang: s.lang, currency: s.currency, items: s.items, paymentEnabled: s.paymentEnabled }),
+      partialize: (s) => ({ lang: s.lang, currency: s.currency, items: s.items }),
+      // Ignore une ancienne valeur « paymentEnabled » restée dans le navigateur
+      merge: (persisted, current) => {
+        const { paymentEnabled: _ignored, ...rest } = (persisted ?? {}) as Record<string, unknown>;
+        return { ...current, ...rest };
+      },
     }
   )
 );
