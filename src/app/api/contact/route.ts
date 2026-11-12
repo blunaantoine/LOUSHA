@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createContactMessage } from "@/lib/services/message-service";
-import { rateLimit, clientIp, TOO_MANY, isValidEmail, isText } from "@/lib/security";
+import { clientIp, TOO_MANY, isValidEmail, isText } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** POST /api/contact — sauvegarde un message de contact */
 export async function POST(req: NextRequest) {
   try {
-    if (!rateLimit(`contact:${clientIp(req.headers)}`, 5, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`contact:${clientIp(req.headers)}`, 5, 60 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
     const { name, email, message } = await req.json();

@@ -17,7 +17,7 @@ export interface OrderLineInput {
   qty: number;
 }
 
-export type OrderStatus = "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
 
 export interface CreateOrderInput {

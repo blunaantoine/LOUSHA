@@ -41,8 +41,8 @@ export function ResetPasswordView() {
       toast.error(lang === "fr" ? "Les mots de passe ne correspondent pas." : "Passwords don't match.");
       return;
     }
-    if (password.length < 6) {
-      toast.error(lang === "fr" ? "6 caractères minimum." : "6 characters minimum.");
+    if (password.length < 8) {
+      toast.error(lang === "fr" ? "8 caractères minimum." : "8 characters minimum.");
       return;
     }
     setLoading(true);

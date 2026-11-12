@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { subscribeNewsletter } from "@/lib/services/message-service";
-import { rateLimit, clientIp, TOO_MANY, isValidEmail } from "@/lib/security";
+import { clientIp, TOO_MANY, isValidEmail } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** POST /api/newsletter/subscribe — abonne un email */
 export async function POST(req: NextRequest) {
   try {
-    if (!rateLimit(`newsletter:${clientIp(req.headers)}`, 5, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`newsletter:${clientIp(req.headers)}`, 5, 60 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
     const { email } = await req.json();

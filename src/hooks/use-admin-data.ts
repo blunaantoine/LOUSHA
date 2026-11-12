@@ -25,13 +25,14 @@ export interface AdminOrder {
 
 export interface AdminProduct {
   id: string;
+  slug?: string;
   name: string;
   nameEn: string;
   priceCents: number;
   stock: number;
   inStock: boolean;
   badge: string;
-  category: { name: string; nameEn: string } | null;
+  category: { slug?: string; name: string; nameEn: string } | null;
   image: string;
 }
 
@@ -45,7 +46,7 @@ export interface AdminCustomer {
   totalSpent: number;
 }
 
-type Endpoint = "stats" | "orders" | "products" | "customers";
+type Endpoint = "stats" | "orders" | "products" | "customers" | "users";
 
 /**
  * Hook générique pour charger les données admin.

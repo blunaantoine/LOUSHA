@@ -310,7 +310,7 @@ function DashboardTab({ enabled }: { enabled: boolean }) {
                       {lang === "fr" ? p.name : p.nameEn}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t.admin.stockLabel}: {p.stock}
+                      Stock : {p.stock}
                     </p>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] tracking-luxe-sm uppercase font-sans">
@@ -964,7 +964,7 @@ function UserEditor({
           </label>
           <label className="block">
             <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">
-              {t.auth.password} * (6+)
+              {t.auth.password} * (8+)
             </span>
             <input
               type="password"

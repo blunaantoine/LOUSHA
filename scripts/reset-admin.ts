@@ -65,9 +65,9 @@ async function main() {
     if (answer.toLowerCase() === "o" || answer.toLowerCase() === "oui") {
       const name = await ask("   Nom : ");
       const email = await ask("   Email : ");
-      const password = await ask("   Mot de passe (min 6 car.) : ");
+      const password = await ask("   Mot de passe (min 8 car.) : ");
 
-      if (!name || !email || password.length < 6) {
+      if (!name || !email || password.length < 8) {
         console.log("   ❌ Données invalides. Abandon.");
         await prisma.$disconnect();
         return;
@@ -126,9 +126,9 @@ async function main() {
     if (!user) {
       console.log(`   ❌ Aucun compte trouvé avec l'email : ${email}`);
     } else {
-      const newPassword = await ask("   Nouveau mot de passe (min 6 car.) : ");
-      if (newPassword.length < 6) {
-        console.log("   ❌ Mot de passe trop court (6 car. minimum). Abandon.");
+      const newPassword = await ask("   Nouveau mot de passe (min 8 car.) : ");
+      if (newPassword.length < 8) {
+        console.log("   ❌ Mot de passe trop court (8 car. minimum). Abandon.");
       } else {
         const hashed = hashPassword(newPassword);
         await prisma.user.update({

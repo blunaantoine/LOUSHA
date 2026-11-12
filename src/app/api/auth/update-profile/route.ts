@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { isValidEmail, isText } from "@/lib/security";
+import { isValidEmail, isText, TOO_MANY } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
+import { verifyPassword } from "@/lib/services/auth-service";
 
 /** PATCH /api/auth/update-profile — met à jour nom, email, téléphone */
 export async function PATCH(req: NextRequest) {
@@ -18,7 +20,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }
 
-    const { name, email, phone } = await req.json();
+    const { name, email, phone, currentPassword } = await req.json();
 
     if (
       (name && !isText(name, 100)) ||
@@ -43,6 +45,25 @@ export async function PATCH(req: NextRequest) {
     const currentUser = await db.user.findUnique({ where: { id: userId } });
     if (!currentUser) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
+    }
+
+    // Changer d'adresse email revient à changer d'identifiant de connexion :
+    // on exige le mot de passe actuel, comme pour un changement de mot de passe.
+    const emailChanges = !!email && email.toLowerCase() !== currentUser.email.toLowerCase();
+    if (emailChanges) {
+      if (!(await rateLimit(`email-change:${userId}`, 10, 15 * 60 * 1000))) {
+        return NextResponse.json({ error: TOO_MANY }, { status: 429 });
+      }
+      const passwordOk =
+        typeof currentPassword === "string" &&
+        currentPassword.length > 0 &&
+        (await verifyPassword(currentPassword, currentUser.password));
+      if (!passwordOk) {
+        return NextResponse.json(
+          { error: "Mot de passe actuel requis pour changer d'email", code: "PASSWORD_REQUIRED" },
+          { status: 403 }
+        );
+      }
     }
 
     const updated = await db.user.update({

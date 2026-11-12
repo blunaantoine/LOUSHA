@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resetPassword, verifyResetToken } from "@/lib/services/auth-service";
-import { rateLimit, clientIp, TOO_MANY } from "@/lib/security";
+import { clientIp, TOO_MANY, MIN_PASSWORD_LENGTH, PASSWORD_TOO_SHORT } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/auth/reset-password
@@ -9,7 +10,7 @@ import { rateLimit, clientIp, TOO_MANY } from "@/lib/security";
  */
 export async function POST(req: NextRequest) {
   try {
-    if (!rateLimit(`reset:${clientIp(req.headers)}`, 10, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`reset:${clientIp(req.headers)}`, 10, 60 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
     const { token, password } = await req.json();
@@ -19,9 +20,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (password.length < 6) {
+    if (password.length < MIN_PASSWORD_LENGTH) {
       return NextResponse.json(
-        { error: "Le mot de passe doit faire au moins 6 caractères." },
+        { error: PASSWORD_TOO_SHORT },
         { status: 400 }
       );
     }
@@ -60,7 +61,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
-    if (!token || !rateLimit(`reset-check:${clientIp(req.headers)}`, 30, 60 * 60 * 1000)) {
+    if (!token || !(await rateLimit(`reset-check:${clientIp(req.headers)}`, 30, 60 * 60 * 1000))) {
       return NextResponse.json({ valid: false });
     }
     const user = await verifyResetToken(token);

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPasswordReset } from "@/lib/services/auth-service";
 import { sendPasswordResetEmail } from "@/lib/services/email-service";
-import { rateLimit, clientIp, TOO_MANY } from "@/lib/security";
+import { clientIp, TOO_MANY } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
@@ -17,7 +18,7 @@ const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
  */
 export async function POST(req: NextRequest) {
   try {
-    if (!rateLimit(`forgot:${clientIp(req.headers)}`, 5, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`forgot:${clientIp(req.headers)}`, 5, 60 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
     const { email } = await req.json();

@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { createOrder } from "@/lib/services/order-service";
 import { computeCartTotals } from "@/lib/services/cart-service";
 import { db } from "@/lib/db";
-import { rateLimit, clientIp, TOO_MANY, isValidEmail, isText } from "@/lib/security";
+import { clientIp, TOO_MANY, isValidEmail, isText } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/orders/whatsapp
@@ -21,7 +22,7 @@ type RawItem = { slug?: unknown; priceCents?: unknown; qty?: unknown };
 
 export async function POST(req: NextRequest) {
   try {
-    if (!rateLimit(`order:${clientIp(req.headers)}`, 20, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`order:${clientIp(req.headers)}`, 20, 60 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
 

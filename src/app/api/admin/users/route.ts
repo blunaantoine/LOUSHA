@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/guards";
 import { listAllUsers, createUserByAdmin } from "@/lib/services/admin-service";
+import { MIN_PASSWORD_LENGTH, PASSWORD_TOO_SHORT } from "@/lib/security";
 
 /**
  * GET /api/admin/users — liste tous les utilisateurs (ADMIN uniquement).
@@ -39,9 +40,9 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    if (body.password.length < 6) {
+    if (typeof body.password !== "string" || body.password.length < MIN_PASSWORD_LENGTH) {
       return NextResponse.json(
-        { error: "Mot de passe : 6 caractères minimum." },
+        { error: PASSWORD_TOO_SHORT },
         { status: 400 }
       );
     }

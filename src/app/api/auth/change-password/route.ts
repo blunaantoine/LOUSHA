@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { verifyPassword, hashPassword } from "@/lib/services/auth-service";
-import { rateLimit, clientIp, TOO_MANY } from "@/lib/security";
+import { clientIp, TOO_MANY, MIN_PASSWORD_LENGTH, PASSWORD_TOO_SHORT } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** POST /api/auth/change-password — change le mot de passe */
 export async function POST(req: NextRequest) {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    if (!rateLimit(`change-password:${clientIp(req.headers)}`, 10, 15 * 60 * 1000)) {
+    if (!(await rateLimit(`change-password:${clientIp(req.headers)}`, 10, 15 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
     const { currentPassword, newPassword } = await req.json();
@@ -22,8 +23,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Champs requis manquants" }, { status: 400 });
     }
 
-    if (newPassword.length < 6) {
-      return NextResponse.json({ error: "6 caractères minimum" }, { status: 400 });
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      return NextResponse.json({ error: PASSWORD_TOO_SHORT }, { status: 400 });
     }
 
     const user = await db.user.findUnique({ where: { email: session.user.email } });

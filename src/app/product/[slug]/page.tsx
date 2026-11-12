@@ -4,6 +4,9 @@ import { getProductWithRelated } from "@/lib/services/product-service";
 import { ProductPageClient } from "./product-client";
 import { safeJsonLd } from "@/lib/security";
 
+// Les dates sont sérialisées en chaînes lors du passage au composant client.
+type ClientProps = Parameters<typeof ProductPageClient>[0];
+
 const SITE_URL = "https://lousha-accessoire.com";
 
 interface Props {
@@ -182,7 +185,10 @@ export default async function ProductPageRoute({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }}
       />
-      <ProductPageClient product={product} related={related} />
+      <ProductPageClient
+        product={product as unknown as ClientProps["product"]}
+        related={related as unknown as ClientProps["related"]}
+      />
     </>
   );
 }

@@ -1,34 +1,11 @@
 /**
  * Utilitaires de sécurité partagés par les routes API :
- * limitation de débit, validation des entrées, échappement HTML.
+ * validation des entrées, échappement HTML. (Limitation de débit : rate-limit.ts)
  */
 
-type Bucket = { count: number; resetAt: number };
-
-const g = globalThis as unknown as { _loushaRateBuckets?: Map<string, Bucket> };
-const buckets = (g._loushaRateBuckets ??= new Map<string, Bucket>());
-
-/**
- * Limitation de débit en mémoire (fenêtre fixe).
- * Retourne true si la requête est autorisée, false si la limite est dépassée.
- * Adaptée à un déploiement mono-instance (un seul processus Node).
- */
-export function rateLimit(key: string, limit: number, windowMs: number): boolean {
-  const now = Date.now();
-
-  // Nettoyage occasionnel pour borner la mémoire
-  if (buckets.size > 5000) {
-    for (const [k, b] of buckets) if (b.resetAt <= now) buckets.delete(k);
-  }
-
-  const bucket = buckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-  bucket.count += 1;
-  return bucket.count <= limit;
-}
+/** Longueur minimale des mots de passe (création et changement). */
+export const MIN_PASSWORD_LENGTH = 8;
+export const PASSWORD_TOO_SHORT = `Le mot de passe doit faire au moins ${MIN_PASSWORD_LENGTH} caractères.`;
 
 type HeaderSource =
   | { get(name: string): string | null }

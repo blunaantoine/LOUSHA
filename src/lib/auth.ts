@@ -1,7 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { validateCredentials, findUserById } from "@/lib/services/auth-service";
-import { rateLimit, clientIp } from "@/lib/security";
+import { clientIp } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * Configuration NextAuth — stratégie JWT + cookies HttpOnly.
@@ -14,10 +15,6 @@ import { rateLimit, clientIp } from "@/lib/security";
  * session. Le rôle et le statut « bloqué » ne viennent donc jamais du client.
  */
 export const authOptions: NextAuthOptions = {
-  // Indispensable derrière un reverse proxy (Nginx) :
-  // NextAuth doit faire confiance au header X-Forwarded-Proto pour
-  // déterminer le schéma (https) et setter les cookies secure correctement.
-  trustHost: true,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 jours
@@ -55,8 +52,8 @@ export const authOptions: NextAuthOptions = {
           const ip = clientIp(req?.headers);
           const emailKey = String(credentials.email).toLowerCase().slice(0, 254);
           const window = 15 * 60 * 1000;
-          const ipOk = rateLimit(`login:ip:${ip}`, 10, window);
-          const emailOk = rateLimit(`login:email:${emailKey}`, 10, window);
+          const ipOk = await rateLimit(`login:ip:${ip}`, 10, window);
+          const emailOk = await rateLimit(`login:email:${emailKey}`, 10, window);
           if (!ipOk || !emailOk) {
             console.warn("[auth] trop de tentatives de connexion depuis", ip);
             return null;
@@ -73,8 +70,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             email: user.email,
             role: user.role,
-            phone: user.phone,
-          } as { id: string; name: string; email: string; role: string; phone?: string | null };
+            phone: user.phone ?? undefined,
+          };
         } catch (err) {
           console.error("[auth] authorize error:", err);
           return null;

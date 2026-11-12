@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createUser, findUserByEmail } from "@/lib/services/auth-service";
-import { rateLimit, clientIp, TOO_MANY, isValidEmail, isText } from "@/lib/security";
+import { clientIp, TOO_MANY, isValidEmail, isText, MIN_PASSWORD_LENGTH, PASSWORD_TOO_SHORT } from "@/lib/security";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    if (!rateLimit(`register:${clientIp(req.headers)}`, 5, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`register:${clientIp(req.headers)}`, 5, 60 * 60 * 1000))) {
       return NextResponse.json({ error: TOO_MANY }, { status: 429 });
     }
     const body = await req.json();
@@ -30,9 +31,9 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json({ error: "Données invalides." }, { status: 400 });
     }
-    if (password.length < 6) {
+    if (password.length < MIN_PASSWORD_LENGTH) {
       return NextResponse.json(
-        { error: "Le mot de passe doit faire au moins 6 caractères." },
+        { error: PASSWORD_TOO_SHORT },
         { status: 400 }
       );
     }

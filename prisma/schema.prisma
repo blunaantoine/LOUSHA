@@ -251,3 +251,14 @@ model Notification {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+/// Compteurs de limitation de débit (anti force brute / anti spam).
+/// Stockés en base pour survivre aux redémarrages et être partagés
+/// entre plusieurs processus.
+model RateLimit {
+  key     String   @id
+  count   Int      @default(1)
+  resetAt DateTime
+
+  @@index([resetAt])
+}

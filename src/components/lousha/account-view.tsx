@@ -225,17 +225,27 @@ function ProfileEditor() {
   const { user, status } = useAuth();
   const { update: updateSession } = useSession();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", currentPassword: "" });
   const [saving, setSaving] = useState(false);
 
   if (status !== "authenticated" || !user) return null;
 
+  const emailChanged = form.email.trim().toLowerCase() !== (user.email || "").toLowerCase();
+
   const handleOpen = () => {
-    setForm({ name: user.name || "", email: user.email || "", phone: user.phone || "" });
+    setForm({ name: user.name || "", email: user.email || "", phone: user.phone || "", currentPassword: "" });
     setOpen(true);
   };
 
   const handleSave = async () => {
+    if (emailChanged && !form.currentPassword) {
+      toast.error(
+        lang === "fr"
+          ? "Saisissez votre mot de passe actuel pour changer d'email"
+          : "Enter your current password to change your email"
+      );
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch("/api/auth/update-profile", {
@@ -245,17 +255,18 @@ function ProfileEditor() {
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Échec");
+        toast.error(
+          data.code === "PASSWORD_REQUIRED" && lang !== "fr"
+            ? "Incorrect current password"
+            : data.code === "PASSWORD_REQUIRED"
+              ? "Mot de passe actuel incorrect"
+              : data.error || "Échec"
+        );
         return;
       }
 
-      // Mettre à jour la session NextAuth avec les nouvelles données
-      // Ceci met à jour le JWT token côté client (email, nom, etc.)
-      await updateSession({
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role,
-      });
+      // Rafraîchit la session : le serveur relit le profil en base.
+      await updateSession();
 
       toast.success(lang === "fr" ? "Profil mis à jour" : "Profile updated");
       setOpen(false);
@@ -308,6 +319,20 @@ function ProfileEditor() {
               className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
             />
           </label>
+          {emailChanged && (
+            <label className="block">
+              <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">
+                {lang === "fr" ? "Mot de passe actuel (requis pour changer d'email)" : "Current password (required to change email)"}
+              </span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={form.currentPassword}
+                onChange={(e) => setForm((f) => ({ ...f, currentPassword: e.target.value }))}
+                className="w-full h-11 bg-background border border-border px-3 text-sm rounded-xl focus:outline-none focus:border-accent"
+              />
+            </label>
+          )}
           <label className="block">
             <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1">{lang === "fr" ? "Téléphone" : "Phone"}</span>
             <input
