@@ -181,7 +181,7 @@ nav: {
       whatsapp: "Écrire sur WhatsApp",
       whatsappNumber: "+228 96 69 29 72",
       email: "E-mail",
-      emailValue: "bonjour@lousha-accessories.com",
+      emailValue: "contact@lousha-accessoire.com",
       hours: "Horaires",
       hoursValue: "Lun – Sam · 9h – 19h (GMT)",
       form: {

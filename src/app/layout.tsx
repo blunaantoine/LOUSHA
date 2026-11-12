@@ -148,7 +148,7 @@ export default function RootLayout({
           contactType: "customer service",
           availableLanguage: ["fr", "en"],
         },
-        email: "bonjour@lousha-accessories.com",
+        email: "contact@lousha-accessoire.com",
         sameAs: [
           "https://www.instagram.com/lousha_accessoires",
           "https://www.facebook.com/loushaaccessoires",

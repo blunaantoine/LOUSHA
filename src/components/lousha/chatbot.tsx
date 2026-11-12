@@ -156,8 +156,8 @@ export function ChatBot() {
       return {
         role: "bot",
         text: fr
-          ? "📧 bonjour@lousha-accessories.com\n📱 WhatsApp : +228 96 69 29 72\n🕐 Lun-Sam : 9h-19h"
-          : "📧 bonjour@lousha-accessories.com\n📱 WhatsApp: +228 96 69 29 72\n🕐 Mon-Sat: 9am-7pm",
+          ? "📧 contact@lousha-accessoire.com\n📱 WhatsApp : +228 96 69 29 72\n🕐 Lun-Sam : 9h-19h"
+          : "📧 contact@lousha-accessoire.com\n📱 WhatsApp: +228 96 69 29 72\n🕐 Mon-Sat: 9am-7pm",
         link: { label: fr ? "📞 Page contact" : "📞 Contact page", action: () => router.push("/contact") },
       };
     }

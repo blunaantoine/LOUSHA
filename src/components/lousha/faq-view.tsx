@@ -24,7 +24,7 @@ export function FAQView() {
     { q: "Qu'est-ce que le raphia ?", a: "Le raphia est une fibre végétale 100% naturelle récoltée sur le palmier raphia. Souple, résistante et lumineuse, elle se prête à un tressage d'une finesse remarquable." },
     { q: "Comment sont gérées les livraisons ?", a: "La livraison est gérée hors site. Contactez-nous via WhatsApp (+228 96 69 29 72) pour connaître les modalités et délais." },
     { q: "Puis-je retourner un produit ?", a: "Chaque pièce étant unique et faite main, les retours sont évalués au cas par cas. Contactez-nous via WhatsApp pour toute question." },
-    { q: "Comment vous contacter ?", a: "📧 bonjour@lousha-accessories.com\n📱 WhatsApp : +228 96 69 29 72\n🕐 Lun-Sam : 9h-19h (GMT)" },
+    { q: "Comment vous contacter ?", a: "📧 contact@lousha-accessoire.com\n📱 WhatsApp : +228 96 69 29 72\n🕐 Lun-Sam : 9h-19h (GMT)" },
   ] : [
     { q: "What are your prices?", a: "Our prices range from 25,000 to 70,000 XOF depending on the product. Each piece is unique and handmade, which justifies its price." },
     { q: "How to place an order?", a: "You can order in two ways:\n1. On the site: add products to cart, then click 'Checkout'.\n2. Via WhatsApp: click 'Order on WhatsApp' on any product." },
@@ -34,7 +34,7 @@ export function FAQView() {
     { q: "What is raffia?", a: "Raffia is a 100% natural plant fiber harvested from the raffia palm. Supple, resistant and luminous, it lends itself to remarkably fine weaving." },
     { q: "How are deliveries handled?", a: "Delivery is managed offline. Contact us via WhatsApp (+228 96 69 29 72) for details and timelines." },
     { q: "Can I return a product?", a: "Since each piece is unique and handmade, returns are evaluated case by case. Contact us via WhatsApp for any question." },
-    { q: "How to contact you?", a: "📧 bonjour@lousha-accessories.com\n📱 WhatsApp: +228 96 69 29 72\n🕐 Mon-Sat: 9am-7pm (GMT)" },
+    { q: "How to contact you?", a: "📧 contact@lousha-accessoire.com\n📱 WhatsApp: +228 96 69 29 72\n🕐 Mon-Sat: 9am-7pm (GMT)" },
   ];
 
   return (
