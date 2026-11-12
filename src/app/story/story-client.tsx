@@ -30,7 +30,7 @@ export function StoryPageClient() {
             </h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="aspect-square overflow-hidden bg-secondary">
+            <div className="aspect-square overflow-hidden bg-secondary rounded-2xl">
               <img
                 src="/images/story/atelier-1.png"
                 alt="Atelier Lousha — tressage du raphia"
@@ -38,7 +38,7 @@ export function StoryPageClient() {
                 loading="lazy"
               />
             </div>
-            <div className="aspect-square overflow-hidden bg-secondary">
+            <div className="aspect-square overflow-hidden bg-secondary rounded-2xl">
               <img
                 src="/images/story/atelier-2.png"
                 alt="Artisan Lousha au travail"
@@ -46,7 +46,7 @@ export function StoryPageClient() {
                 loading="lazy"
               />
             </div>
-            <div className="aspect-square overflow-hidden bg-secondary col-span-2 lg:col-span-1">
+            <div className="aspect-square overflow-hidden bg-secondary rounded-2xl col-span-2 lg:col-span-1">
               <img
                 src="/images/story/portrait-artisan.png"
                 alt="Portrait d'un artisan Lousha"

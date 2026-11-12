@@ -27,7 +27,7 @@ export function FeaturedProducts() {
           </div>
           <button
             onClick={() => router.push("/shop")}
-            className="group inline-flex items-center gap-2 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition-colors"
+            className="group inline-flex items-center gap-2 text-[12px] tracking-luxe-sm uppercase font-sans text-foreground/80 hover:text-accent transition-colors whitespace-nowrap"
           >
             {t.products.viewAll}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

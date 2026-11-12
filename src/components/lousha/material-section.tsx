@@ -49,7 +49,7 @@ export function MaterialSection() {
 
           {/* Image */}
           <div className="order-1 lg:order-2">
-            <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
+            <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-2xl">
               <img
                 src={imgMaterial}
                 alt={lang === "fr" ? "Détail du raphia" : "Raffia detail"}

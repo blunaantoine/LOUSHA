@@ -74,11 +74,11 @@ export function Footer() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
-            <div className="flex flex-col">
+            <div className="flex flex-col items-start">
               <img
                 src="/images/lousha-logo.png"
                 alt="Lousha Accessories"
-                className="h-16 w-auto object-contain brightness-0 invert"
+                className="h-12 w-auto object-contain brightness-0 invert"
               />
             </div>
             <p className="mt-5 text-sm text-background/70 font-light max-w-xs">

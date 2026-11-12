@@ -65,7 +65,7 @@ export function ContactSection() {
               href={`https://wa.me/${WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noreferrer"
-              className="group flex items-center gap-4 p-5 bg-background border border-border hover:border-accent transition-colors"
+              className="group flex items-center gap-4 p-5 bg-background border border-border hover:border-accent transition-colors rounded-2xl"
             >
               <span className="h-12 w-12 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
                 <MessageCircle className="h-5 w-5" strokeWidth={1.75} />
@@ -81,7 +81,7 @@ export function ContactSection() {
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
             </a>
 
-            <div className="flex items-center gap-4 p-5 bg-background border border-border">
+            <div className="flex items-center gap-4 p-5 bg-background border border-border rounded-2xl">
               <span className="h-12 w-12 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
                 <Mail className="h-5 w-5" strokeWidth={1.75} />
               </span>
@@ -95,7 +95,7 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-5 bg-background border border-border">
+            <div className="flex items-center gap-4 p-5 bg-background border border-border rounded-2xl">
               <span className="h-12 w-12 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
                 <Clock className="h-5 w-5" strokeWidth={1.75} />
               </span>
@@ -113,7 +113,7 @@ export function ContactSection() {
           {/* Form */}
           <form
             onSubmit={handleSubmit}
-            className="bg-background border border-border p-6 sm:p-8 flex flex-col gap-4"
+            className="bg-background border border-border p-6 sm:p-8 flex flex-col gap-4 rounded-2xl"
           >
             <label className="block">
               <span className="block text-[10px] tracking-luxe-sm uppercase text-muted-foreground mb-1.5">

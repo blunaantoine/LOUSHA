@@ -59,7 +59,7 @@ export default function Home() {
               href="https://wa.me/22896692972"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 border border-background/50 text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-background/10 transition-colors"
+              className="inline-flex items-center gap-2 border border-background/50 text-background px-7 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-background/10 transition-colors rounded-full"
             >
               {t.contact.whatsapp}
             </a>

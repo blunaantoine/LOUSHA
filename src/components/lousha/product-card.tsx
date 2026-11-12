@@ -59,13 +59,13 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </Link>
 
-      <div className="mt-4 flex items-start justify-between gap-3">
+      <div className="mt-4 flex items-start justify-between gap-2 sm:gap-3">
         <div className="min-w-0">
           <Link
             href={`/product/${product.slug}`}
             className="block text-left"
           >
-            <h3 className="font-serif text-lg sm:text-xl text-foreground leading-snug hover:text-accent transition-colors">
+            <h3 className="font-serif text-[13px] sm:text-lg xl:text-xl text-foreground leading-snug [overflow-wrap:anywhere] hover:text-accent transition-colors">
               {name}
             </h3>
           </Link>

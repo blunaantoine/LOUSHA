@@ -77,13 +77,13 @@ export function ShopView() {
                 active={sort === "price-asc"}
                 onClick={() => setSort("price-asc")}
               >
-                € ↑
+                {lang === "fr" ? "Prix ↑" : "Price ↑"}
               </SortChip>
               <SortChip
                 active={sort === "price-desc"}
                 onClick={() => setSort("price-desc")}
               >
-                € ↓
+                {lang === "fr" ? "Prix ↓" : "Price ↓"}
               </SortChip>
             </div>
           </div>
@@ -136,7 +136,7 @@ function FilterChip({
     <button
       onClick={onClick}
       className={cn(
-        "px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans transition-colors border",
+        "px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans transition-colors border rounded-full",
         active
           ? "bg-foreground text-background border-foreground"
           : "bg-transparent text-foreground/70 border-border hover:border-foreground hover:text-foreground"

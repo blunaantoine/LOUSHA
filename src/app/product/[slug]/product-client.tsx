@@ -369,7 +369,7 @@ export function ProductPageClient({ product, related }: ProductPageClientProps) 
               </div>
 
               {/* Actions */}
-              <div className="mt-auto pt-8 flex flex-col sm:flex-row gap-3">
+              <div className="mt-auto pt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={handleAdd}
                   disabled={!inStock}
@@ -390,7 +390,7 @@ export function ProductPageClient({ product, related }: ProductPageClientProps) 
                 <button
                   onClick={handleWhatsAppOrder}
                   disabled={!inStock}
-                  className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-[#1eb858] transition-all flex-1 rounded-full shadow-sm disabled:opacity-50"
+                  className={`inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-[#1eb858] transition-all rounded-full shadow-sm disabled:opacity-50 whitespace-nowrap ${paymentEnabled ? "sm:col-span-2" : ""}`}
                 >
                   <MessageCircle className="h-4 w-4" />
                   {lang === "fr" ? "Commander sur WhatsApp" : "Order on WhatsApp"}
