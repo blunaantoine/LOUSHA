@@ -24,6 +24,7 @@ import { CollectionManager } from "./collection-manager";
 import { MessagesManager } from "./messages-manager";
 import { NewsletterManager } from "./newsletter-manager";
 import { NotificationsManager } from "./notifications-manager";
+import { MaintenanceToggle } from "./maintenance-toggle";
 import {
   TrendingUp,
   Calendar,
@@ -249,7 +250,7 @@ function PaymentToggle() {
           <p className={`text-xs mt-0.5 leading-snug ${paymentEnabled ? "text-green-600" : "text-muted-foreground"}`}>
             {paymentEnabled
               ? lang === "fr" ? "Activé — les boutons de paiement sont visibles" : "Enabled — payment buttons are visible"
-              : lang === "fr" ? "Désactivé — boutons masqués (maintenance)" : "Disabled — buttons hidden (maintenance)"}
+              : lang === "fr" ? "Désactivé — boutons de paiement masqués" : "Disabled — payment buttons hidden"}
           </p>
         </div>
       </div>
@@ -285,8 +286,11 @@ function DashboardTab({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="space-y-8">
-      {/* Toggle Paiement */}
-      <PaymentToggle />
+      {/* Réglages du site */}
+      <div className="space-y-3">
+        <MaintenanceToggle />
+        <PaymentToggle />
+      </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

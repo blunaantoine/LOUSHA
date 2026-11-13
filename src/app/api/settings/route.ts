@@ -1,17 +1,21 @@
 import { NextResponse } from "next/server";
-import { isPaymentEnabled } from "@/lib/services/settings-service";
+import { isMaintenanceEnabled, isPaymentEnabled } from "@/lib/services/settings-service";
 
 export const dynamic = "force-dynamic";
 
 /** GET /api/settings — réglages publics du site. */
 export async function GET() {
   try {
+    const [paymentEnabled, maintenance] = await Promise.all([
+      isPaymentEnabled(),
+      isMaintenanceEnabled(),
+    ]);
     return NextResponse.json(
-      { paymentEnabled: await isPaymentEnabled() },
+      { paymentEnabled, maintenance },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {
     console.error("GET /api/settings error:", error);
-    return NextResponse.json({ paymentEnabled: false });
+    return NextResponse.json({ paymentEnabled: false, maintenance: false });
   }
 }

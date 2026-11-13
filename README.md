@@ -43,6 +43,11 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 - Messagerie (réponse aux messages de contact) et newsletter
 - Génération assistée des descriptions produits à partir de la photo
 
+**Mode maintenance**
+- Bouton dans le tableau de bord (administrateurs uniquement) qui ferme le site aux visiteurs : ils voient une page « maintenance en cours » et ne peuvent plus commander, s'inscrire ni envoyer de message
+- Les comptes administrateur et gestionnaire continuent d'utiliser le site normalement
+- Activation et désactivation protégées par un code à 4 chiffres, créé à la première utilisation (5 essais par tranche de 15 minutes)
+
 **Référencement (SEO)**
 - Pages indexables, sitemap, robots.txt, données structurées, manifeste PWA
 
@@ -119,6 +124,14 @@ bun run start
 ```
 
 Le serveur de production écoute sur le port 3004. Les fichiers du dossier `deploy/` permettent l'installation sur un serveur VPS (service systemd `lousha.service`, configuration Nginx `nginx-lousha.conf`, scripts `setup.sh` et `deploy.sh`).
+
+### Code de maintenance oublié
+
+Cette commande, lancée sur le serveur, rouvre le site et efface le code. Un nouveau code sera demandé à la prochaine activation :
+
+```bash
+bun -e 'import {PrismaClient} from "@prisma/client"; const p=new PrismaClient(); await p.siteSetting.deleteMany({where:{key:{in:["maintenanceEnabled","maintenancePinHash"]}}}); console.log("Site rouvert, code efface"); await p.$disconnect()'
+```
 
 ---
 
