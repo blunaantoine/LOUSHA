@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { requireAdmin } from "@/lib/guards";
+import { requireMaintenanceManager } from "@/lib/guards";
 import { rateLimit } from "@/lib/rate-limit";
 import { TOO_MANY } from "@/lib/security";
 import { hashPassword, verifyPassword } from "@/lib/services/auth-service";
@@ -17,10 +17,10 @@ export const dynamic = "force-dynamic";
 const PIN_RE = /^\d{4}$/;
 
 /**
- * GET /api/admin/maintenance — état du mode maintenance (ADMIN uniquement).
+ * GET /api/admin/maintenance — état du mode maintenance (comptes autorisés).
  */
 export async function GET() {
-  if (!(await requireAdmin())) {
+  if (!(await requireMaintenanceManager())) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
   const [enabled, pinHash] = await Promise.all([
@@ -34,7 +34,7 @@ export async function GET() {
 }
 
 /**
- * POST /api/admin/maintenance — active ou désactive la maintenance (ADMIN).
+ * POST /api/admin/maintenance — active ou désactive la maintenance (comptes autorisés).
  *
  * Body :
  * - { enabled: boolean, pin: "1234" }            si un code existe déjà
@@ -44,7 +44,7 @@ export async function GET() {
  * (scrypt), jamais en clair. 5 essais par tranche de 15 minutes et par admin.
  */
 export async function POST(req: NextRequest) {
-  if (!(await requireAdmin())) {
+  if (!(await requireMaintenanceManager())) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
   const session = await getServerSession(authOptions);

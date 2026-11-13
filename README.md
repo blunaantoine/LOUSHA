@@ -47,6 +47,7 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 - Bouton dans le tableau de bord (administrateurs uniquement) qui ferme le site aux visiteurs : ils voient une page « maintenance en cours » et ne peuvent plus commander, s'inscrire ni envoyer de message
 - Les comptes administrateur et gestionnaire continuent d'utiliser le site normalement
 - Activation et désactivation protégées par un code à 4 chiffres, créé à la première utilisation (5 essais par tranche de 15 minutes)
+- Bouton réservé aux comptes listés dans `MAINTENANCE_ADMIN_EMAILS` (fichier `.env`, adresses séparées par des virgules) ; sans ce réglage, tous les administrateurs le voient
 
 **Référencement (SEO)**
 - Pages indexables, sitemap, robots.txt, données structurées, manifeste PWA

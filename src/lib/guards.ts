@@ -31,6 +31,29 @@ export async function requireStaff(): Promise<boolean> {
 }
 
 /**
+ * Peut activer ou désactiver le mode maintenance ?
+ *
+ * Réservé aux ADMIN. Si MAINTENANCE_ADMIN_EMAILS est défini dans le fichier
+ * .env du serveur (adresses séparées par des virgules), seuls ces comptes y
+ * ont accès ; sinon, tous les ADMIN.
+ */
+export async function requireMaintenanceManager(): Promise<boolean> {
+  const session = await getServerSession(authOptions);
+  const id = (session?.user as { id?: string } | undefined)?.id;
+  if (!id) return false;
+  const user = await db.user.findUnique({
+    where: { id },
+    select: { role: true, blocked: true, email: true },
+  });
+  if (!user || user.blocked || user.role !== "ADMIN") return false;
+  const allowed = (process.env.MAINTENANCE_ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return allowed.length === 0 || allowed.includes(user.email.toLowerCase());
+}
+
+/**
  * Vérifie que la requête provient d'un administrateur (ADMIN uniquement).
  * Utilisé pour la gestion des utilisateurs et les opérations sensibles.
  */

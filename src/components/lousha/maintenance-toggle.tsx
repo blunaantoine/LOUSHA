@@ -19,7 +19,8 @@ type Status = { enabled: boolean; pinConfigured: boolean };
 export const SETTINGS_CHANGED_EVENT = "lousha:settings-changed";
 
 /**
- * Carte « Mode maintenance » du tableau de bord (ADMIN uniquement).
+ * Carte « Mode maintenance » du tableau de bord, visible seulement par les
+ * comptes autorisés (voir requireMaintenanceManager).
  * Activer ou désactiver demande un code à 4 chiffres, créé à la première
  * utilisation.
  */
@@ -46,7 +47,7 @@ export function MaintenanceToggle() {
     };
   }, []);
 
-  // Réservé aux ADMIN : la route répond 403 aux autres, la carte reste cachée.
+  // La route répond 403 aux comptes non autorisés : la carte reste cachée.
   if (!status) return null;
 
   const on = status.enabled;
