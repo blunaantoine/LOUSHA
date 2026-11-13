@@ -1,13 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/guards";
-import { setPaymentEnabled } from "@/lib/services/settings-service";
+import { requireOwnerAdmin } from "@/lib/guards";
+import { isPaymentEnabled, setPaymentEnabled } from "@/lib/services/settings-service";
+import { isPaydunyaConfigured, isPaydunyaLive } from "@/lib/services/paydunya-service";
+
+export const dynamic = "force-dynamic";
 
 /**
- * PUT /api/admin/settings — modifie les réglages du site (ADMIN uniquement).
- * Body : { paymentEnabled: boolean }
+ * GET /api/admin/settings — réglage du paiement en ligne (comptes autorisés).
+ * Répond 403 aux autres comptes : l'interrupteur reste alors caché.
+ */
+export async function GET() {
+  if (!(await requireOwnerAdmin())) {
+    return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+  }
+  return NextResponse.json(
+    {
+      paymentSetting: await isPaymentEnabled(),
+      paydunyaConfigured: isPaydunyaConfigured(),
+      paydunyaLive: isPaydunyaLive(),
+    },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}
+
+/**
+ * PUT /api/admin/settings — active ou désactive le paiement en ligne
+ * (comptes autorisés uniquement). Body : { paymentEnabled: boolean }
  */
 export async function PUT(req: NextRequest) {
-  if (!(await requireAdmin())) {
+  if (!(await requireOwnerAdmin())) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
   try {

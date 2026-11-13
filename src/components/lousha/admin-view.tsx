@@ -215,7 +215,9 @@ function PaymentToggle() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/settings", { cache: "no-store" })
+    // Réservé aux comptes autorisés : la route répond 403 aux autres et
+    // l'interrupteur reste caché.
+    fetch("/api/admin/settings", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (active && d)
@@ -241,7 +243,7 @@ function PaymentToggle() {
         return;
       }
       setInfo((i) => (i ? { ...i, on: enabled } : i));
-      setPaymentEnabled(enabled && !!info?.configured);
+      setPaymentEnabled(enabled && info?.configured === true);
       toast.success(
         enabled
           ? fr ? "Paiement en ligne activé" : "Online payment enabled"
@@ -254,12 +256,12 @@ function PaymentToggle() {
     }
   };
 
-  const on = !!info?.on;
-  const configured = !!info?.configured;
+  if (!info) return null;
+
+  const on = info.on;
+  const configured = info.configured;
   const active = on && configured;
-  const status = !info
-    ? "…"
-    : !configured
+  const status = !configured
       ? fr
         ? "PayDunya n'est pas configuré sur le serveur : les boutons de paiement restent masqués."
         : "PayDunya is not configured on the server: payment buttons stay hidden."
@@ -281,7 +283,7 @@ function PaymentToggle() {
           <p className="font-sans text-sm font-medium leading-tight">
             {fr ? "Paiement en ligne (PayDunya)" : "Online payment (PayDunya)"}
           </p>
-          <p className={`text-xs mt-0.5 leading-snug ${active ? (info?.live ? "text-green-600" : "text-amber-700") : "text-muted-foreground"}`}>
+          <p className={`text-xs mt-0.5 leading-snug ${active ? (info.live ? "text-green-600" : "text-amber-700") : "text-muted-foreground"}`}>
             {status}
           </p>
         </div>
@@ -289,7 +291,7 @@ function PaymentToggle() {
       <Switch
         checked={on}
         onCheckedChange={toggle}
-        disabled={saving || !info || !configured}
+        disabled={saving || !configured}
         className={`h-6 w-11 shrink-0 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-muted-foreground/30 [&>span]:size-5 [&>span]:data-[state=checked]:translate-x-[22px]`}
       />
     </div>

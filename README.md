@@ -47,14 +47,14 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 - Le client saisit ses coordonnées et son adresse, puis paie sur la page sécurisée PayDunya (Mobile Money ou carte), en francs CFA
 - La commande n'est marquée « payée » qu'après vérification directe auprès de PayDunya (montant et commande contrôlés) ; ni le retour du navigateur ni la notification ne suffisent
 - Prix toujours repris de la base de données
-- Activable depuis le tableau de bord ; les boutons restent masqués tant que les clés PayDunya ne sont pas configurées
+- Activable depuis le tableau de bord, par les mêmes comptes autorisés que le mode maintenance (`OWNER_ADMIN_EMAILS`) ; les boutons restent masqués tant que les clés PayDunya ne sont pas configurées
 - Notification de paiement reçue sur `/api/payments/paydunya/ipn`
 
 **Mode maintenance**
 - Bouton dans le tableau de bord (administrateurs uniquement) qui ferme le site aux visiteurs : ils voient une page « maintenance en cours » et ne peuvent plus commander, s'inscrire ni envoyer de message
 - Les comptes administrateur et gestionnaire continuent d'utiliser le site normalement
 - Activation et désactivation protégées par un code à 4 chiffres, créé à la première utilisation (5 essais par tranche de 15 minutes)
-- Bouton réservé aux comptes listés dans `MAINTENANCE_ADMIN_EMAILS` (fichier `.env`, adresses séparées par des virgules) ; sans ce réglage, tous les administrateurs le voient
+- Bouton réservé aux comptes listés dans `OWNER_ADMIN_EMAILS` (fichier `.env`, adresses séparées par des virgules ; l'ancien nom `MAINTENANCE_ADMIN_EMAILS` reste accepté) ; sans ce réglage, tous les administrateurs le voient
 
 **Référencement (SEO)**
 - Pages indexables, sitemap, robots.txt, données structurées, manifeste PWA

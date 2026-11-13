@@ -20,7 +20,7 @@ export const SETTINGS_CHANGED_EVENT = "lousha:settings-changed";
 
 /**
  * Carte « Mode maintenance » du tableau de bord, visible seulement par les
- * comptes autorisés (voir requireMaintenanceManager).
+ * comptes autorisés (voir requireOwnerAdmin).
  * Activer ou désactiver demande un code à 4 chiffres, créé à la première
  * utilisation.
  */
