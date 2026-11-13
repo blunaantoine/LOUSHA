@@ -185,7 +185,6 @@ const MAINTENANCE_HTML = `<!doctype html>
   .btn-mail { border: 1px solid var(--fg); color: var(--fg); }
   hr { border: none; border-top: 1px solid var(--line); margin: 48px 0 20px; }
   .foot { font-size: 12px; color: var(--muted); }
-  .foot a { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -200,7 +199,7 @@ const MAINTENANCE_HTML = `<!doctype html>
     <a class="btn btn-mail" href="mailto:contact@lousha-accessoire.com">contact@lousha-accessoire.com</a>
   </div>
   <hr>
-  <p class="foot">Lousha Accessoires — Made in Togo · Raphia fait main · <a href="/auth/login">Espace administrateur</a></p>
+  <p class="foot">Lousha Accessoires — Made in Togo · Raphia fait main</p>
 </main>
 </body>
 </html>`;
