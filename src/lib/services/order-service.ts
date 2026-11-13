@@ -91,3 +91,52 @@ export async function listAllOrders() {
 export async function updateOrderStatus(id: string, status: OrderStatus) {
   return db.order.update({ where: { id }, data: { status } });
 }
+
+/* ============ Lignes de commande à partir du panier ============ */
+
+type RawCartItem = { slug?: unknown; priceCents?: unknown; qty?: unknown };
+
+/**
+ * Construit les lignes de commande à partir du panier envoyé par le navigateur.
+ *
+ * Les noms et les prix viennent de la base de données, jamais du navigateur.
+ * Le prix envoyé sert uniquement à identifier la variante choisie : il doit
+ * correspondre au prix du produit ou à celui d'une de ses variantes actives.
+ */
+export async function buildOrderLines(
+  items: unknown
+): Promise<{ ok: true; lines: OrderLineInput[] } | { ok: false; error: string }> {
+  if (!Array.isArray(items) || items.length === 0 || items.length > 50) {
+    return { ok: false, error: "Panier vide" };
+  }
+  const raw = items as RawCartItem[];
+  const slugs = [
+    ...new Set(raw.map((i) => i?.slug).filter((s): s is string => typeof s === "string")),
+  ];
+  const products = await db.product.findMany({
+    where: { slug: { in: slugs } },
+    select: {
+      slug: true,
+      name: true,
+      priceCents: true,
+      variants: { where: { active: true }, select: { priceCents: true } },
+    },
+  });
+  const bySlug = new Map(products.map((p) => [p.slug, p]));
+
+  const lines: OrderLineInput[] = [];
+  for (const item of raw) {
+    const product = typeof item?.slug === "string" ? bySlug.get(item.slug) : undefined;
+    const qty = Number(item?.qty);
+    if (!product || !Number.isInteger(qty) || qty < 1 || qty > 100) {
+      return { ok: false, error: "Article invalide" };
+    }
+    const allowed = [product.priceCents, ...product.variants.map((v) => v.priceCents)];
+    const priceCents = Number(item.priceCents);
+    if (!allowed.includes(priceCents)) {
+      return { ok: false, error: "Prix invalide" };
+    }
+    lines.push({ slug: product.slug, name: product.name, priceCents, qty });
+  }
+  return { ok: true, lines };
+}

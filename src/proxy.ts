@@ -66,6 +66,10 @@ async function maintenanceGate(request: NextRequest): Promise<NextResponse | nul
   // réglages publics. L'inscription reste fermée.
   if (pathname.startsWith("/auth/")) return null;
   if (pathname === "/api/settings") return null;
+  // Paiements en cours : la notification PayDunya et la page de retour
+  // doivent fonctionner même si la maintenance a été activée entre-temps.
+  if (pathname === "/api/payments/paydunya/ipn") return null;
+  if (pathname === "/checkout/result") return null;
   if (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/register") return null;
 
   // Lectures de l'API : sans danger (les routes admin vérifient déjà le rôle).

@@ -208,8 +208,24 @@ function SubTabs({
 
 /* ============ Dashboard ============ */
 function PaymentToggle() {
-  const { lang, paymentEnabled, setPaymentEnabled } = useStore();
+  const { lang, setPaymentEnabled } = useStore();
+  const fr = lang === "fr";
   const [saving, setSaving] = useState(false);
+  const [info, setInfo] = useState<{ on: boolean; configured: boolean; live: boolean } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/settings", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (active && d)
+          setInfo({ on: d.paymentSetting === true, configured: d.paydunyaConfigured === true, live: d.paydunyaLive === true });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Enregistre le réglage sur le serveur : il s'applique à tous les visiteurs.
   const toggle = async (enabled: boolean) => {
@@ -221,43 +237,59 @@ function PaymentToggle() {
         body: JSON.stringify({ paymentEnabled: enabled }),
       });
       if (!res.ok) {
-        toast.error(lang === "fr" ? "Réglage non enregistré" : "Setting not saved");
+        toast.error(fr ? "Réglage non enregistré" : "Setting not saved");
         return;
       }
-      setPaymentEnabled(enabled);
+      setInfo((i) => (i ? { ...i, on: enabled } : i));
+      setPaymentEnabled(enabled && !!info?.configured);
       toast.success(
         enabled
-          ? lang === "fr" ? "Paiement en ligne activé" : "Online payment enabled"
-          : lang === "fr" ? "Paiement en ligne désactivé" : "Online payment disabled"
+          ? fr ? "Paiement en ligne activé" : "Online payment enabled"
+          : fr ? "Paiement en ligne désactivé" : "Online payment disabled"
       );
     } catch {
-      toast.error(lang === "fr" ? "Erreur réseau" : "Network error");
+      toast.error(fr ? "Erreur réseau" : "Network error");
     } finally {
       setSaving(false);
     }
   };
 
+  const on = !!info?.on;
+  const configured = !!info?.configured;
+  const active = on && configured;
+  const status = !info
+    ? "…"
+    : !configured
+      ? fr
+        ? "PayDunya n'est pas configuré sur le serveur : les boutons de paiement restent masqués."
+        : "PayDunya is not configured on the server: payment buttons stay hidden."
+      : active
+        ? fr
+          ? `Activé — paiement PayDunya proposé aux clients${info.live ? "" : " (MODE TEST : aucun argent réel)"}`
+          : `Enabled — PayDunya payment offered${info.live ? "" : " (TEST MODE: no real money)"}`
+        : fr
+          ? "Désactivé — boutons de paiement masqués"
+          : "Disabled — payment buttons hidden";
+
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-4 shadow-sm">
       <div className="flex items-center gap-3 min-w-0">
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${paymentEnabled ? "bg-green-100 text-green-600" : "bg-muted text-muted-foreground"}`}>
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${active ? "bg-green-100 text-green-600" : "bg-muted text-muted-foreground"}`}>
           <CreditCard className="h-4 w-4" />
         </div>
         <div className="min-w-0">
           <p className="font-sans text-sm font-medium leading-tight">
-            {lang === "fr" ? "Paiement en ligne" : "Online payment"}
+            {fr ? "Paiement en ligne (PayDunya)" : "Online payment (PayDunya)"}
           </p>
-          <p className={`text-xs mt-0.5 leading-snug ${paymentEnabled ? "text-green-600" : "text-muted-foreground"}`}>
-            {paymentEnabled
-              ? lang === "fr" ? "Activé — les boutons de paiement sont visibles" : "Enabled — payment buttons are visible"
-              : lang === "fr" ? "Désactivé — boutons de paiement masqués" : "Disabled — payment buttons hidden"}
+          <p className={`text-xs mt-0.5 leading-snug ${active ? (info?.live ? "text-green-600" : "text-amber-700") : "text-muted-foreground"}`}>
+            {status}
           </p>
         </div>
       </div>
       <Switch
-        checked={paymentEnabled}
+        checked={on}
         onCheckedChange={toggle}
-        disabled={saving}
+        disabled={saving || !info || !configured}
         className={`h-6 w-11 shrink-0 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-muted-foreground/30 [&>span]:size-5 [&>span]:data-[state=checked]:translate-x-[22px]`}
       />
     </div>

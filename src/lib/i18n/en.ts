@@ -130,7 +130,7 @@ nav: {
       backHome: "Back to home",
       backShop: "Continue shopping",
       orderSummary: "Summary",
-      note: "Your data is encrypted and secure. We accept bank cards and mobile payment.",
+      note: "You will be redirected to PayDunya, our secure payment partner, to pay by Mobile Money or bank card. The amount is charged in CFA francs (XOF).",
     },
     story: {
       eyebrow: "Our story",

@@ -23,7 +23,7 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 **Boutique**
 - Catalogue de produits par catégories (sacs, chapeaux, décoration, artisanat) avec variantes (couleurs, tailles)
 - Fiche produit, aperçu rapide, recherche
-- Panier et commande via WhatsApp
+- Panier et commande via WhatsApp, ou paiement en ligne PayDunya (Mobile Money, carte bancaire)
 - Prix en FCFA (XOF) et en euros
 - Site bilingue français / anglais
 - Pages : Accueil, Boutique, Notre histoire, La matière, FAQ, Contact
@@ -42,6 +42,13 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 - Gestion du contenu du site (textes, images, carrousel, promotions)
 - Messagerie (réponse aux messages de contact) et newsletter
 - Génération assistée des descriptions produits à partir de la photo
+
+**Paiement en ligne (PayDunya)**
+- Le client saisit ses coordonnées et son adresse, puis paie sur la page sécurisée PayDunya (Mobile Money ou carte), en francs CFA
+- La commande n'est marquée « payée » qu'après vérification directe auprès de PayDunya (montant et commande contrôlés) ; ni le retour du navigateur ni la notification ne suffisent
+- Prix toujours repris de la base de données
+- Activable depuis le tableau de bord ; les boutons restent masqués tant que les clés PayDunya ne sont pas configurées
+- Notification de paiement reçue sur `/api/payments/paydunya/ipn`
 
 **Mode maintenance**
 - Bouton dans le tableau de bord (administrateurs uniquement) qui ferme le site aux visiteurs : ils voient une page « maintenance en cours » et ne peuvent plus commander, s'inscrire ni envoyer de message
@@ -86,6 +93,13 @@ EMAIL_FROM="Lousha <contact@lousha-accessoire.com>"
 
 # Dossier des images envoyées depuis l'administration (optionnel)
 UPLOAD_DIR=""
+
+# Paiement en ligne PayDunya (optionnel) — clés de l'application créée sur paydunya.com
+# PAYDUNYA_MODE : "test" (aucun argent réel) ou "live" (encaissement réel)
+PAYDUNYA_MASTER_KEY=""
+PAYDUNYA_PRIVATE_KEY=""
+PAYDUNYA_TOKEN=""
+PAYDUNYA_MODE="test"
 
 # Connexion avec Google (optionnel) — identifiants OAuth créés dans Google Cloud.
 # URI de redirection à autoriser : https://lousha-accessoire.com/api/auth/callback/google

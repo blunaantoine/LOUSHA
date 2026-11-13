@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { createOrder } from "@/lib/services/order-service";
+import { buildOrderLines, createOrder } from "@/lib/services/order-service";
 import { computeCartTotals } from "@/lib/services/cart-service";
-import { db } from "@/lib/db";
 import { clientIp, TOO_MANY, isValidEmail, isText } from "@/lib/security";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -18,8 +17,6 @@ import { rateLimit } from "@/lib/rate-limit";
  *   source: "product_page" | "checkout"
  * }
  */
-type RawItem = { slug?: unknown; priceCents?: unknown; qty?: unknown };
-
 export async function POST(req: NextRequest) {
   try {
     if (!(await rateLimit(`order:${clientIp(req.headers)}`, 20, 60 * 60 * 1000))) {
@@ -49,37 +46,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Données invalides" }, { status: 400 });
     }
 
-    // Les noms et les prix viennent de la base de données, jamais du navigateur.
-    // Le prix envoyé sert uniquement à identifier la variante choisie : il doit
-    // correspondre au prix du produit ou à celui d'une de ses variantes actives.
-    const slugs = [...new Set((items as RawItem[]).map((i) => i?.slug).filter((s): s is string => typeof s === "string"))];
-    const products = await db.product.findMany({
-      where: { slug: { in: slugs } },
-      select: {
-        slug: true,
-        name: true,
-        priceCents: true,
-        variants: { where: { active: true }, select: { priceCents: true } },
-      },
-    });
-    const bySlug = new Map(products.map((p) => [p.slug, p]));
-
-    const lines: { slug: string; name: string; priceCents: number; qty: number }[] = [];
-    for (const raw of items as RawItem[]) {
-      const product = typeof raw?.slug === "string" ? bySlug.get(raw.slug) : undefined;
-      const qty = Number(raw?.qty);
-      if (!product || !Number.isInteger(qty) || qty < 1 || qty > 100) {
-        return NextResponse.json({ error: "Article invalide" }, { status: 400 });
-      }
-      const allowedPrices = [product.priceCents, ...product.variants.map((v) => v.priceCents)];
-      const priceCents = allowedPrices.includes(Number(raw.priceCents))
-        ? Number(raw.priceCents)
-        : null;
-      if (priceCents === null) {
-        return NextResponse.json({ error: "Prix invalide" }, { status: 400 });
-      }
-      lines.push({ slug: product.slug, name: product.name, priceCents, qty });
+    // Noms et prix pris en base (voir buildOrderLines)
+    const built = await buildOrderLines(items);
+    if (!built.ok) {
+      return NextResponse.json({ error: built.error }, { status: 400 });
     }
+    const lines = built.lines;
 
     // Calcule les totaux
     const totals = computeCartTotals(

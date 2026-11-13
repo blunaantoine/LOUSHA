@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
-import { X, ArrowLeft, Check, Lock, ShieldCheck, MessageCircle } from "lucide-react";
+import { X, ArrowLeft, Lock, ShieldCheck, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export function CheckoutDrawer() {
   const {
@@ -17,14 +17,28 @@ export function CheckoutDrawer() {
     setCartOpen,
     items,
     cartTotal,
-    clearCart,
     paymentEnabled,
   } = useStore();
   const t = useDict(lang);
-  const router = useRouter();
+  const { data: session } = useSession();
 
-  const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // null = champ pas encore modifié : on affiche alors la valeur du compte
+  // connecté (nom, e-mail, téléphone), sans écraser une saisie.
+  type FormKey = "fullName" | "email" | "phone" | "address" | "city";
+  const [edits, setEdits] = useState<Partial<Record<FormKey, string>>>({});
+  const sessionUser = session?.user as { name?: string | null; email?: string | null; phone?: string } | undefined;
+  const defaults: Record<FormKey, string> = {
+    fullName: sessionUser?.name ?? "",
+    email: sessionUser?.email ?? "",
+    phone: sessionUser?.phone ?? "",
+    address: "",
+    city: "",
+  };
+  const form = Object.fromEntries(
+    (Object.keys(defaults) as FormKey[]).map((k) => [k, edits[k] ?? defaults[k]])
+  ) as Record<FormKey, string>;
+  const update = (k: FormKey) => (v: string) => setEdits((e) => ({ ...e, [k]: v }));
 
   useEffect(() => {
     if (checkoutOpen) {
@@ -40,21 +54,35 @@ export function CheckoutDrawer() {
   const subtotal = cartTotal();
   const total = subtotal;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Paiement en ligne : la commande est enregistrée puis le client est
+  // redirigé vers la page de paiement PayDunya (Mobile Money, carte).
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting || items.length === 0) return;
     setSubmitting(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/payments/paydunya/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          items: items.map((i) => ({ slug: i.slug, priceCents: i.priceCents, qty: i.qty })),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) {
+        toast.error(data.error || (lang === "fr" ? "Le paiement n'a pas pu être lancé." : "Payment could not be started."));
+        setSubmitting(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      toast.error(lang === "fr" ? "Erreur réseau" : "Network error");
       setSubmitting(false);
-      setDone(true);
-      clearCart();
-      toast.success(t.checkout.success);
-    }, 1400);
+    }
   };
 
-  const close = () => {
-    setCheckoutOpen(false);
-    setTimeout(() => setDone(false), 300);
-  };
+  const close = () => setCheckoutOpen(false);
 
   return (
     <div
@@ -83,7 +111,7 @@ export function CheckoutDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between px-6 sm:px-8 h-16 border-b border-border">
           <div className="flex items-center gap-3">
-            {!done && (
+            {(
               <button
                 onClick={() => {
                   setCheckoutOpen(false);
@@ -106,39 +134,7 @@ export function CheckoutDrawer() {
           </button>
         </div>
 
-        {done ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6 text-center">
-            <span className="h-20 w-20 rounded-full bg-accent/15 text-accent flex items-center justify-center">
-              <Check className="h-9 w-9" strokeWidth={2} />
-            </span>
-            <h3 className="font-serif text-3xl sm:text-4xl">
-              {t.checkout.success}
-            </h3>
-            <p className="text-muted-foreground font-light max-w-md">
-              {t.checkout.successText}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 mt-2">
-              <button
-                onClick={() => {
-                  close();
-                  router.push("/");
-                }}
-                className="inline-flex items-center justify-center bg-foreground text-background px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors rounded-full"
-              >
-                {t.checkout.backHome}
-              </button>
-              <button
-                onClick={() => {
-                  close();
-                  router.push("/shop");
-                }}
-                className="inline-flex items-center justify-center border border-foreground text-foreground px-6 py-3.5 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-foreground hover:text-background transition-colors rounded-full"
-              >
-                {t.checkout.backShop}
-              </button>
-            </div>
-          </div>
-        ) : (
+        {(
           <form
             onSubmit={handleSubmit}
             className="flex-1 overflow-y-auto scroll-elegant"
@@ -157,50 +153,73 @@ export function CheckoutDrawer() {
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <Field
+                      label={t.checkout.fullName}
+                      required
+                      className="col-span-2"
+                      value={form.fullName}
+                      onChange={update("fullName")}
+                      autoComplete="name"
+                    />
+                    <Field
                       label={t.checkout.email}
                       type="email"
                       required
-                      className="col-span-2"
+                      value={form.email}
+                      onChange={update("email")}
+                      autoComplete="email"
                     />
-                    <Field label={t.checkout.fullName} required />
-                    <Field label={t.checkout.phone} type="tel" />
+                    <Field
+                      label={t.checkout.phone}
+                      type="tel"
+                      required
+                      inputMode="tel"
+                      placeholder="+228 ..."
+                      value={form.phone}
+                      onChange={update("phone")}
+                      autoComplete="tel"
+                    />
                   </div>
                 </section>
 
-                {/* Payment */}
+                {/* Livraison */}
                 <section>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-serif text-lg">{t.checkout.payment}</h3>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] tracking-luxe-sm uppercase text-muted-foreground">
-                      <Lock className="h-3 w-3" />
-                      SSL
-                    </span>
-                  </div>
+                  <h3 className="font-serif text-lg mb-4">{t.checkout.shipping}</h3>
                   <div className="grid grid-cols-2 gap-3">
                     <Field
-                      label={t.checkout.cardNumber}
+                      label={t.checkout.address}
                       required
                       className="col-span-2"
-                      placeholder="4242 4242 4242 4242"
-                      inputMode="numeric"
+                      value={form.address}
+                      onChange={update("address")}
+                      autoComplete="street-address"
                     />
                     <Field
-                      label={t.checkout.cardExpiry}
+                      label={t.checkout.city}
                       required
-                      placeholder="MM/AA"
-                    />
-                    <Field
-                      label={t.checkout.cardCvc}
-                      required
-                      placeholder="123"
-                      inputMode="numeric"
+                      className="col-span-2"
+                      value={form.city}
+                      onChange={update("city")}
+                      autoComplete="address-level2"
                     />
                   </div>
-                  <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground font-light">
-                    <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-accent" />
-                    {t.checkout.note}
-                  </p>
                 </section>
+
+                {/* Paiement */}
+                {paymentEnabled && (
+                  <section>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-serif text-lg">{t.checkout.payment}</h3>
+                      <span className="inline-flex items-center gap-1.5 text-[11px] tracking-luxe-sm uppercase text-muted-foreground">
+                        <Lock className="h-3 w-3" />
+                        PayDunya
+                      </span>
+                    </div>
+                    <p className="flex items-start gap-2 text-sm text-muted-foreground font-light leading-relaxed">
+                      <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-accent" />
+                      {t.checkout.note}
+                    </p>
+                  </section>
+                )}
               </div>
 
               {/* Summary */}
@@ -250,12 +269,12 @@ export function CheckoutDrawer() {
                   </div>
                 </div>
 
-                {/* Bouton de paiement carte (masquable par l'admin) */}
+                {/* Paiement en ligne PayDunya (activable par l'admin) — toujours en XOF */}
                 {paymentEnabled && (
                   <button
                     type="submit"
                     disabled={submitting || items.length === 0}
-                    className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60 rounded-full rounded-full"
+                    className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-foreground text-background px-6 py-4 text-[12px] tracking-luxe-sm uppercase font-sans hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-60 rounded-full"
                   >
                     {submitting ? (
                       <>
@@ -265,7 +284,7 @@ export function CheckoutDrawer() {
                     ) : (
                       <>
                         <Lock className="h-4 w-4" />
-                        {t.checkout.payAmount(formatPrice(total, lang, currency))}
+                        {t.checkout.payAmount(formatPrice(total, lang, "XOF"))}
                       </>
                     )}
                   </button>
@@ -328,16 +347,20 @@ function Field({
   type = "text",
   required,
   placeholder,
-  defaultValue,
   inputMode,
+  value,
+  onChange,
+  autoComplete,
 }: {
   label: string;
   className?: string;
   type?: string;
   required?: boolean;
   placeholder?: string;
-  defaultValue?: string;
   inputMode?: "numeric" | "tel" | "email" | "text";
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete?: string;
 }) {
   return (
     <label className={cn("block", className)}>
@@ -349,8 +372,10 @@ function Field({
         type={type}
         required={required}
         placeholder={placeholder}
-        defaultValue={defaultValue}
         inputMode={inputMode}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        autoComplete={autoComplete}
         className="w-full h-11 bg-background border border-border px-3 text-sm font-sans focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors rounded-xl"
       />
     </label>

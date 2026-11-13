@@ -142,7 +142,7 @@ nav: {
       backHome: "Retour à l'accueil",
       backShop: "Continuer mes achats",
       orderSummary: "Récapitulatif",
-      note: "Vos données sont chiffrées et sécurisées. Nous acceptons les cartes bancaires et le paiement mobile.",
+      note: "Vous serez redirigé vers PayDunya, notre partenaire de paiement sécurisé, pour régler par Mobile Money ou carte bancaire. Le montant est débité en francs CFA.",
     },
     story: {
       eyebrow: "Notre histoire",
