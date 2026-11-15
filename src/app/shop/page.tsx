@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     locale: "fr_TG",
     images: [
       {
-        url: "/images/hero/hero-1.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Boutique Lousha — Créations en raphia fait main",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "Boutique Lousha — Raphia fait main",
     description:
       "Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, faits main au Togo.",
-    images: ["/images/hero/hero-1.png"],
+    images: ["/og-image.jpg"],
   },
 };
 

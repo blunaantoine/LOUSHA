@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     locale: "fr_TG",
     images: [
       {
-        url: "/images/hero/hero-1.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Le raphia — Fibre naturelle Lousha",

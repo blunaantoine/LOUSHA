@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     alternateLocale: ["en_US", "fr_FR"],
     images: [
       {
-        url: "/images/hero/hero-1.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Lousha — Créations en raphia fait main au Togo",
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     title: "Lousha — Raphia fait main au Togo",
     description:
       "Sacs, chapeaux, paniers et objets de décoration en raphia 100% naturel, faits main au Togo.",
-    images: ["/images/hero/hero-1.png"],
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,

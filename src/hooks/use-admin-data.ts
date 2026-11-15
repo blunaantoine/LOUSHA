@@ -16,11 +16,18 @@ export interface AdminOrder {
   id: string;
   email: string;
   fullName: string;
+  phone: string | null;
+  address: string;
+  city: string;
+  zip: string;
+  country: string;
   totalCents: number;
+  shippingCents: number;
   status: string;
   createdAt: string;
-  items: { id: string; name: string; qty: number; priceCents: number }[];
-  payment: { provider: string; status: string } | null;
+  items: { id: string; slug: string; name: string; qty: number; priceCents: number }[];
+  payment: { provider: string; status: string; transactionId: string } | null;
+  user: { id: string; name: string; email: string; phone: string | null } | null;
 }
 
 export interface AdminProduct {

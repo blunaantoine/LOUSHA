@@ -25,6 +25,7 @@ import { MessagesManager } from "./messages-manager";
 import { NewsletterManager } from "./newsletter-manager";
 import { NotificationsManager } from "./notifications-manager";
 import { MaintenanceToggle } from "./maintenance-toggle";
+import { OrderDetailDialog } from "./order-detail-dialog";
 import {
   TrendingUp,
   Calendar,
@@ -476,6 +477,7 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
   const t = useDict(lang);
   const { data, loading } = useAdminData<{ orders: AdminOrder[] }>("orders", enabled);
   const [localOrders, setLocalOrders] = useState<AdminOrder[] | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading || !data) return compact ? <p className="text-sm text-muted-foreground">{t.common.loading}</p> : <SkeletonGrid count={3} />;
   const orders = localOrders ?? (compact ? data.orders.slice(0, 5) : data.orders);
@@ -502,16 +504,35 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
   };
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
-    await fetch(`/api/admin/orders/${orderId}`, {
+    const res = await fetch(`/api/admin/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
-    });
+    }).catch(() => null);
+    if (!res?.ok) {
+      toast.error(lang === "fr" ? "Statut non modifié" : "Status not changed");
+      return;
+    }
     // Met à jour localement
     setLocalOrders((prev) => {
-      const base = prev ?? data.orders;
+      const base = prev ?? (compact ? data.orders.slice(0, 5) : data.orders);
       return base.map((o) => o.id === orderId ? { ...o, status: newStatus } : o);
     });
+  };
+
+  const selected = orders.find((o) => o.id === selectedId) ?? null;
+  // Commandes WhatsApp sans compte : pas de vrai nom saisi
+  const displayName = (o: AdminOrder) =>
+    o.fullName && o.fullName !== "Client WhatsApp"
+      ? o.fullName
+      : o.user?.name || (lang === "fr" ? "Client WhatsApp" : "WhatsApp customer");
+  const itemsSummary = (o: AdminOrder) => {
+    if (o.items.length === 0) return "";
+    const first = `${o.items[0].name}${o.items[0].qty > 1 ? ` ×${o.items[0].qty}` : ""}`;
+    const others = o.items.length - 1;
+    return others > 0
+      ? `${first} + ${others} ${lang === "fr" ? (others > 1 ? "autres" : "autre") : others > 1 ? "others" : "other"}`
+      : first;
   };
 
   return (
@@ -522,11 +543,23 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
           { day: "2-digit", month: "short", year: "numeric" }
         );
         const itemCount = o.items.reduce((n, i) => n + i.qty, 0);
-        const isWhatsApp = o.payment?.provider === "WHATSAPP";
+        // Les commandes WhatsApp n'ont ni paiement enregistré ni adresse saisie.
+        const isWhatsApp =
+          o.payment?.provider === "WHATSAPP" || (!o.payment && o.address === "Commande WhatsApp");
         return (
           <div
             key={o.id}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl hover:border-accent/40 transition-colors"
+            role="button"
+            tabIndex={0}
+            onClick={() => setSelectedId(o.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setSelectedId(o.id);
+              }
+            }}
+            aria-label={lang === "fr" ? `Voir la commande de ${displayName(o)}` : `View order from ${displayName(o)}`}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl hover:border-accent/40 hover:bg-secondary/30 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <div className="flex items-center gap-3 min-w-0">
               <span className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground shrink-0">
@@ -534,13 +567,16 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
               </span>
               <div className="min-w-0">
                 <p className="font-sans font-medium text-sm truncate flex items-center gap-2">
-                  #{o.id.slice(-6).toUpperCase()} · {o.fullName}
+                  <span className="truncate">{displayName(o)}</span>
                   {isWhatsApp && (
                     <span className="px-1.5 py-0.5 rounded-full bg-[#25D366]/10 text-[#25D366] text-[8px] tracking-luxe-sm uppercase">WhatsApp</span>
                   )}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {date} · {itemCount} {t.account.items}
+                <p className="text-xs text-muted-foreground truncate">
+                  {itemsSummary(o) || `${itemCount} ${t.account.items}`}
+                </p>
+                <p className="text-[11px] text-muted-foreground/80">
+                  {date} · #{o.id.slice(-6).toUpperCase()}
                 </p>
               </div>
             </div>
@@ -557,6 +593,8 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
               ) : (
                 <select
                   value={o.status}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
                   onChange={(e) => handleStatusChange(o.id, e.target.value)}
                   className={cn(
                     "h-8 px-2 text-[10px] tracking-luxe-sm uppercase font-sans rounded-full border-0 cursor-pointer",
@@ -578,6 +616,14 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
           </div>
         );
       })}
+      <OrderDetailDialog
+        order={selected}
+        open={!!selected}
+        onOpenChange={(open) => !open && setSelectedId(null)}
+        statusLabel={statusLabel}
+        statusStyles={ORDER_STATUS_STYLES}
+        onStatusChange={handleStatusChange}
+      />
     </div>
   );
 }

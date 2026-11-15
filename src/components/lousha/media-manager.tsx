@@ -10,9 +10,20 @@ interface ImageSlot {
   key: string;
   label: string;
   fallback: string;
+  hint?: string;
+  /** Aperçu affiché dans l'admin (sinon l'image elle-même) */
+  preview?: (url: string | undefined) => string;
 }
 
 const SLOTS: ImageSlot[] = [
+  {
+    key: "og-image",
+    label: "Aperçu des liens partagés",
+    fallback: "/images/og-default.jpg",
+    hint: "Image affichée quand on partage le site sur WhatsApp, Facebook… Recadrée automatiquement au format paysage (1200 × 630) : gardez l'essentiel au centre. Les applications peuvent garder l'ancienne image quelques jours.",
+    // On montre le résultat recadré, tel que les réseaux sociaux le verront.
+    preview: (url) => `/og-image.jpg?v=${encodeURIComponent(url ?? "default")}`,
+  },
   {
     key: "story-1",
     label: "Notre Histoire",
@@ -113,7 +124,7 @@ export function MediaManager() {
   if (loading) {
     return (
       <div className="space-y-3">
-        {Array.from({ length: 2 }).map((_, i) => (
+        {Array.from({ length: SLOTS.length }).map((_, i) => (
           <div key={i} className="h-24 bg-secondary animate-pulse rounded-2xl" />
         ))}
       </div>
@@ -124,12 +135,14 @@ export function MediaManager() {
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         {lang === "fr"
-          ? "Gérez les images des sections « Notre Histoire » et « La Matière »."
-          : "Manage images for the \"Our Story\" and \"Material\" sections."}
+          ? "Gérez l'image d'aperçu des liens partagés et les images des sections « Notre Histoire » et « La Matière »."
+          : "Manage the link preview image and the images of the \"Our Story\" and \"Material\" sections."}
       </p>
 
       {SLOTS.map((slot) => {
-        const currentUrl = images[slot.key] || slot.fallback;
+        const currentUrl = slot.preview
+          ? slot.preview(images[slot.key])
+          : images[slot.key] || slot.fallback;
         const isCustom = !!images[slot.key];
 
         return (
@@ -149,6 +162,9 @@ export function MediaManager() {
             {/* Info */}
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium">{slot.label}</p>
+              {slot.hint && (
+                <p className="text-xs text-muted-foreground leading-snug mt-0.5">{slot.hint}</p>
+              )}
               <p className="text-xs text-muted-foreground truncate">
                 {isCustom
                   ? lang === "fr"
