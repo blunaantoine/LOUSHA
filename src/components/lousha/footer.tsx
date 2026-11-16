@@ -215,7 +215,14 @@ export function Footer() {
           </p>
           <p className="text-xs text-background/50">
             {lang === "fr" ? "Conçu et développé par" : "Designed & developed by"}{" "}
-            <span className="text-background/80">Oquitogo</span>
+            <a
+              href="https://oquitogo.com"
+              target="_blank"
+              rel="noopener"
+              className="text-background/80 hover:text-background underline-offset-2 hover:underline transition-colors"
+            >
+              Oquitogo
+            </a>
           </p>
         </div>
       </div>
