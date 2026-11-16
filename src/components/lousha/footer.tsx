@@ -215,7 +215,7 @@ export function Footer() {
           </p>
           <p className="text-xs text-background/50">
             {lang === "fr" ? "Conçu et développé par" : "Designed & developed by"}{" "}
-            <span className="text-background/80">Visible Studio</span>
+            <span className="text-background/80">Oquitogo</span>
           </p>
         </div>
       </div>

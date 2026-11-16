@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     "lousha raphia", "lousha raffia",
   ],
   authors: [{ name: "Lousha Accessoires", url: SITE_URL }],
-  creator: "Visible Studio",
+  creator: "Oquitogo",
   publisher: "Lousha Accessoires",
   category: "shopping",
   classification: "E-commerce artisanal raphia",

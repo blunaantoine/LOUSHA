@@ -11,10 +11,10 @@ Site officiel de **Lousha Accessoires**, marque Made in Togo de sacs, chapeaux, 
 | | |
 |---|---|
 | **Client** | Lousha Accessoires |
-| **Conception & développement** | **Visible Studio** |
+| **Conception & développement** | **Oquitogo** |
 | **Version** | 1.0.0 |
 
-© Visible Studio — Tous droits réservés sur le code source, cédés au client selon les termes convenus.
+© Oquitogo — Tous droits réservés sur le code source, cédés au client selon les termes convenus.
 
 ---
 
@@ -165,4 +165,4 @@ src/lib/           Services, authentification, traductions, base de données
 
 ---
 
-Conçu et développé par **Visible Studio**.
+Conçu et développé par **Oquitogo**.
