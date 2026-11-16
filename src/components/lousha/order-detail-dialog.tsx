@@ -1,11 +1,21 @@
 "use client";
 
-import { Copy, ExternalLink, Mail, MapPin, MessageCircle, Phone, User } from "lucide-react";
+import { useState } from "react";
+import { Ban, Copy, ExternalLink, Loader2, Mail, MapPin, MessageCircle, Phone, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { formatPrice } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { AdminOrder } from "@/hooks/use-admin-data";
 
 const STATUSES = ["PENDING", "CONFIRMED", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
@@ -25,6 +35,7 @@ export function OrderDetailDialog({
   statusLabel,
   statusStyles,
   onStatusChange,
+  onDelete,
 }: {
   order: AdminOrder | null;
   open: boolean;
@@ -32,9 +43,13 @@ export function OrderDetailDialog({
   statusLabel: (s: string) => string;
   statusStyles: Record<string, string>;
   onStatusChange: (orderId: string, status: string) => void;
+  /** Fourni uniquement aux administrateurs : affiche le bouton Supprimer. */
+  onDelete?: (orderId: string) => Promise<boolean>;
 }) {
   const { lang, currency } = useStore();
   const fr = lang === "fr";
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   if (!order) return null;
 
   const ref = order.id.slice(-6).toUpperCase();
@@ -64,6 +79,17 @@ export function OrderDetailDialog({
   const noAddress = isPlaceholder(order.address);
   const itemCount = order.items.reduce((n, i) => n + i.qty, 0);
   const price = (cents: number) => formatPrice(cents, lang, currency);
+
+  const cancelled = order.status === "CANCELLED";
+  const paidOnline = provider === "PAYDUNYA" && order.payment?.status === "SUCCESS";
+
+  const confirmDelete = async () => {
+    if (!onDelete) return;
+    setDeleting(true);
+    const ok = await onDelete(order.id);
+    setDeleting(false);
+    if (ok) setConfirmOpen(false);
+  };
 
   const copy = (text: string) => {
     navigator.clipboard
@@ -116,6 +142,17 @@ export function OrderDetailDialog({
             </span>
           </div>
         </div>
+
+        {cancelled && (
+          <div className="mx-6 sm:mx-8 mt-5 flex items-start gap-2.5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <Ban className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>
+              {fr
+                ? "Commande annulée : elle n'est pas comptée dans le chiffre d'affaires."
+                : "Cancelled order: it is not counted in revenue."}
+            </span>
+          </div>
+        )}
 
         <div className="px-6 sm:px-8 py-6 grid sm:grid-cols-2 gap-6">
           {/* Client */}
@@ -229,7 +266,9 @@ export function OrderDetailDialog({
           )}
           <div className="flex justify-between items-baseline pt-3">
             <span className="font-serif text-lg">Total</span>
-            <span className="font-serif text-xl">{price(order.totalCents)}</span>
+            <span className={cn("font-serif text-xl", cancelled && "line-through text-muted-foreground")}>
+              {price(order.totalCents)}
+            </span>
           </div>
         </section>
 
@@ -253,6 +292,60 @@ export function OrderDetailDialog({
             </p>
           )}
         </section>
+
+        {/* Suppression (administrateurs uniquement) */}
+        {onDelete && (
+          <div className="px-6 sm:px-8 py-4 border-t border-border flex justify-end">
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-[11px] tracking-luxe-sm uppercase font-sans rounded-full border border-destructive/40 text-destructive hover:bg-destructive hover:text-white transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              {fr ? "Supprimer la commande" : "Delete order"}
+            </button>
+          </div>
+        )}
+
+        <AlertDialog open={confirmOpen} onOpenChange={(o) => !deleting && setConfirmOpen(o)}>
+          <AlertDialogContent className="rounded-3xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-serif text-xl">
+                {fr ? `Supprimer la commande #${ref} ?` : `Delete order #${ref}?`}
+              </AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <p>
+                    {fr
+                      ? `La commande de ${name || "ce client"} (${price(order.totalCents)}) sera définitivement supprimée, avec ses articles et son paiement. Elle disparaîtra des statistiques et de l'espace du client. Cette action est irréversible.`
+                      : `The order from ${name || "this customer"} (${price(order.totalCents)}) will be permanently deleted with its items and payment. It will disappear from statistics and from the customer's account. This cannot be undone.`}
+                  </p>
+                  {paidOnline && (
+                    <p className="rounded-xl bg-amber-50 text-amber-800 px-3 py-2">
+                      {fr
+                        ? "Attention : cette commande a été payée en ligne. La supprimer ne rembourse pas le client chez PayDunya. Ne supprimez que les commandes de test."
+                        : "Warning: this order was paid online. Deleting it does not refund the customer on PayDunya. Only delete test orders."}
+                    </p>
+                  )}
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting} className="rounded-full">
+                {fr ? "Annuler" : "Cancel"}
+              </AlertDialogCancel>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="inline-flex items-center justify-center gap-2 h-9 px-5 rounded-full bg-destructive text-white text-sm hover:bg-destructive/90 disabled:opacity-60"
+              >
+                {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {fr ? "Supprimer définitivement" : "Delete permanently"}
+              </button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );

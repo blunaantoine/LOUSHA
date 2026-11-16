@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "text-amber-600 bg-amber-50",
+  CONFIRMED: "text-blue-600 bg-blue-50",
   PAID: "text-accent bg-accent/10",
   SHIPPED: "text-blue-600 bg-blue-50",
   DELIVERED: "text-green-700 bg-green-50",
@@ -181,7 +182,7 @@ export function AccountView() {
                     key={order.id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border border-border rounded-2xl hover:border-accent/40 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className={cn("flex items-center gap-4", order.status === "CANCELLED" && "opacity-55")}>
                       <span className="h-11 w-11 rounded-full bg-secondary flex items-center justify-center text-muted-foreground shrink-0">
                         <Package className="h-5 w-5" strokeWidth={1.5} />
                       </span>
@@ -203,7 +204,14 @@ export function AccountView() {
                       >
                         {statusLabel(order.status)}
                       </span>
-                      <span className="font-serif text-lg text-foreground whitespace-nowrap">
+                      <span
+                        className={cn(
+                          "font-serif text-lg whitespace-nowrap",
+                          order.status === "CANCELLED"
+                            ? "line-through text-muted-foreground"
+                            : "text-foreground"
+                        )}
+                      >
                         {formatPrice(order.totalCents, lang, currency)}
                       </span>
                     </div>

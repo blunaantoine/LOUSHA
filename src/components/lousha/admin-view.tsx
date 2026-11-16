@@ -478,6 +478,9 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
   const { data, loading } = useAdminData<{ orders: AdminOrder[] }>("orders", enabled);
   const [localOrders, setLocalOrders] = useState<AdminOrder[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { user } = useAuth();
+  // Seuls les administrateurs (pas les gestionnaires) peuvent supprimer.
+  const canDelete = (user as { role?: string } | undefined)?.role === "ADMIN";
 
   if (loading || !data) return compact ? <p className="text-sm text-muted-foreground">{t.common.loading}</p> : <SkeletonGrid count={3} />;
   const orders = localOrders ?? (compact ? data.orders.slice(0, 5) : data.orders);
@@ -520,6 +523,22 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
     });
   };
 
+  const handleDelete = async (orderId: string): Promise<boolean> => {
+    const res = await fetch(`/api/admin/orders/${orderId}`, { method: "DELETE" }).catch(() => null);
+    if (!res?.ok) {
+      const d = await res?.json().catch(() => ({}));
+      toast.error(d?.error || (lang === "fr" ? "Suppression impossible" : "Could not delete"));
+      return false;
+    }
+    setLocalOrders((prev) => {
+      const base = prev ?? (compact ? data.orders.slice(0, 5) : data.orders);
+      return base.filter((o) => o.id !== orderId);
+    });
+    setSelectedId(null);
+    toast.success(lang === "fr" ? "Commande supprimée" : "Order deleted");
+    return true;
+  };
+
   const selected = orders.find((o) => o.id === selectedId) ?? null;
   // Commandes WhatsApp sans compte : pas de vrai nom saisi
   const displayName = (o: AdminOrder) =>
@@ -543,6 +562,7 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
           { day: "2-digit", month: "short", year: "numeric" }
         );
         const itemCount = o.items.reduce((n, i) => n + i.qty, 0);
+        const cancelled = o.status === "CANCELLED";
         // Les commandes WhatsApp n'ont ni paiement enregistré ni adresse saisie.
         const isWhatsApp =
           o.payment?.provider === "WHATSAPP" || (!o.payment && o.address === "Commande WhatsApp");
@@ -561,7 +581,7 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
             aria-label={lang === "fr" ? `Voir la commande de ${displayName(o)}` : `View order from ${displayName(o)}`}
             className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-border rounded-2xl hover:border-accent/40 hover:bg-secondary/30 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <div className="flex items-center gap-3 min-w-0">
+            <div className={cn("flex items-center gap-3 min-w-0", cancelled && "opacity-55")}>
               <span className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground shrink-0">
                 <Package className="h-4 w-4" />
               </span>
@@ -609,7 +629,12 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
                   <option value="CANCELLED">{statusLabel("CANCELLED")}</option>
                 </select>
               )}
-              <span className="font-serif text-base whitespace-nowrap">
+              <span
+                className={cn(
+                  "font-serif text-base whitespace-nowrap",
+                  cancelled && "line-through text-muted-foreground"
+                )}
+              >
                 {formatPrice(o.totalCents, lang, currency)}
               </span>
             </div>
@@ -623,6 +648,7 @@ function OrdersTab({ enabled, compact }: { enabled: boolean; compact?: boolean }
         statusLabel={statusLabel}
         statusStyles={ORDER_STATUS_STYLES}
         onStatusChange={handleStatusChange}
+        onDelete={canDelete ? handleDelete : undefined}
       />
     </div>
   );
