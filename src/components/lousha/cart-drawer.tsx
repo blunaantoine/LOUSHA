@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useStore } from "@/lib/store";
+import { useStore, lineKey } from "@/lib/store";
 import { useDict, formatPrice } from "@/lib/i18n";
 import { computeCartTotals } from "@/lib/services/cart-service";
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
@@ -113,7 +113,7 @@ export function CartDrawer() {
                 {items.map((item) => {
                   const name = lang === "fr" ? item.name : item.nameEn;
                   return (
-                    <li key={item.slug} className="flex gap-4">
+                    <li key={lineKey(item)} className="flex gap-4">
                       <div className="h-24 w-20 shrink-0 bg-secondary overflow-hidden">
                         <img
                           src={item.image}
@@ -127,7 +127,7 @@ export function CartDrawer() {
                             {name}
                           </h3>
                           <button
-                            onClick={() => removeFromCart(item.slug)}
+                            onClick={() => removeFromCart(lineKey(item))}
                             className="text-muted-foreground hover:text-destructive transition shrink-0"
                             aria-label={t.cart.remove}
                           >
@@ -141,7 +141,7 @@ export function CartDrawer() {
                           <div className="flex items-center border border-border">
                             <button
                               onClick={() =>
-                                setQty(item.slug, item.qty - 1)
+                                setQty(lineKey(item), item.qty - 1)
                               }
                               className="h-8 w-8 flex items-center justify-center hover:bg-secondary transition"
                               aria-label="-"
@@ -153,7 +153,7 @@ export function CartDrawer() {
                             </span>
                             <button
                               onClick={() =>
-                                setQty(item.slug, item.qty + 1)
+                                setQty(lineKey(item), item.qty + 1)
                               }
                               className="h-8 w-8 flex items-center justify-center hover:bg-secondary transition"
                               aria-label="+"

@@ -28,7 +28,7 @@ export function ProductDetail() {
     setQuickView,
     addToCart,
     setCartOpen,
-    setCheckoutOpen,
+    startDirectCheckout,
   } = useStore();
   const t = useDict(lang);
   const { product, related, loading } = useProduct(quickViewSlug);
@@ -87,7 +87,8 @@ export function ProductDetail() {
 
   const handleBuyNow = () => {
     if (!product) return;
-    addToCart(
+    // Commande uniquement ce produit (le panier n'est pas modifié)
+    startDirectCheckout(
       {
         slug: product.slug,
         name: product.name,
@@ -98,7 +99,6 @@ export function ProductDetail() {
       qty
     );
     setQuickView(null);
-    setCheckoutOpen(true);
   };
 
   return (

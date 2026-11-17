@@ -42,7 +42,16 @@ function ResultContent() {
           return;
         }
         if (data.status === "PAID") {
-          clearCart();
+          // Vide le panier seulement s'il a été payé (pas pour un achat direct
+          // d'un seul produit depuis sa fiche).
+          let source: string | null = null;
+          try {
+            source = sessionStorage.getItem("lousha-checkout-source");
+            sessionStorage.removeItem("lousha-checkout-source");
+          } catch {
+            // ignore
+          }
+          if (source !== "direct") clearCart();
           setState("PAID");
           return;
         }

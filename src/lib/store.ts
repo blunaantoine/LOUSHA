@@ -37,6 +37,12 @@ export interface CartItem {
   qty: number;
 }
 
+/**
+ * Identifiant d'une ligne de panier. Deux variantes d'un même produit à des
+ * prix différents sont deux lignes distinctes (même slug, prix différent).
+ */
+export const lineKey = (i: Pick<CartItem, "slug" | "priceCents">) => `${i.slug}:${i.priceCents}`;
+
 interface StoreState {
   // Language
   lang: Lang;
@@ -70,7 +76,14 @@ interface StoreState {
 
   // Checkout drawer
   checkoutOpen: boolean;
+  /** Ouvre (ou ferme) la commande du panier entier. */
   setCheckoutOpen: (open: boolean) => void;
+  /**
+   * Bouton « Commander » d'un produit : commande uniquement ce produit, sans
+   * toucher au panier (qui peut contenir d'anciens articles).
+   */
+  directItems: CartItem[] | null;
+  startDirectCheckout: (item: Omit<CartItem, "qty">, qty?: number) => void;
 
   // Mobile menu
   menuOpen: boolean;
@@ -89,8 +102,9 @@ interface StoreState {
   // Cart
   items: CartItem[];
   addToCart: (item: Omit<CartItem, "qty">, qty?: number) => void;
-  removeFromCart: (slug: string) => void;
-  setQty: (slug: string, qty: number) => void;
+  /** key = lineKey(item) */
+  removeFromCart: (key: string) => void;
+  setQty: (key: string, qty: number) => void;
   clearCart: () => void;
   cartCount: () => number;
   cartTotal: () => number;
@@ -138,7 +152,10 @@ export const useStore = create<StoreState>()(
       setCartOpen: (open) => set({ cartOpen: open }),
 
       checkoutOpen: false,
-      setCheckoutOpen: (open) => set({ checkoutOpen: open, cartOpen: false }),
+      setCheckoutOpen: (open) => set({ checkoutOpen: open, cartOpen: false, directItems: null }),
+      directItems: null,
+      startDirectCheckout: (item, qty = 1) =>
+        set({ directItems: [{ ...item, qty }], checkoutOpen: true, cartOpen: false }),
 
       menuOpen: false,
       setMenuOpen: (open) => set({ menuOpen: open }),
@@ -155,22 +172,23 @@ export const useStore = create<StoreState>()(
       items: [],
       addToCart: (item, qty = 1) =>
         set((s) => {
-          const existing = s.items.find((i) => i.slug === item.slug);
+          const key = lineKey(item);
+          const existing = s.items.find((i) => lineKey(i) === key);
           if (existing) {
             return {
               items: s.items.map((i) =>
-                i.slug === item.slug ? { ...i, qty: i.qty + qty } : i
+                lineKey(i) === key ? { ...i, qty: i.qty + qty } : i
               ),
             };
           }
           return { items: [...s.items, { ...item, qty }] };
         }),
-      removeFromCart: (slug) =>
-        set((s) => ({ items: s.items.filter((i) => i.slug !== slug) })),
-      setQty: (slug, qty) =>
+      removeFromCart: (key) =>
+        set((s) => ({ items: s.items.filter((i) => lineKey(i) !== key) })),
+      setQty: (key, qty) =>
         set((s) => ({
           items: s.items.map((i) =>
-            i.slug === slug ? { ...i, qty: Math.max(1, qty) } : i
+            lineKey(i) === key ? { ...i, qty: Math.max(1, qty) } : i
           ),
         })),
       clearCart: () => set({ items: [] }),

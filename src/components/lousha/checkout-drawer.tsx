@@ -15,10 +15,13 @@ export function CheckoutDrawer() {
     checkoutOpen,
     setCheckoutOpen,
     setCartOpen,
-    items,
-    cartTotal,
+    items: cartItems,
+    directItems,
     paymentEnabled,
   } = useStore();
+  // « Commander » depuis une fiche produit : uniquement ce produit.
+  // « Passer commande » depuis le panier : tout le panier.
+  const items = directItems ?? cartItems;
   const t = useDict(lang);
   const { data: session } = useSession();
 
@@ -51,7 +54,7 @@ export function CheckoutDrawer() {
     };
   }, [checkoutOpen]);
 
-  const subtotal = cartTotal();
+  const subtotal = items.reduce((n, i) => n + i.qty * i.priceCents, 0);
   const total = subtotal;
 
   // Paiement en ligne : la commande est enregistrée puis le client est
@@ -74,6 +77,12 @@ export function CheckoutDrawer() {
         toast.error(data.error || (lang === "fr" ? "Le paiement n'a pas pu être lancé." : "Payment could not be started."));
         setSubmitting(false);
         return;
+      }
+      // La page de retour ne videra le panier que si c'est lui qui a été payé.
+      try {
+        sessionStorage.setItem("lousha-checkout-source", directItems ? "direct" : "cart");
+      } catch {
+        // stockage indisponible : le panier ne sera simplement pas vidé
       }
       window.location.href = data.url;
     } catch {
@@ -231,7 +240,7 @@ export function CheckoutDrawer() {
                   {items.map((item) => {
                     const name = lang === "fr" ? item.name : item.nameEn;
                     return (
-                      <li key={item.slug} className="flex gap-3">
+                      <li key={`${item.slug}:${item.priceCents}`} className="flex gap-3">
                         <div className="relative h-16 w-14 shrink-0 bg-background overflow-hidden">
                           <img
                             src={item.image}

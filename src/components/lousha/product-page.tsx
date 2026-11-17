@@ -30,7 +30,7 @@ export function ProductPage() {
     productSlug,
     addToCart,
     setCartOpen,
-    setCheckoutOpen,
+    startDirectCheckout,
     paymentEnabled,
   } = useStore();
   const t = useDict(lang);
@@ -95,7 +95,8 @@ export function ProductPage() {
   };
 
   const handleBuyNow = () => {
-    addToCart(
+    // Commande uniquement ce produit (le panier n'est pas modifié)
+    startDirectCheckout(
       {
         slug: product.slug,
         name: product.name,
@@ -105,7 +106,6 @@ export function ProductPage() {
       },
       qty
     );
-    setCheckoutOpen(true);
   };
 
   const handleWhatsAppOrder = async () => {

@@ -35,7 +35,7 @@ export function ProductPageClient({ product, related }: ProductPageClientProps) 
     currency,
     addToCart,
     setCartOpen,
-    setCheckoutOpen,
+    startDirectCheckout,
     paymentEnabled,
   } = useStore();
   const t = useDict(lang);
@@ -73,7 +73,8 @@ export function ProductPageClient({ product, related }: ProductPageClientProps) 
   };
 
   const handleBuyNow = () => {
-    addToCart(
+    // Commande uniquement ce produit (le panier n'est pas modifié)
+    startDirectCheckout(
       {
         slug: product.slug,
         name: product.name,
@@ -83,7 +84,6 @@ export function ProductPageClient({ product, related }: ProductPageClientProps) 
       },
       qty
     );
-    setCheckoutOpen(true);
   };
 
   const handleWhatsAppOrder = async () => {
