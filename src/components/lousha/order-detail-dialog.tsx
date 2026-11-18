@@ -20,6 +20,20 @@ import type { AdminOrder } from "@/hooks/use-admin-data";
 
 const STATUSES = ["PENDING", "CONFIRMED", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
 
+/**
+ * Numéro au format international, chiffres seuls (ex. 22891986792).
+ * Les clients togolais saisissent souvent leur numéro à 8 chiffres sans
+ * indicatif : on ajoute alors +228. Sans indicatif, WhatsApp interpréterait
+ * le début du numéro comme un autre pays (ex. 91… = Inde).
+ */
+export function internationalPhone(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  let d = phone.replace(/[^0-9]/g, "");
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.length === 8) d = "228" + d;
+  return d.length >= 10 && d.length <= 15 ? d : null;
+}
+
 /** Valeurs de remplissage des commandes WhatsApp (pas d'adresse saisie). */
 const isPlaceholder = (v: string | null | undefined) =>
   !v || v.trim() === "" || v.trim() === "—" || v === "Commande WhatsApp" || v === "Client WhatsApp";
@@ -73,7 +87,7 @@ export function OrderDetailDialog({
   };
   const payState = order.payment ? paymentStatus[order.payment.status] : null;
   const phone = order.phone || order.user?.phone || null;
-  const phoneDigits = phone ? phone.replace(/[^0-9]/g, "") : "";
+  const phoneIntl = internationalPhone(phone);
   const name = isPlaceholder(order.fullName) ? order.user?.name || null : order.fullName;
   const email = order.email || order.user?.email || null;
   const noAddress = isPlaceholder(order.address);
@@ -183,12 +197,12 @@ export function OrderDetailDialog({
                 <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
                 {phone ? (
                   <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <a href={`tel:${phone}`} className="hover:text-accent underline-offset-2 hover:underline">
+                    <a href={phoneIntl ? `tel:+${phoneIntl}` : `tel:${phone}`} className="hover:text-accent underline-offset-2 hover:underline">
                       {phone}
                     </a>
-                    {phoneDigits.length >= 8 && (
+                    {phoneIntl && (
                       <a
-                        href={`https://wa.me/${phoneDigits}`}
+                        href={`https://wa.me/${phoneIntl}`}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 text-[11px] text-[#1a9e4b] hover:underline"
